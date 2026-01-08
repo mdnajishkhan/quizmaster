@@ -1,0 +1,45 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex justify-center text-white relative overflow-hidden py-4">
+    
+    <div class="z-10 w-full max-w-4xl glass-card text-left p-6 md:p-10" style="opacity: 1; transform: none;">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+            
+            <!-- LEFT SIDE: Status & Info -->
+            <div class="flex-1 space-y-5">
+                <div class="flex items-center gap-4 mb-2">
+                    <span class="text-5xl inline-block filter drop-shadow-md">🛑</span>
+                    <h1 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-red-200 to-red-500 font-serif drop-shadow-sm leading-tight">
+                        Hackathon <br> Has Ended
+                    </h1>
+                </div>
+                
+                <h2 class="text-xl md:text-2xl text-white font-bold drop-shadow-md border-l-4 border-red-500 pl-4 opacity-90">
+                    Topic: <span class="text-red-200">{{ quiz.title }}</span>
+                </h2>
+
+                <div class="p-4 bg-red-600/10 border border-red-400/20 rounded-xl backdrop-blur-md shadow-inner w-full">
+                    <p class="text-red-100 text-base md:text-lg font-medium leading-relaxed">
+                        This Hackathon has officially ended.
+                        <span class="text-sm opacity-75 mt-1 block">Stay tuned for the leaderboard!</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Actions (Takes less space now) -->
+            <div class="flex-shrink-0 w-full md:w-80 text-center">
+                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-xl backdrop-blur-sm hover:bg-white/10 transition-colors">
+                    <div class="text-5xl mb-4 opacity-90 animate-bounce">🚀</div>
+                    <h3 class="text-white text-lg font-bold mb-4">Don't Stop Learning!</h3>
+                    <a href="{% url 'quiz_list' %}" class="w-full inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg border border-white/20 text-sm md:text-base">
+                        Explore Quizzes
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

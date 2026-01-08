@@ -1,0 +1,125 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-4 md:p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Background Glow -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+
+        <h2 class="text-2xl md:text-3xl font-black text-white mb-6 md:mb-8 flex items-center gap-3 relative z-10">
+            <span class="bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">My Profile</span>
+            <span class="text-2xl">👤</span>
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-8 relative z-10">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Profile Picture Section -->
+                <div class="col-span-1 flex flex-col items-center space-y-4">
+                    <div class="relative group">
+                        {% if user.profile.profile_pic %}
+                            <img id="profile-image-preview" src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white/10 shadow-lg group-hover:border-purple-500/50 transition duration-300">
+                        {% else %}
+                            <div id="profile-placeholder" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-3xl md:text-4xl font-bold border-4 border-white/10 shadow-lg">
+                                {{ user.username|make_list|first|upper }}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Upload Overlay -->
+                        <label for="{{ p_form.profile_pic.id_for_label }}" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 cursor-pointer">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </label>
+                    </div>
+                    <div class="hidden">
+                        {{ p_form.profile_pic }}
+                    </div>
+                    <p class="text-gray-400 text-sm">Click image to change</p>
+                </div>
+
+                <!-- Form Fields Section -->
+                <div class="col-span-1 md:col-span-2 space-y-6">
+                    <!-- Read-only Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Full Name</label>
+                            {{ u_form.full_name }}
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Email Address</label>
+                            {{ u_form.email }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-400 text-sm font-medium mb-2">College</label>
+                            {{ p_form.college }}
+                        </div>
+                    </div>
+
+                    <!-- Editable Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Gender</label>
+                            {{ p_form.gender }}
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Date of Birth</label>
+                            {{ p_form.date_of_birth }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-white/10">
+                <a href="{% url 'password_change' %}" class="w-full sm:w-auto text-center px-6 py-3 rounded-xl bg-gray-700 text-white hover:bg-gray-600 transition font-medium">
+                    Change Password
+                </a>
+                <button type="submit" class="w-full sm:w-auto text-center px-8 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold hover:shadow-lg hover:scale-105 transition transform">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Profile Picture Preview
+    const fileInput = document.getElementById('{{ p_form.profile_pic.id_for_label }}');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Re-query elements dynamically to handle state changes
+                    const imgPreview = document.getElementById('profile-image-preview');
+                    const placeholder = document.getElementById('profile-placeholder');
+
+                    if (imgPreview) {
+                        // If image exists, just update src
+                        imgPreview.src = e.target.result;
+                    } else if (placeholder) {
+                        // If placeholder exists, replace it with new image
+                        const newImg = document.createElement('img');
+                        newImg.id = 'profile-image-preview';
+                        newImg.src = e.target.result;
+                        newImg.alt = "Profile";
+                        newImg.className = "w-40 h-40 rounded-full object-cover border-4 border-white/10 shadow-lg group-hover:border-purple-500/50 transition duration-300";
+                        placeholder.parentNode.replaceChild(newImg, placeholder);
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+{% endblock %}

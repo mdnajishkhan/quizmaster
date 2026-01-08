@@ -1,0 +1,69 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center relative overflow-hidden">
+    
+    <!-- Background Elements -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[100px] animate-pulse"></div>
+    <div class="absolute top-1/4 right-1/4 w-32 h-32 bg-cyan-500/20 rounded-full blur-[50px] animate-bounce delay-700"></div>
+
+    <!-- 404 Container -->
+    <div class="relative z-10 text-center px-4">
+        <!-- Glitch Effect 404 -->
+        <h1 class="text-[150px] md:text-[200px] font-black leading-none tracking-tighter select-none relative group">
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-pulse">
+                404
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 text-transparent bg-clip-text opacity-0 group-hover:opacity-100 transition-opacity duration-100 blur-sm transform scale-105">
+                404
+            </div>
+        </h1>
+
+        <!-- Message -->
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6 drop-shadow-lg">
+            Lost in the <span class="bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">Digital Void</span>?
+        </h2>
+        
+        <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            The page you are looking for has either been moved, deleted, or never existed. 
+            Don't worry, even the best explorers get lost sometimes.
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+            <a href="{% url 'home' %}" class="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+                <span class="absolute inset-0 w-full h-full bg-white/20 translate-x-[-100%] ml-[-30px] skew-x-[15deg] transition-transform duration-700 group-hover:translate-x-[200%]"></span>
+                <span class="relative flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Back to Home
+                </span>
+            </a>
+            
+            <button onclick="history.back()" class="px-8 py-4 rounded-xl border border-white/10 bg-white/5 text-gray-300 font-bold text-lg hover:bg-white/10 hover:text-white transition-all duration-300 backdrop-blur-sm">
+                Go Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Decorative Bottom Elements -->
+    <div class="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+</div>
+
+<style>
+    /* Custom Glitch Animation */
+    @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(-2px, -2px); }
+        60% { transform: translate(2px, 2px); }
+        80% { transform: translate(2px, -2px); }
+        100% { transform: translate(0); }
+    }
+    .group:hover h1 {
+        animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    }
+</style>
+{% endblock %}

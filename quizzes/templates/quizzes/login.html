@@ -1,0 +1,162 @@
+{% extends 'quizzes/base.html' %}
+{% block content %}
+
+<div class="min-h-screen flex items-start justify-center pt-0 pb-12">
+    <div class="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 
+                rounded-3xl p-6 md:p-10 text-center shadow-[0_8px_40px_rgba(0,0,0,0.45)]
+                animate-[fadeIn_0.5s_ease-out]">
+
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
+            Welcome Back 👋
+        </h2>
+
+        <p class="text-gray-200 mb-8 text-sm tracking-wide">
+            Log in to continue your quiz journey
+        </p>
+
+        <!-- Error div -->
+        <!-- Error div -->
+        {% if form.errors %}
+        <div id="error-msg"
+            class="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg 
+                   mb-6 text-sm text-left shadow-lg backdrop-blur-md">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>⚠️ {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div id="error-msg"
+            class="hidden bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg 
+                   mb-6 text-sm text-left shadow-lg backdrop-blur-md"></div>
+        {% endif %}
+
+        <form method="POST" class="space-y-6" id="loginForm" novalidate>
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                    <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                {{ form.username }}
+            </div>
+
+            <!-- Password -->
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                    <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                {{ form.password }}
+                <!-- Eye Toggle -->
+                <div class="absolute inset-y-0 right-3 flex items-center cursor-pointer z-10" onclick="togglePassword('login_password', this)">
+                    <svg class="h-5 w-5 text-gray-400 hover:text-purple-400 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <!-- Remember Me -->
+                <div class="flex items-center">
+                    <input id="remember_me" name="remember_me" type="checkbox" 
+                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded cursor-pointer bg-white/20">
+                    <label for="remember_me" class="ml-2 block text-sm text-gray-200 cursor-pointer select-none">
+                        Remember me
+                    </label>
+                </div>
+
+                <a href="{% url 'password_reset' %}" class="text-sm text-purple-300 hover:text-purple-200 hover:underline">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-700 
+                       text-white font-bold py-3 rounded-xl shadow-xl transform hover:scale-[1.04] 
+                       active:scale-[0.98] transition-all duration-300">
+                Login
+            </button>
+        </form>
+
+        <p class="text-gray-300 mt-8 text-sm tracking-wide">
+            Don’t have an account?
+            <a href="{% url 'register' %}" class="text-purple-300 hover:text-purple-200 font-semibold underline">
+                Register
+            </a>
+        </p>
+    </div>
+</div>
+
+<!-- Fade animation -->
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+</style>
+
+<script>
+function togglePassword(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    const svg = icon.querySelector('svg');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        // Switch to Eye Slash
+        svg.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+        `;
+    } else {
+        input.type = 'password';
+        // Switch back to Eye
+        svg.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        `;
+    }
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    const user = document.getElementById('login_username').value.trim();
+    const pass = document.getElementById('login_password').value.trim();
+    const errorDiv = document.getElementById('error-msg');
+
+    let errors = [];
+
+    if (!user) errors.push("⚠️ Username is required");
+    if (!pass) errors.push("⚠️ Password is required");
+
+    if (errors.length > 0) {
+        event.preventDefault();
+        errorDiv.innerHTML = errors.join("<br>");
+        errorDiv.classList.remove("hidden");
+    } else {
+        // If client-side validation passes, we don't hide the div immediately 
+        // because it might contain server-side errors we want to keep visible 
+        // until the page reloads. However, if we are submitting, the page *will* reload.
+        // But if the user corrects a client-side error, we should probably hide the old client-side error.
+        // A simple approach: clear it if we are about to submit, or just let the submit happen.
+        // If we want to clear *only* if it was showing client errors, that's complex.
+        // For now, let's just hide it if valid, assuming server errors will re-render the page.
+        errorDiv.classList.add("hidden");
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your AI Quiz is Ready</title>
+</head>
+<body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; margin: 0; padding: 0; color: #e2e8f0;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #1e293b; border-radius: 16px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                    
+                    <!-- Header Logo Area -->
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px; border-bottom: 1px solid #334155;">
+                            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px; color: #ffffff;">
+                                <span style="color: #a855f7;">AI</span><span style="color: #f8fafc;">Quiz</span> Ready 🤖
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td align="left" style="padding: 40px;">
+                            <p style="margin: 0 0 24px 0; font-size: 18px; color: #f8fafc;">
+                                Hello <span style="font-weight: bold; color: #ffffff;">{{ user.first_name }}</span>,
+                            </p>
+                            
+                            <p style="margin: 0 0 32px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                The wait is over! Your custom AI-powered quiz on <span style="color: #c084fc; font-weight: bold;">{{ topic }}</span> is ready.
+                            </p>
+
+                            <!-- Quiz Details Card -->
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 32px; background-color: #33415520; border-radius: 12px; border: 1px solid #ffffff10;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td style="padding-bottom: 10px; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Topic</td>
+                                                <td align="right" style="padding-bottom: 10px; color: #ffffff; font-weight: bold;">{{ topic }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-bottom: 10px; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Questions</td>
+                                                <td align="right" style="padding-bottom: 10px; color: #ffffff; font-weight: bold;">{{ question_count }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Difficulty</td>
+                                                <td align="right" style="color: #38bdf8; font-weight: bold;">{{ difficulty }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 32px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                Challenge yourself now and see how much you know!
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ quiz_url }}" style="display: inline-block; padding: 16px 36px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);">
+                                            Start Quiz Now 🚀
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding: 30px; background-color: #0f172a; border-top: 1px solid #334155;">
+                            <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 14px;">
+                                &copy; 2024 Tgays Education. All rights reserved.
+                            </p>
+                            <p style="margin: 0; color: #64748b; font-size: 12px;">
+                                You received this because you requested a new quiz.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

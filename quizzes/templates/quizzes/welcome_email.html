@@ -1,0 +1,82 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Tgays Education</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f172a;">
+        <tr>
+            <td align="center" style="padding: 40px 10px;">
+                <!-- Main Card -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #1e293b; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header Logo Area -->
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px;">
+                            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px; color: #ffffff;">
+                                <span style="color: #22d3ee;">Tgays</span><span style="color: #f8fafc;">Education</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Welcome Image/Icon --
+                    <tr>
+                        <td align="center" style="padding: 0 40px;">
+                            <div style="font-size: 48px;">🎉</div>
+                        </td>
+                    </tr>
+                    -->
+
+                    <!-- Content -->
+                    <tr>
+                        <td align="center" style="padding: 20px 40px 40px 40px;">
+                            <h1 style="margin: 0 0 20px 0; color: #f1f5f9; font-size: 24px; font-weight: 700;">
+                                Welcome, {{ user.first_name }}!
+                            </h1>
+                            
+                            <p style="margin: 0 0 24px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                We are thrilled to welcome you to our platform. Your account has been successfully verified, and you are all set to start your learning journey with us.
+                            </p>
+
+                            <p style="margin: 0 0 32px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                Explore our <strong style="color: #38bdf8;">premium quizzes</strong>, track your progress, and challenge yourself to top the leaderboards!
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 9999px; background: #2563eb;">
+                                        <a href="http://{{ domain }}{% url 'login' %}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; font-weight: bold; text-decoration: none; border-radius: 9999px; background: linear-gradient(90deg, #06b6d4, #3b82f6); border: 1px solid #3b82f6;">
+                                            Start Learning Now 🚀
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 40px 0 0 0; color: #94a3b8; font-size: 14px;">
+                                If you have any questions, feel free to reply to this email.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Footer -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" style="padding: 30px 0;">
+                            <p style="margin: 0; color: #64748b; font-size: 12px;">
+                                © 2025 TgaysEducation. All rights reserved.<br>
+                                Built by Tgays Technology Team.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+{% endautoescape %}

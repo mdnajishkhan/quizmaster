@@ -1,0 +1,702 @@
+{% extends 'quizzes/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <!-- 🌟 Premium Dashboard Wrapper -->
+    <div class="w-full mx-auto px-0 md:px-0 pt-0 pb-8 animate-fade-in-down">
+        
+        <!-- 👋 Welcome Header -->
+        <div class="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
+                    Welcome <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">{{ user.first_name|default:user.username }}</span>! 👋
+                </h1>
+                <p class="text-gray-400 text-lg">Ready to conquer the leaderboard today?</p>
+            </div>
+            
+            <a href="{% url 'category_list' %}" class="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:scale-105 focus:outline-none ring-offset-2 focus:ring-2 ring-purple-500">
+                <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+                <span class="relative flex items-center gap-2">
+                    Explore Quiz <span class="group-hover:translate-x-1 transition-transform">🚀</span>
+                </span>
+            </a>
+        </div>
+
+        <!-- AI Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-start">
+            
+            <!-- 1. AI Performance Coach -->
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px]">
+                <!-- Decorative Glow -->
+                <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition duration-700"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Tgays-AI Performance Coach</h3>
+                    <p class="text-gray-400 text-sm mb-4 leading-relaxed">
+                        Get a personal analysis of your quiz history. Identify weak spots and get actionable advice.
+                    </p>
+                    <!-- Result Area -->
+                    <div id="ai-analysis-result" class="hidden bg-white/5 border border-white/10 rounded-xl p-3 mb-4 text-indigo-200 text-sm whitespace-pre-line shadow-inner max-h-40 overflow-y-auto custom-scrollbar"></div>
+                </div>
+
+                <div class="relative z-10 mt-auto">
+                    <button id="analyze-btn" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-500/20">
+                        <span class="text-lg">✨</span> Analyze My Progress
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. AI Quiz Architect (New) -->
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px]">
+                <!-- Decorative Glow -->
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition duration-700"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/30 mb-4 animate-bounce-slow">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Tgays-AI Quiz Architect</h3>
+                    <p class="text-gray-400 text-sm mb-4 leading-relaxed">
+                        Specify any topic and let our AI build a custom quiz for you instantly. Unlimited learning possibilities.
+                    </p>
+                </div>
+
+                <div class="relative z-10 mt-auto">
+                    <a href="{% url 'generate_quiz_page' %}" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all shadow-lg shadow-purple-500/20">
+                        <span class="text-lg">🚀</span> Build New Quiz
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- 🍱 Bento Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+            
+            <!-- 1. 📊 Stats Card (Span 4) -->
+            <div class="md:col-span-4 relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative h-full bg-gradient-to-br from-gray-900 via-gray-900 to-rose-900/20 border border-white/10 rounded-2xl p-6 flex flex-col justify-between overflow-hidden">
+                    
+                    <div>
+                        <h3 class="text-rose-400 text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Your Stats
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Total XP -->
+                            <div class="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition">
+                                <div class="text-2xl mb-2">⚡</div>
+                                <div class="text-2xl font-black text-white">{{ total_score }}</div>
+                                <div class="text-[10px] font-bold text-gray-400 uppercase">Total XP</div>
+                            </div>
+                            <!-- Passed Quizzes -->
+                            <div class="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition">
+                                <div class="text-2xl mb-2">🎯</div>
+                                <div class="text-2xl font-black text-white">{{ quizzes_passed }}</div>
+                                <div class="text-[10px] font-bold text-gray-400 uppercase">Quizzes Aced</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-500">{{ streak }}</div>
+                                <div class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">Day Streak</div>
+                            </div>
+                            <div class="text-5xl drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">🔥</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 🚀 Resume Journey (Span 8) -->
+            <div class="md:col-span-8 relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative h-full bg-gradient-to-br from-gray-900 via-blue-950/30 to-cyan-900/20 border border-white/10 rounded-2xl p-8 flex flex-col justify-center overflow-hidden">
+                    <!-- Background decoration -->
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                    
+                    <h3 class="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span> Resume Journey
+                    </h3>
+                    
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-black text-white mb-2">Keep the Momentum Going!</h2>
+                        <p class="text-gray-400 mb-6 max-w-lg">You're doing great. Dive back into your recent topics or explore something new to boost your rank.</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <a href="{% url 'category_list' %}" class="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-6 py-3 bg-cyan-500 text-black font-bold rounded-full hover:bg-cyan-400 transition custom-shadow">
+                                Continue Learning <span>▶</span>
+                            </a>
+                            <a href="{% url 'category_list' %}" class="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition border border-white/20 backdrop-blur-sm">
+                                Browse All Categories <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 📜 My History (Span 12 - Full Width Row) -->
+            <div class="md:col-span-12 relative group cursor-pointer" onclick="window.location.href='{% url 'my_history' %}'">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative h-full bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-950/40 border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 hover:bg-white/5 transition">
+                    
+                    <!-- Left: Header -->
+                    <div class="flex-shrink-0 text-center md:text-left">
+                        <h3 class="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-2 flex items-center justify-center md:justify-start gap-2">
+                             <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Recent Activity
+                        </h3>
+                        <h2 class="text-2xl font-black text-white mb-1">My Quiz History</h2>
+                        <a href="{% url 'my_history' %}" class="text-sm text-gray-400 group-hover:text-white transition flex items-center justify-center md:justify-start gap-1">
+                            View full history <span>→</span>
+                        </a>
+                    </div>
+
+                    <!-- Right: Content Preview (Last 3 Items) -->
+                    <div class="flex-grow w-full md:w-auto">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {% for attempt in latest_attempts %}
+                            <div class="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 transition text-center sm:text-left">
+                                <div class="text-xs text-indigo-300 font-bold mb-1 truncate">{{ attempt.quiz.category.name|default:"General" }}</div>
+                                <div class="text-sm font-bold text-white truncate mb-1" title="{{ attempt.quiz.title }}">{{ attempt.quiz.title }}</div>
+                                <div class="flex items-center justify-center sm:justify-start gap-2 text-xs">
+                                    <span class="{% if attempt.passed %}text-green-400{% else %}text-red-400{% endif %} font-bold">
+                                        {{ attempt.score }} pts
+                                    </span>
+                                    <span class="text-gray-500">•</span>
+                                    <span class="text-gray-500">{{ attempt.created_at|timesince }} ago</span>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-span-3 text-center py-2 text-gray-500 text-sm">
+                                No recent history. Start a quiz to see it here!
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Arrow Icon -->
+                    <div class="flex flex-shrink-0 bg-white/5 p-4 rounded-full group-hover:bg-indigo-500 group-hover:text-white transition duration-300 text-gray-500">
+                        <svg class="w-6 h-6 transform group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 4. 📈 Graph (Span 6) -->
+            <div class="md:col-span-6 relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative h-full bg-gradient-to-br from-gray-900 via-purple-950/20 to-violet-900/20 border border-white/10 rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-purple-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span> Performance
+                        </h3>
+                        <div class="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                            <button onclick="updateGraph('all')" id="btn-graph-all" class="px-3 py-1 text-[10px] font-bold rounded-md bg-purple-600 text-white shadow transition">All</button>
+                            <button onclick="updateGraph('practice')" id="btn-graph-practice" class="px-3 py-1 text-[10px] font-bold rounded-md text-gray-400 hover:text-white transition">Practice</button>
+                            <button onclick="updateGraph('hackathon')" id="btn-graph-hackathon" class="px-3 py-1 text-[10px] font-bold rounded-md text-gray-400 hover:text-white transition">Hackathon</button>
+                        </div>
+                    </div>
+                    <div class="h-64 w-full">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 🏅 Badges (Span 6) -->
+            <div class="md:col-span-6 relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                <div class="relative h-full bg-gradient-to-br from-gray-900 via-yellow-950/20 to-amber-900/20 border border-white/10 rounded-2xl p-6">
+                    <h3 class="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-yellow-500"></span> Trophy Cabinet
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {% for badge in badges %}
+                            <div class="flex flex-col items-center justify-center p-4 bg-gradient-to-b from-white/10 to-white/5 rounded-xl border border-white/10 hover:border-yellow-500/50 transition group/badge relative overflow-hidden" title="{{ badge.desc }}">
+                                <div class="absolute inset-0 bg-yellow-500/10 opacity-0 group-hover/badge:opacity-100 transition"></div>
+                                <div class="text-4xl mb-2 drop-shadow-md transform group-hover/badge:scale-110 transition relative z-10">{{ badge.icon }}</div>
+                                <p class="text-[10px] font-bold text-gray-200 text-center uppercase tracking-wide relative z-10">{{ badge.name }}</p>
+                            </div>
+                        {% empty %}
+                            <div class="col-span-full flex flex-col items-center justify-center py-8 text-gray-500">
+                                <div class="text-4xl mb-2 grayscale opacity-30">🏆</div>
+                                <p class="text-sm font-medium">No badges yet.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🏆 Leaderboard Section -->
+        <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+            <div class="relative bg-gradient-to-br from-gray-900 via-emerald-950/20 to-teal-900/20 border border-white/10 rounded-2xl p-6 md:p-8">
+                <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+                    <h3 class="text-2xl font-black text-white flex items-center gap-3">
+                        <span class="text-3xl filter drop-shadow-lg">👑</span> 
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Leaderboard</span>
+                    </h3>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <!-- Scope Selector -->
+                        {% if user.profile.college %}
+                        <div class="flex bg-black/40 p-1.5 rounded-xl border border-white/5 overflow-x-auto max-w-[100vw] no-scrollbar">
+                            <button onclick="setScope('global')" id="scope-global" class="scope-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-900/50 transition whitespace-nowrap">Global</button>
+                            <button onclick="setScope('college')" id="scope-college" class="scope-btn px-4 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap">My College</button>
+                        </div>
+                        {% endif %}
+
+                        <!-- Type Selector (New) -->
+                        <div class="flex bg-black/40 p-1.5 rounded-xl border border-white/5 overflow-x-auto max-w-[100vw] no-scrollbar">
+                            <button onclick="setType('all')" id="type-all" class="type-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-900/50 transition whitespace-nowrap">All</button>
+                            <button onclick="setType('hackathon')" id="type-hackathon" class="type-btn px-4 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap">Hackathon</button>
+                            <button onclick="setType('practice')" id="type-practice" class="type-btn px-4 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap">Practice</button>
+                        </div>
+
+                        <!-- Time Selector -->
+                        <div class="flex bg-black/40 p-1.5 rounded-xl border border-white/5 overflow-x-auto max-w-[100vw] no-scrollbar">
+                            <button onclick="setTime('all')" id="time-all" class="time-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-900/50 transition whitespace-nowrap">All Time</button>
+                            <button onclick="setTime('weekly')" id="time-weekly" class="time-btn px-4 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap">Weekly</button>
+                            <button onclick="setTime('today')" id="time-today" class="time-btn px-4 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition whitespace-nowrap">Today</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Content Container -->
+                <div id="leaderboard-container" class="min-h-[200px]">
+                    
+                    {% for key, leaders in leaderboard_data.items %}
+                        <!-- Key format: scope_time_type (e.g. global_all_hackathon) -->
+                        <div id="content-{{ key }}" class="leaderboard-content {% if key == 'global_all_all' %}flex{% else %}hidden{% endif %} flex-col md:flex-row flex-wrap justify-center gap-4 md:gap-8">
+                            {% for leader in leaders %}
+                                {% include 'quizzes/partials/leader_card.html' with leader=leader score=leader.xp rank=forloop.counter %}
+                            {% empty %}
+                                <p class="text-gray-500 text-center w-full py-8">No champions found for this filter.</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ... (Chart JS code remains same) ...
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(147, 51, 234, 0.5)'); // Purple
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)'); // Blue transparent
+
+        // Data from Backend
+        const dataMap = {
+            'all': { labels: {{ graph_labels_all|safe }}, data: {{ graph_data_all|safe }} },
+            'hackathon': { labels: {{ graph_labels_hack|safe }}, data: {{ graph_data_hack|safe }} },
+            'practice': { labels: {{ graph_labels_prac|safe }}, data: {{ graph_data_prac|safe }} }
+        };
+
+        let performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataMap.all.labels,
+                datasets: [{
+                    label: 'Percentage',
+                    data: dataMap.all.data,
+                    borderColor: '#a855f7',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#a855f7',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af' }
+                    }
+                }
+            }
+        });
+
+        // Graph Toggle Logic
+        window.updateGraph = function(type) {
+            const selected = dataMap[type];
+            if (!selected) return;
+
+            // Update Chart
+            performanceChart.data.labels = selected.labels;
+            performanceChart.data.datasets[0].data = selected.data;
+            performanceChart.update();
+
+            // Update Buttons
+            ['all', 'practice', 'hackathon'].forEach(t => {
+                const btn = document.getElementById(`btn-graph-${t}`);
+                if (t === type) {
+                    btn.classList.add('bg-purple-600', 'text-white', 'shadow');
+                    btn.classList.remove('text-gray-400');
+                } else {
+                    btn.classList.remove('bg-purple-600', 'text-white', 'shadow');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+        };
+
+        // --- Leaderboard Filtering Logic ---
+        let currentScope = 'global';
+        let currentTime = 'all';
+        let currentType = 'all';
+
+        function setScope(scope) {
+            currentScope = scope;
+            updateLeaderboard();
+        }
+
+        function setTime(time) {
+            currentTime = time;
+            updateLeaderboard();
+        }
+
+        function setType(type) {
+            currentType = type;
+            updateLeaderboard();
+        }
+
+        function updateLeaderboard() {
+            // 1. Construct the target ID (matches python key format: scope_time_type)
+            const targetId = `content-${currentScope}_${currentTime}_${currentType}`;
+            
+            // 2. Hide all content sections
+            document.querySelectorAll('.leaderboard-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            });
+
+            // 3. Show the target section
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.classList.remove('hidden');
+                targetEl.classList.add('flex');
+            } else {
+                // If combination doesn't exist (e.g. college user viewed by non-college), fail gracefully
+                console.warn(`Leaderboard section ${targetId} not found`);
+            }
+
+            // 4. Update Button Styles
+            const activeClasses = ['bg-emerald-600', 'text-white', 'shadow-lg', 'shadow-emerald-900/50'];
+            const inactiveClasses = ['text-gray-400', 'hover:text-white', 'hover:bg-white/5'];
+
+            // Reset all buttons
+            document.querySelectorAll('.scope-btn, .time-btn, .type-btn').forEach(btn => {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+            });
+
+            // Activate current scope button
+            const scopeBtn = document.getElementById(`scope-${currentScope}`);
+            if (scopeBtn) {
+                scopeBtn.classList.remove(...inactiveClasses);
+                scopeBtn.classList.add(...activeClasses);
+            }
+
+            // Activate current time button
+            const timeBtn = document.getElementById(`time-${currentTime}`);
+            if (timeBtn) {
+                timeBtn.classList.remove(...inactiveClasses);
+                timeBtn.classList.add(...activeClasses);
+            }
+            
+            // Activate current type button
+            const typeBtn = document.getElementById(`type-${currentType}`);
+            if (typeBtn) {
+                typeBtn.classList.remove(...inactiveClasses);
+                typeBtn.classList.add(...activeClasses);
+            }
+        }
+    </script>
+
+{% else %}
+    <!-- 🚀 GUEST LANDING PAGE (STRICT EXTENSION) -->
+    <div class="min-h-screen flex flex-col items-center text-center relative overflow-hidden pb-20 pt-0">
+        
+        <!-- Background Blobs (Original V1 Position + Extra for length) -->
+        <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse pointer-events-none -z-10"></div>
+        <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000 pointer-events-none -z-10"></div>
+
+        <!-- HERO SECTION (Preserved Exact V1) -->
+        <div class="master-skills-sec relative z-10 max-w-4xl px-6 min-h-[80vh] flex flex-col justify-center">
+            <h1 class="text-4xl md:text-7xl font-black tracking-tighter mb-6 leading-tight">
+                Master Your Skills with <br>
+                <span class="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text drop-shadow-lg">
+                    Tgays Education
+                </span>
+            </h1>
+            
+            <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of students competing in real-time quizzes, earning badges, and climbing the global leaderboard. <br>
+                <span class="text-white font-semibold">Learning has never been this addictive.</span>
+            </p>
+
+            <div class="flex flex-col get-free-login sm:flex-row items-center justify-center gap-4">
+                <a href="{% url 'register' %}" class="w-full sm:w-auto px-8 py-4 bg-white text-black font-bold text-lg rounded-full hover:bg-gray-200 transition transform hover:scale-105 shadow-xl">
+                    Get Started for Free 🚀
+                </a>
+                <a href="{% url 'login' %}" class="w-full sm:w-auto px-8 py-4 bg-white/10 text-white font-bold text-lg rounded-full border border-white/20 hover:bg-white/20 transition backdrop-blur-md">
+                    Login to Account
+                </a>
+            </div>
+        </div>
+
+        <!-- CONTENT SECTIONS (Styled Exactly Like V1 Features) -->
+        <div class="relative z-10 max-w-6xl px-6 space-y-32">
+            
+            <!-- 1. STATS (3-Col Grid) -->
+            <div>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-white mb-2">10,000+</div>
+                        <p class="text-gray-400 text-sm">Active Students Learning</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-white mb-2">5 Million</div>
+                        <p class="text-gray-400 text-sm">Questions Answered</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-white mb-2">#1 Rated</div>
+                        <p class="text-gray-400 text-sm">Quiz Platform in India</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. FEATURES 6-GRID (Original + New) -->
+            <div class="why-student-love-section">
+                <h2 class="text-3xl md:text-5xl font-black mb-12">Why Students Love Us</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <!-- Original -->
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">🏆</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Global Leaderboards</h3>
+                        <p class="text-gray-400 text-sm">Compete with peers from your college and around the world.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">📊</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Detailed Analytics</h3>
+                        <p class="text-gray-400 text-sm">Track your progress with performance graphs and detailed reports.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">🏅</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Earn Badges</h3>
+                        <p class="text-gray-400 text-sm">Unlock achievements like "Sharpshooter" and "Grandmaster".</p>
+                    </div>
+                    <!-- New -->
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">⚡</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Battle Mode</h3>
+                        <p class="text-gray-400 text-sm">Challenge friends to real-time 1v1 quiz battles.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">📜</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Certifications</h3>
+                        <p class="text-gray-400 text-sm">Earn verified certificates for passing hackathon-level quizzes.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h3 class="text-xl font-bold text-white mb-2">AI Generated</h3>
+                        <p class="text-gray-400 text-sm">Never run out of questions. Our AI creates unique tests for you.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. HOW IT WORKS (Styled as simple cards) -->
+            <div class="how-it-works-section-styled">
+                 <h2 class="text-3xl md:text-5xl font-black mb-12">How It Works</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-blue-400 mb-2">01</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Create Account</h3>
+                        <p class="text-gray-400 text-sm">Sign up in seconds and choose your preferred quiz categories.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-purple-400 mb-2">02</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Take Quizzes</h3>
+                        <p class="text-gray-400 text-sm">Answer questions, maintain your streak, and earn XP.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <div class="text-4xl font-black text-pink-400 mb-2">03</div>
+                        <h3 class="text-xl font-bold text-white mb-2">Climb Ranks</h3>
+                        <p class="text-gray-400 text-sm">See your name on the global leaderboard and win rewards.</p>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- 4. TESTIMONIALS (Same Card Style) -->
+            <div class="what-students-say-section">
+                <h2 class="text-3xl md:text-5xl font-black mb-12">What Students Say</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <p class="text-gray-300 italic mb-4">"The best platform for interview prep. The gamification keeps me hooked for hours."</p>
+                        <div class="font-bold text-white">- Rahul (IIT Delhi)</div>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <p class="text-gray-300 italic mb-4">"I love the leaderboard competitions. Me and my friends fight for the top spot every week."</p>
+                        <div class="font-bold text-white">- Sniya (BITS Pilani)</div>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <p class="text-gray-300 italic mb-4">"The analytics helped me find my weak areas in Data Structures. Highly recommended."</p>
+                        <div class="font-bold text-white">- Aman (NIT Trichy)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. FAQ (Cards) -->
+            <div class="common-questions-section-questions">
+                <h2 class="text-3xl md:text-5xl font-black mb-12">Common Questions</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Is it free?</h3>
+                        <p class="text-gray-400 text-sm">Yes, the core platform is 100% free for students.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Can I use mobile?</h3>
+                        <p class="text-gray-400 text-sm">Absolutely. The site is fully responsive on all devices.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">How do I get certificates?</h3>
+                        <p class="text-gray-400 text-sm">Complete special "Certification Track" quizzes with >80% score.</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Are questions updated?</h3>
+                        <p class="text-gray-400 text-sm">Yes, we add new questions every single week.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. FINAL CTA -->
+            <div class="pb-20 final-cta-section-styled">
+                <div class="p-12 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm text-center">
+                    <h2 class="text-3xl md:text-5xl font-black mb-8">Ready to Start?</h2>
+                    <a href="{% url 'register' %}" class="inline-block px-12 py-5 bg-white text-black font-black text-xl rounded-full hover:bg-gray-200 transition transform hover:scale-105 shadow-xl">
+                        Create Free Account 🚀
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Styles for Scrolling Ticker -->
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 20s linear infinite;
+        }
+        /* Custom Scrollbar Hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultArea = document.getElementById('ai-analysis-result');
+
+        if (analyzeBtn) {
+            analyzeBtn.addEventListener('click', async function() {
+                // UI Loading State
+                analyzeBtn.disabled = true;
+                const originalContent = analyzeBtn.innerHTML;
+                analyzeBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing Profile...
+                `;
+                analyzeBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                try {
+                    const response = await fetch("{% url 'analyze_progress' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.analysis) {
+                        resultArea.innerHTML = `<span class="text-xl">🧐</span> <strong>Coach Says:</strong>\n\n${data.analysis}`;
+                        resultArea.classList.remove('hidden');
+                        analyzeBtn.innerHTML = originalContent; // Reset button text
+                        analyzeBtn.textContent = "Re-Analyze Progress"; 
+                        analyzeBtn.classList.remove('from-indigo-500', 'via-purple-500', 'to-pink-500');
+                        analyzeBtn.classList.add('bg-gray-700', 'hover:bg-gray-600'); // Neutral state after success
+                    } else {
+                        alert("Error: " + (data.error || "Could not analyze."));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert("Failed to connect to AI Coach.");
+                } finally {
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                     if (resultArea.classList.contains('hidden')) {
+                        analyzeBtn.innerHTML = originalContent;
+                     }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

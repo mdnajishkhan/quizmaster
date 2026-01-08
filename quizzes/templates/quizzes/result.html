@@ -1,0 +1,204 @@
+{% extends 'quizzes/base.html' %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 md:p-10 shadow-2xl text-center">
+
+  <!-- ✅ Title -->
+  <h2 class="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text mb-6">
+    Quiz Completed 🎉
+  </h2>
+
+  <!-- ✅ Auto-submit alert -->
+  {% if attempt.auto_submit_reason %}
+    <div class="bg-red-600/30 border border-red-400/40 text-red-300 rounded-lg py-3 mb-6 font-semibold animate-pulse">
+      🚨 Auto-Submitted: {{ attempt.auto_submit_reason }}
+    </div>
+  {% elif messages %}
+    {% for message in messages %}
+      {% if "auto-submitted" in message|lower or "warning limit" in message|lower %}
+        <div class="bg-red-600/30 border border-red-400/40 text-red-300 rounded-lg py-3 mb-6 font-semibold animate-pulse">
+          🚨 {{ message }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <!-- ✅ Score Summary -->
+  <p class="text-gray-300 text-lg mb-2">
+    Score: <span class="font-bold text-white">{{ correct }}/{{ total }}</span>
+  </p>
+
+  <!-- ✅ Percentage Display -->
+  <p class="text-gray-400 mb-6 text-sm">
+    You scored <span class="text-green-400 font-semibold">{{ percentage }}%</span>
+  </p>
+
+  <!-- ✅ Gradient Progress Bar -->
+  <div class="w-full bg-white/10 rounded-full h-5 mb-6 overflow-hidden border border-white/20">
+    <div
+      class="h-full transition-all duration-1000 ease-out {% if attempt.passed %}bg-gradient-to-r from-green-400 to-blue-500{% else %}bg-gradient-to-r from-red-500 to-pink-500{% endif %}"
+      style="width: {{ percentage }}%;">
+    </div>
+  </div>
+
+  <!-- ✅ Pass/Fail Message -->
+  {% if attempt.quiz.quiz_type == 'hackathon' %}
+    <!-- 🏆 Hackathon Specific Message (Always Positive) -->
+    <p class="text-blue-300 font-semibold text-xl mb-8">
+      Thank you for participating! 🚀 Your effort counts.
+    </p>
+
+    <!-- Certificate Actions (Only if passed & enabled) -->
+    {% if attempt.passed and attempt.quiz.generate_certificate %}
+    <div class="flex flex-col md:flex-row justify-center gap-6 mb-12">
+      <a href="{% url 'certificate' attempt.id %}" target="_blank"
+         class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition shadow-lg hover:shadow-orange-500/30">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        Preview Certificate
+      </a>
+      <a href="{% url 'home' %}"
+         class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold hover:scale-105 transition shadow-lg">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+         Show My Dashboard
+      </a>
+    </div>
+    {% else %}
+      <div class="flex justify-center mb-12">
+        <a href="{% url 'home' %}"
+           class="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
+           ← Show My Dashboard
+        </a>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <!-- Regular Practice Quiz Logic -->
+    {% if attempt.passed %}
+      <p class="text-green-400 font-semibold text-xl mb-8">You passed! 🌟 Great job!</p>
+    {% else %}
+      <p class="text-red-400 font-semibold text-xl mb-8">Better luck next time! 💪</p>
+    {% endif %}
+    
+    <div class="flex justify-center mb-12">
+      <a href="{% url 'home' %}"
+         class="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
+         ← Show My Dashboard
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- ✅ Detailed Breakdown -->
+  <div class="text-left mt-8">
+    <h3 class="text-2xl font-bold text-white mb-4">Your Answers Review 🔍</h3>
+
+    {% for answer in answers %}
+      <div class="mb-6 bg-white/5 p-5 rounded-2xl border border-white/10 review-item">
+        <p class="text-lg font-semibold text-white mb-2">
+          {{ forloop.counter }}. {{ answer.question.text }}
+        </p>
+
+        {% if answer.is_correct %}
+          <p class="text-green-400 font-medium">✅ Your Answer: {{ answer.selected_choice.text }}</p>
+        {% else %}
+          <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+            <div>
+              <p class="text-red-400 font-medium">❌ Your Answer: {{ answer.selected_choice.text }}</p>
+              <p class="text-green-400 mt-1">
+                ✅ Correct Answer:
+                {% for choice in answer.question.choices.all %}
+                  {% if choice.is_correct %}
+                    {{ choice.text }}
+                  {% endif %}
+                {% endfor %}
+              </p>
+            </div>
+            
+            <!-- Ask AI Button -->
+            <button onclick="askAI('{{ answer.question.id }}', '{{ answer.selected_choice.text|escapejs }}', this)"
+                    class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-sm font-bold hover:scale-105 hover:shadow-lg transition-all duration-300 shadow-md border border-white/20">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 animate-pulse">
+                <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813a3.75 3.75 0 002.576-2.576l.813-2.846A.75.75 0 019 4.5zM9 15a.75.75 0 01.75.75v1.5h1.5a.75.75 0 010 1.5h-1.5v1.5a.75.75 0 01-1.5 0v-1.5h-1.5a.75.75 0 010-1.5h1.5v-1.5A.75.75 0 019 15z" clip-rule="evenodd" />
+              </svg>
+              <span>Ask Tgays AI</span>
+            </button>
+          </div>
+
+          <!-- AI Explanation Container -->
+          <div id="ai-explanation-{{ answer.question.id }}" class="hidden mt-4 p-4 rounded-xl bg-blue-900/20 border border-blue-500/30 text-blue-100 text-sm leading-relaxed animate-fade-in relative">
+              <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-400 to-purple-500 rounded-l-xl"></div>
+              <h4 class="font-bold text-blue-300 mb-1 flex items-center gap-2">
+                  <span class="animate-pulse">✨</span> AI Explanation
+              </h4>
+              <p class="explanation-text"></p>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="text-gray-400">No answers were recorded for this quiz.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+    async function askAI(questionId, userAnswer, button) {
+        const container = document.getElementById(`ai-explanation-${questionId}`);
+        const textElement = container.querySelector('.explanation-text');
+        
+        // UI Loading State
+        button.disabled = true;
+        button.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Thinking...';
+        button.classList.add('opacity-75', 'cursor-not-allowed');
+        
+        try {
+            const response = await fetch("{% url 'ask_ai' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    user_answer: userAnswer
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.explanation) {
+                textElement.innerText = data.explanation;
+                container.classList.remove('hidden');
+                button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg> Validated by AI';
+                button.classList.remove('from-blue-600', 'to-indigo-600');
+                button.classList.add('from-green-600', 'to-emerald-600');
+            } else {
+                alert("AI Error: " + (data.error || "Unknown error"));
+                resetButton(button);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("Failed to connect to AI.");
+            resetButton(button);
+        }
+    }
+
+    function resetButton(button) {
+        button.disabled = false;
+        button.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 animate-pulse">
+                <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813a3.75 3.75 0 002.576-2.576l.813-2.846A.75.75 0 019 4.5zM9 15a.75.75 0 01.75.75v1.5h1.5a.75.75 0 010 1.5h-1.5v1.5a.75.75 0 01-1.5 0v-1.5h-1.5a.75.75 0 010-1.5h1.5v-1.5A.75.75 0 019 15z" clip-rule="evenodd" />
+              </svg>
+              <span>Ask Tgays AI</span>`;
+        button.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+</script>
+
+<!-- ✅ Animations -->
+<style>
+  .review-item {
+    animation: fadeUp 0.6s ease-in-out forwards;
+    opacity: 0;
+  }
+  @keyframes fadeUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+</style>
+{% endblock %}

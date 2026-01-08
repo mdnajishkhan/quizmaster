@@ -1,0 +1,686 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tgays Education</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      /* 🎄 CHRISTMAS THEME START: Northern Lights Background */
+      background: radial-gradient(circle at 50% 0%, #2b32b2 0%, #161a35 40%, #05070a 100%),
+                  radial-gradient(circle at 80% 20%, #00ff8720 0%, transparent 30%),
+                  radial-gradient(circle at 20% 40%, #9d00ff20 0%, transparent 40%);
+      background-attachment: fixed;
+      /* 🎄 CHRISTMAS THEME END */
+      color: #f9fafb;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 🎄 CHRISTMAS THEME: Twinkling Lights */
+    .christmas-lights {
+      position: absolute;
+      top: -15px;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      display: flex;
+      justify-content: space-around;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 9998;
+      padding: 0 10px;
+    }
+    .light {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      position: relative;
+      animation: flash 1.5s infinite alternate;
+      box-shadow: 0 5px 15px rgba(255,255,255,0.5);
+    }
+    /* Wire */
+    .light::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -50vw; /* Stretch wire */
+      width: 100vw; 
+      height: 20px;
+      border-bottom: 2px solid #555;
+      border-radius: 50%;
+      z-index: -1;
+    }
+    
+    .light:nth-child(3n+1) { background: #ff4d4d; animation-delay: 0s; box-shadow: 0 5px 20px #ff4d4d; }
+    .light:nth-child(3n+2) { background: #ffd700; animation-delay: 0.5s; box-shadow: 0 5px 20px #ffd700; }
+    .light:nth-child(3n+3) { background: #00ff87; animation-delay: 1s; box-shadow: 0 5px 20px #00ff87; }
+
+    @keyframes flash {
+      0% { opacity: 0.6; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 30px currentColor; }
+    }
+
+    /* 🎄 CHRISTMAS THEME: Swaying Snow */
+    .snowflake {
+      position: fixed; /* Fixed to viewport so it snows "on the screen" everywhere */
+      top: -20px;
+      color: #fff;
+      font-size: 1em;
+      text-shadow: 0 0 5px rgba(255,255,255,0.8);
+      user-select: none;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fall 10s linear infinite, sway 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(105vh); }
+    }
+    @keyframes sway {
+      from { margin-left: -15px; }
+      to { margin-left: 15px; }
+    }
+
+    /* 🎄 CHRISTMAS THEME: 3D Glass Modal */
+    .glass-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      padding: 2rem; /* Prevent clipping on small screens */
+    }
+    
+    .glass-modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .glass-card {
+      position: relative;
+      width: 90%;
+      max-width: 480px; /* Increased to fit text on one line */
+      padding: 30px; 
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-align: center;
+      transform-style: preserve-3d;
+      transform: perspective(1000px) rotateX(10deg) scale(0.9);
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .glass-modal-overlay.show .glass-card {
+      transform: perspective(1000px) rotateX(0deg) scale(1);
+      opacity: 1;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      background: linear-gradient(125deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.05) 60%, rgba(255, 255, 255, 0.1));
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Floating decoration */
+    .glass-float-icon {
+      /* font-size: 80px;  - controlled by inner span or tailwind */
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+      animation: float-center 3s ease-in-out infinite;
+    }
+    
+    @keyframes float-center {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-15px); }
+    }
+    
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+    
+    .premium-glass {
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+
+    /* Glowing background animation */
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .animate-pulse-smooth {
+      animation: pulse-glow 5s ease-in-out infinite;
+    }
+
+    /* Smooth fade-in for alerts */
+    .fade-in {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .review-item {
+    animation: fadeUp 0.4s ease-in-out forwards;
+    opacity: 0;
+    }
+    @keyframes fadeUp {
+    from { transform: translateY(15px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 575px) {
+
+      #christmasModal{
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+
+      #christmasModal .glass-card.premium-glass{
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+
+      span.platform-text{
+        font-size: 12px !important;
+        padding: 10px !important;
+      }
+
+      .claim-button-access{
+        font-size: 15px !important;
+        padding: 10px 20px !important;
+      }
+
+      .size-575{
+        display: none;
+      }
+
+      .christmas-lights{
+        top: -40px !important;
+      }
+
+      .master-skills-sec{
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+
+      .get-free-login a:nth-child(2){
+        margin-bottom: 20px !important;
+      }
+
+      .why-student-love-section,
+      .how-it-works-section-styled,
+      .what-students-say-section,
+      .common-questions-section-questions{
+        margin-top: 40px !important;
+      }
+
+      .final-cta-section-styled{
+        margin-top: 40px !important;
+        padding-bottom: 0px !important;
+      }
+
+      .final-cta-section-styled .backdrop-blur-sm{
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .final-cta-section-styled .backdrop-blur-sm a{
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        padding: 10px !important;
+      }
+      
+      .quiz-status-bar-section .gap-2{
+        gap: 0.1rem !important;   
+      }
+      
+      .quiz-status-bar-section #timerDisplay{
+        font-size: 15px;
+      }
+
+      .quiz-status-bar-section #timerBox span:nth-child(1){
+        display: none !important;
+      }
+      
+
+      #timerBox + div button{
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        font-size: 11px;
+        width: 29px;
+        height: 28px;
+      }
+      
+      .quiz-status-bar-section #warningCounter {
+          margin-left: 0px;
+          padding-left: 9px;
+          padding-right: 11px;
+          font-size: 13px;
+      }
+
+    }
+</style>
+
+</head>
+
+<body class="relative flex flex-col min-h-screen">
+  <!-- 🎄 CHRISTMAS THEME: Lights String -->
+  <div class="christmas-lights">
+    <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+  </div>
+  
+  <!-- ⚡ Page Loader -->
+  {% if request.resolver_match.url_name != 'take_quiz' %}
+  <div id="page-loader" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-gray-900 flex flex-col items-center justify-center overflow-hidden transition-opacity duration-500">
+    <div class="text-center animate-pulse w-full max-w-md px-4">
+      <div class="text-5xl mb-3 drop-shadow-[0_0_15px_rgba(255,255,0,0.5)]">⚡</div>
+      <h1 class="text-2xl font-black tracking-tighter bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text drop-shadow-lg">
+        Tgays<span class="text-white font-light">Education</span>
+      </h1>
+      <div class="mt-3 w-12 h-1 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-full mx-auto animate-bounce"></div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('page-loader');
+      if (loader) {
+        setTimeout(() => {
+          loader.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => { loader.remove(); }, 300);
+        }, 300);
+      }
+    });
+  </script>
+  {% endif %}
+  <!-- Background Glows -->
+  <!-- Background Glows -->
+  <!-- 🎄 CHRISTMAS THEME: Icy Glows (Cyan & Blue) -->
+  <div class="size-575 absolute top-20 left-20 w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-smooth"></div>
+  <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse-smooth"></div>
+
+
+  <!-- HEADER -->
+  <!-- HEADER -->
+  {% if request.resolver_match.url_name != 'take_quiz' %}
+  <header class="py-4 md:py-5 relative z-20 border-b border-white/10">
+    <div class="w-full max-w-[1920px] mx-auto px-4 md:px-8 flex flex-wrap justify-between items-center gap-4">
+
+      <!-- Clickable logo -->
+      <a href="{% url 'home' %}" class="group flex items-center gap-1 hover:opacity-90 transition duration-200">
+          <span class="text-2xl md:text-3xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 via-white to-blue-400 text-transparent bg-clip-text group-hover:bg-gradient-to-l transition-all duration-500">
+              Tgays<span class="text-cyan-100 font-light">Education</span>
+          </span>
+      </a>
+
+      <!-- ✅ Mobile Menu Button -->
+      {% if user.is_authenticated %}
+      <button onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none p-2">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+        </svg>
+      </button>
+      {% endif %}
+
+      <!-- ✅ Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-6">
+        {% if user.is_authenticated %}
+            <!-- Profile Dropdown -->
+            <div class="relative group">
+              <button class="flex items-center gap-2 text-gray-300 hover:text-white transition focus:outline-none">
+                {% if user.profile.profile_pic %}
+                  <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-white/20">
+                {% else %}
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                    {{ user.username|make_list|first|upper }}
+                  </div>
+                {% endif %}
+                <span class="font-medium">Hello, {{ user.first_name|default:"User" }}</span>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div class="absolute right-0 mt-2 w-52 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
+                <div class="p-1 space-y-0.5">
+                  <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/10 transition group/item">
+                    <span class="text-purple-400 group-hover/item:text-purple-300 transition">👤</span>
+                    My Profile
+                  </a>
+                  <a href="{% url 'password_change' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/10 transition group/item">
+                    <span class="text-yellow-400 group-hover/item:text-yellow-300 transition">🔒</span>
+                    Change Password
+                  </a>
+                  <button onclick="openLogoutModal()" class="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition group/item">
+                    <span class="text-red-500 group-hover/item:text-red-400 transition">🚪</span>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="text-gray-300 hover:text-white transition">Login</a>
+          <a href="{% url 'register' %}" class="text-gray-300 hover:text-white transition">Register</a>
+        {% endif %}
+      </nav>
+
+      <!-- ✅ Mobile Menu (Hidden by default) -->
+      <div id="mobile-menu" class="hidden w-full md:hidden mt-4 border-t border-white/10 pt-4 animate-fade-in-down">
+        {% if user.is_authenticated %}
+            <div class="flex items-center gap-3 mb-4 px-2">
+                {% if user.profile.profile_pic %}
+                  <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover border border-white/20">
+                {% else %}
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                    {{ user.username|make_list|first|upper }}
+                  </div>
+                {% endif %}
+                <div>
+                    <p class="text-white font-bold">{{ user.first_name|default:user.username }}</p>
+                    <p class="text-xs text-gray-400">{{ user.email }}</p>
+                </div>
+            </div>
+            <div class="space-y-2">
+
+                <a href="{% url 'profile' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition">
+                    👤 My Profile
+                </a>
+                <a href="{% url 'password_change' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition">
+                    🔒 Change Password
+                </a>
+                <button onclick="openLogoutModal()" class="w-full text-left block px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition">
+                    🚪 Logout
+                </button>
+            </div>
+        {% else %}
+            <div class="space-y-2">
+                <a href="{% url 'login' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition text-center">Login</a>
+                <a href="{% url 'register' %}" class="block px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold transition text-center shadow-lg">Register</a>
+            </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </header>
+  {% endif %}
+
+  <script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+  </script>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div class="bg-gray-900 border border-white/10 rounded-2xl p-5 md:p-6 w-[85%] max-w-xs mx-auto text-center shadow-2xl transform scale-95 transition-transform duration-300" id="logoutModalContent">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2">Confirm Logout</h3>
+      <p class="text-gray-400 mb-6 text-sm">Are you sure you want to log out?</p>
+      
+      <div class="flex flex-col-reverse sm:flex-row justify-center gap-3">
+        <button onclick="closeLogoutModal()" 
+                class="w-full sm:w-auto px-4 py-2 rounded-xl bg-gray-700 text-white hover:bg-gray-600 transition font-medium text-sm">
+          No, Cancel
+        </button>
+        <form action="{% url 'logout' %}" method="post" class="inline w-full sm:w-auto">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 transition font-medium shadow-lg text-sm">
+              Yes, Logout
+            </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('logoutModal');
+    const modalContent = document.getElementById('logoutModalContent');
+
+    function openLogoutModal() {
+        modal.classList.remove('hidden');
+        // Small delay to allow display:block to apply before opacity transition
+        setTimeout(() => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeLogoutModal() {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        // Wait for transition to finish before hiding
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeLogoutModal();
+        }
+    });
+  </script>
+
+  <!-- ✅ Message Alerts -->
+  {% if messages %}
+  <div class="fixed top-20 md:top-24 left-1/2 transform -translate-x-1/2 z-[100] w-[90%] sm:w-[40rem] fade-in">
+    {% for message in messages %}
+      <div class="mb-3 px-5 py-3 text-center rounded-xl font-semibold text-white shadow-lg
+                  {% if message.tags == 'success' %}
+                    bg-green-600/80 border border-green-400/40
+                  {% elif message.tags == 'warning' %}
+                    bg-yellow-600/80 border border-yellow-400/40
+                  {% elif message.tags == 'error' %}
+                    bg-red-600/80 border border-red-400/40
+                  {% else %}
+                    bg-blue-600/80 border border-blue-400/40
+                  {% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ✅ Page Content -->
+  <main class="w-full max-w-[1920px] mx-auto px-4 md:px-8 py-12 relative z-10 flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ✅ Footer -->
+  <!-- ✅ Footer (Only on Home Page) -->
+  {% if request.resolver_match.url_name == 'home' %}
+  <footer id="main-footer" class="text-center py-6 text-gray-400 text-sm border-t border-white/10 relative z-20 transition-opacity duration-300">
+     <a href="https://tgaystechnology.com/" target="_blank" class="text-gray-300 hover:text-white transition hover:underline">© 2025 TgaysEducation | Built by Tgays Technology Team</a>
+  </footer>
+  {% endif %}
+
+  <!-- Auto-hide alerts after 3s -->
+  <script>
+    setTimeout(() => {
+      document.querySelectorAll('.fade-in').forEach(el => el.style.display = 'none');
+    }, 3000);
+
+    // Global Form Submission Loading State
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        // Skip if the form has the 'no-loading' class
+        if (form.classList.contains('no-loading')) return;
+
+        // Check if form is valid (if it uses HTML5 validation)
+        if (!form.checkValidity()) return;
+
+        // Find the submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        if (submitBtn && !submitBtn.disabled) {
+            // Check if there are any visible error messages in the form (custom validation)
+            // This is specific to our implementation where we might show errors in a div
+            const errorDiv = form.querySelector('[id$="error-msg"]');
+            if (errorDiv && !errorDiv.classList.contains('hidden') && errorDiv.innerText.trim() !== "") {
+                return; // Don't show loading if there are visible errors
+            }
+
+            // Save original content
+            submitBtn.dataset.originalContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            // Add loading spinner
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+            `;
+        }
+    });
+  </script>
+
+  <!-- 🎄 CHRISTMAS THEME: 3D Greeting Modal -->
+  <!-- Show to ALL users (logged in or not) -->
+  <div id="christmasModal" class="glass-modal-overlay">
+    <div class="glass-card premium-glass">
+      <!-- Decorative Ribbon/Bow -->
+      <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-full shadow-lg z-20 flex items-center justify-center border-4 border-yellow-400/50 glass-float-icon">
+        <span class="text-4xl">🎁</span>
+      </div>
+      
+      <div class="mt-5"> <!-- Compact margin -->
+        <h2 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-500 mb-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] font-serif">
+          Merry Christmas!
+        </h2>
+        <h3 class="text-lg md:text-xl font-bold text-white mb-4 drop-shadow-md"> <!-- Smaller text -->
+           Dear <span class="text-cyan-300">
+             {% if user.is_authenticated %}
+                {{ user.first_name|default:user.username }}
+             {% else %}
+                Student
+             {% endif %}
+           </span>,
+        </h3>
+        
+        <p class="text-gray-100 text-base md:text-lg font-light leading-relaxed mb-6 drop-shadow-md px-1">
+          On the occasion of Christmas, <br>
+          <span class="font-bold text-yellow-300 whitespace-nowrap">Tgays Education</span> is giving you a small gift:
+          <br><br>
+          <span class="platform-text text-xl font-bold bg-white/20 px-6 py-3 rounded-lg backdrop-blur-sm border border-white/30 inline-block shadow-[0_0_15px_rgba(255,255,255,0.3)] whitespace-nowrap">
+            🌟 This Platform is FREE for You! 🌟
+          </span>
+        </p>
+        
+        <button onclick="closeChristmasModal()" 
+                class="claim-button-access group relative px-10 py-4 rounded-full bg-gradient-to-r from-red-600 to-red-800 text-white font-bold text-lg shadow-[0_10px_20px_rgba(220,38,38,0.5)] hover:shadow-[0_15px_30px_rgba(220,38,38,0.7)] hover:scale-105 transition transform border border-red-400 overflow-hidden">
+          <span class="relative z-10 flex items-center gap-2">
+            🚀 Claim My Free Access
+          </span>
+          <!-- Shine effect -->
+          <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Check session storage
+      if (!sessionStorage.getItem('seen_christmas_v2')) {
+        setTimeout(() => {
+          const modal = document.getElementById('christmasModal');
+          if(modal) modal.classList.add('show');
+        }, 1500); // 1.5s delay for dramatic effect
+      }
+    });
+
+    function closeChristmasModal() {
+      const modal = document.getElementById('christmasModal');
+      modal.classList.remove('show');
+      sessionStorage.setItem('seen_christmas_v2', 'true');
+    }
+  </script>
+
+  <!-- 🎄 CHRISTMAS THEME: Snowfall Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const snowflakeChars = ["❄", "❅", "❆", "•"];
+      const maxSnowflakes = 60; 
+
+      function createSnowflake() {
+        if (document.querySelectorAll('.snowflake').length > maxSnowflakes) return;
+
+        const snowflake = document.createElement("div");
+        snowflake.classList.add("snowflake");
+        snowflake.innerText = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
+        
+        // Randomize
+        snowflake.style.left = Math.random() * 100 + "vw";
+        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+        snowflake.style.fontSize = (Math.random() * 15 + 10) + "px";
+        
+        // Randomize Fall Speed (Animation Duration)
+        const duration = Math.random() * 3 + 3; // 3s to 6s (Much faster)
+        snowflake.style.animationDuration = duration + "s, " + (duration / 2) + "s"; // Fall duration, Sway duration matches speed
+
+        // Remove after animation
+        setTimeout(() => {
+          snowflake.remove();
+        }, duration * 1000);
+
+        document.body.appendChild(snowflake);
+      }
+
+      // Create snow more frequently
+      setInterval(createSnowflake, 200);
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

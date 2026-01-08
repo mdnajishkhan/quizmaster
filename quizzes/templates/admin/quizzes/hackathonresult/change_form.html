@@ -1,0 +1,141 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}{{ block.super }}
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 bg-gray-50 min-h-screen">
+    
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">{{ quiz.title }} - Results 📊</h1>
+            <p class="text-gray-500 mt-1">
+                Started: {{ quiz.start_time|default:"-" }} | Ends: {{ quiz.end_time|default:"-" }}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'admin:quizzes_hackathonresult_changelist' %}" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
+                &larr; Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- 🏆 Top Scorer -->
+        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-xl border border-yellow-200 shadow-sm flex items-center gap-4">
+            <div class="text-4xl">👑</div>
+            <div>
+                <p class="text-sm font-bold text-yellow-800 uppercase tracking-wider">Top Scorer</p>
+                {% if top_scorer %}
+                    <h2 class="text-2xl font-black text-gray-900" title="{{ top_scorer.user.get_full_name|default:top_scorer.user.username }}">
+                        {{ top_scorer.user.get_full_name|default:top_scorer.user.username|truncatechars:18 }}
+                    </h2>
+                    <p class="text-yellow-700 font-medium">{{ top_scorer.score }} / {{ quiz.questions.count }} pts</p>
+                {% else %}
+                    <h2 class="text-xl font-bold text-gray-400">No participants yet</h2>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 👥 Participants -->
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+            <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Participants</p>
+                <h2 class="text-3xl font-bold text-gray-900">{{ total_participants }}</h2>
+            </div>
+        </div>
+
+        <!-- 📈 Avg Score -->
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+            <div class="p-3 bg-green-100 text-green-600 rounded-lg">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Average Score</p>
+                <h2 class="text-3xl font-bold text-gray-900">{{ avg_score }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-bold text-gray-800">🏆 Leaderboard</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+                        <th class="px-6 py-4 font-bold border-b text-center w-20">Rank</th>
+                        <th class="px-6 py-4 font-bold border-b">Participant</th>
+                        <th class="px-6 py-4 font-bold border-b">College</th>
+                        <th class="px-6 py-4 font-bold border-b">Score</th>
+                        <th class="px-6 py-4 font-bold border-b">Percentage</th>
+                        <th class="px-6 py-4 font-bold border-b">Time Taken</th>
+                        <th class="px-6 py-4 font-bold border-b">Submitted At</th>
+                        <th class="px-6 py-4 font-bold border-b text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700 text-sm">
+                    {% for entry in leaderboard %}
+                    <tr class="hover:bg-blue-50 transition-colors {% if forloop.first %}bg-yellow-50{% endif %}">
+                        <td class="px-6 py-4 text-center font-bold text-gray-500">
+                            {% if entry.rank == 1 %}🥇{% elif entry.rank == 2 %}🥈{% elif entry.rank == 3 %}🥉{% else %}{{ entry.rank }}{% endif %}
+                        </td>
+                        <td class="px-6 py-4 font-medium flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs ring-2 ring-white">
+                                {{ entry.user.username|slice:":2"|upper }}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-900">{{ entry.user.get_full_name|default:entry.user.username }}</span>
+                                <span class="text-xs text-gray-400">{{ entry.user.email }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">
+                             {% if entry.college_name != "-" %}
+                                <span class="px-2 py-1 bg-gray-100 rounded text-xs text-gray-700 font-semibold">{{ entry.college_name }}</span>
+                             {% else %}
+                                <span class="text-gray-400 text-xs">-</span>
+                             {% endif %}
+                        </td>
+                        <td class="px-6 py-4 font-bold text-gray-900">
+                            {{ entry.score }} <span class="text-gray-400 font-normal">/ {{ entry.max_score }}</span>
+                        </td>
+                        <td class="px-6 py-4 font-semibold text-blue-600">
+                            {{ entry.percentage }}%
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-mono">
+                            {{ entry.time_taken }}
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">
+                            {{ entry.submitted_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if entry.passed %}
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold shadow-sm">PASS</span>
+                            {% else %}
+                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold shadow-sm">FAIL</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-400 italic">
+                            No submissions found for this hackathon yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

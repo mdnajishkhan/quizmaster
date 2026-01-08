@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QuizSite</title>
+  <link rel="stylesheet" href="{% static 'quizzes/css/style.css' %}">
+</head>
+<body>
+  <header>
+    <h1>QuizSite</h1>
+    {% if user.is_authenticated %}
+      Welcome {{ user.username }} |
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a> |
+      <a href="{% url 'register' %}">Register</a>
+    {% endif %}
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

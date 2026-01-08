@@ -1,0 +1,8 @@
+django-nested-admin
+django-crispy-forms
+Pillow
+pandas
+openpyxl
+mysqlclient
+openai
+python-dotenv

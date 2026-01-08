@@ -1,0 +1,153 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-10 text-center sm:text-left">
+            <h1 class="text-4xl font-extrabold text-white mb-2">
+                Your Learning Journey
+            </h1>
+            <p class="text-lg text-gray-400">
+                Track your progress, review past challenges, and celebrate your achievements.
+            </p>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <!-- Search Bar -->
+            <form method="get" class="w-full md:w-96 relative group">
+                <input type="hidden" name="type" value="{{ filter_type|default:'' }}">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-500 group-focus-within:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input type="text" name="q" value="{{ query|default:'' }}" 
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-xl leading-5 bg-gray-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg" 
+                       placeholder="Search by Quiz Name or Category...">
+            </form>
+
+            <!-- Filter Buttons -->
+            <div class="flex space-x-2 bg-gray-800 p-1.5 rounded-xl border border-gray-700 overflow-x-auto no-scrollbar">
+                <a href="?q={{ query|default:'' }}" 
+                   class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 {% if not filter_type %}bg-blue-600 text-white shadow-lg{% else %}text-gray-400 hover:text-white hover:bg-gray-700{% endif %}">
+                    All
+                </a>
+                <a href="?type=hackathon&q={{ query|default:'' }}" 
+                   class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 {% if filter_type == 'hackathon' %}bg-purple-600 text-white shadow-lg{% else %}text-gray-400 hover:text-white hover:bg-gray-700{% endif %}">
+                    Hackathon
+                </a>
+                <a href="?type=practice&q={{ query|default:'' }}" 
+                   class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 {% if filter_type == 'practice' %}bg-green-600 text-white shadow-lg{% else %}text-gray-400 hover:text-white hover:bg-gray-700{% endif %}">
+                    Practice
+                </a>
+            </div>
+        </div>
+
+            <div id="dashboard-content">
+                {% include 'quizzes/partials/dashboard_list.html' %}
+            </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="q"]');
+        const container = document.getElementById('dashboard-content');
+        
+        // Debounce: Wait for user to stop typing
+        let timeout = null;
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                const query = e.target.value;
+                const type = new URLSearchParams(window.location.search).get('type') || '';
+                
+                fetch(`?q=${encodeURIComponent(query)}&type=${type}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    // Re-bind click events if necessary (or usage event delegation)
+                    history.pushState(null, '', `?q=${encodeURIComponent(query)}&type=${type}`);
+                });
+            }, 300); // 300ms delay
+        });
+
+        // Core Fetch Function (modified to be simpler for this context)
+        function fetchContent(url) {
+            // Add AJAX header so backend knows to return partial
+            const headers = new Headers();
+            headers.append('X-Requested-With', 'XMLHttpRequest');
+
+            // Show loading state (optional: add opacity)
+            container.style.opacity = '0.5';
+
+            fetch(url, { headers: headers })
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    container.style.opacity = '1';
+                    // Re-attach listeners to new content (pagination)
+                    attachPaginationListeners();
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    container.style.opacity = '1';
+                });
+        }
+
+        // 2. Pagination & Filter Listeners (Delegate)
+        function attachPaginationListeners() {
+            // Pagination inside the partial
+            const links = container.querySelectorAll('a.ajax-link');
+            links.forEach(link => {
+                link.addEventListener('click', handleLinkClick);
+            });
+        }
+        
+        function handleLinkClick(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+            
+            // Update Filter Button Styles if this is a filter button
+            if (this.classList.contains('filter-btn')) {
+                // Reset all to inactive state
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-gray-700';
+                });
+                
+                // Determine active color based on URL
+                let activeClass = 'bg-blue-600 text-white shadow-lg'; // Default for All
+                if (url.includes('type=hackathon')) activeClass = 'bg-purple-600 text-white shadow-lg';
+                if (url.includes('type=practice')) activeClass = 'bg-green-600 text-white shadow-lg';
+                
+                // Apply active class
+                this.className = `filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeClass}`;
+            }
+
+            window.history.pushState({}, '', url);
+            fetchContent(url);
+        }
+
+        // 3. Main Filter Buttons (outside partial) - Add listener once
+        const filterLinks = document.querySelectorAll('.filter-btn'); 
+        filterLinks.forEach(link => {
+            link.addEventListener('click', handleLinkClick);
+        });
+
+        // Initial attach
+        attachPaginationListeners();
+        
+        // Handle Back/Forward buttons
+        window.addEventListener('popstate', function() {
+             fetchContent(window.location.href);
+        });
+    });
+</script>
+{% endblock %}

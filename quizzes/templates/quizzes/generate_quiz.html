@@ -1,0 +1,234 @@
+{% extends 'quizzes/base.html' %}
+
+{% block content %}
+<div class="flex justify-center pt-0 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse delay-700"></div>
+
+    <div class="max-w-2xl w-full space-y-8 relative z-10">
+        <div class="text-center">
+            <div class="mx-auto h-24 w-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl mb-6 animate-bounce-slow">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                </svg>
+            </div>
+            
+            <h2 class="text-4xl font-black text-white mb-2 tracking-tight">AI Quiz Architect</h2>
+            <p class="text-gray-400 text-lg">Build a unique quiz on any topic in seconds.</p>
+        </div>
+
+        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+            <form id="generate-form" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Topic Input -->
+                <div>
+                    <label for="topic" class="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">What do you want to learn?</label>
+                    <div class="relative">
+                        <input type="text" id="topic" name="topic" required
+                               class="block w-full pl-4 pr-12 py-4 border border-gray-600 rounded-xl leading-5 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-lg font-medium" 
+                               placeholder="e.g. Advanced Python, Roman History, React Hooks...">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+                            ✨
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Number of Questions -->
+                <div>
+                    <label for="limit" class="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">Number of Questions (1-30)</label>
+                    <div class="relative">
+                        <input type="number" id="limit" name="limit" min="1" max="30" value="5" required
+                               class="block w-full pl-4 pr-12 py-4 border border-gray-600 rounded-xl leading-5 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-lg font-medium">
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 font-bold">
+                            🔢
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Difficulty Level -->
+                <div>
+                    <label for="difficulty" class="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wide">Difficulty Level</label>
+                    <div class="relative">
+                        <select id="difficulty" name="difficulty"
+                                class="block w-full pl-4 pr-12 py-4 border border-gray-600 rounded-xl leading-5 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-lg font-medium appearance-none cursor-pointer">
+                            <option value="Beginner" class="bg-gray-900 text-white py-2">Beginner</option>
+                            <option value="Intermediate" class="bg-gray-900 text-white py-2">Intermediate</option>
+                            <option value="Advanced" class="bg-gray-900 text-white py-2">Advanced</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+</svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transform hover:scale-[1.02] transition-all">
+                    Generate Quiz 🚀
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden text-center py-8">
+                <div class="relative w-24 h-24 mx-auto mb-6">
+                    <div class="absolute top-0 left-0 w-full h-full border-4 border-gray-700 rounded-full"></div>
+                    <div class="absolute top-0 left-0 w-full h-full border-4 border-purple-500 rounded-full animate-spin border-t-transparent"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-purple-400">
+                            <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813a3.75 3.75 0 002.576-2.576l.813-2.846A.75.75 0 019 4.5zM19.75 11.75a.75.75 0 00-1.5 0v2.25H16a.75.75 0 000 1.5h2.25v2.25a.75.75 0 001.5 0v-2.25H22a.75.75 0 000-1.5h-2.25v-2.25z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Architecting your Quiz...</h3>
+                <p id="loading-text" class="text-gray-400 text-lg transition-opacity duration-300">Consulting the neural networks...</p>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="error-message" class="hidden mt-4 p-4 bg-red-900/50 border border-red-500/50 rounded-xl text-red-200 text-center"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('generate-form');
+    const loadingState = document.getElementById('loading-state');
+    const submitBtn = document.getElementById('submit-btn');
+    const loadingText = document.getElementById('loading-text');
+    const errorMsg = document.getElementById('error-message');
+
+    const loadingMainMessages = [
+        "Consulting the neural networks...",
+        "Crafting challenging questions...",
+        "Validating answers with logic...",
+        "Polishing the interface...",
+        "Almost ready..."
+    ];
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // 1. UI Transition: Hide Form, Show Loading Overlay
+        form.classList.add('hidden');
+        loadingState.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
+
+        // 2. Start Message Cycling
+        let msgIndex = 0;
+        loadingText.innerText = loadingMainMessages[0];
+        const interval = setInterval(() => {
+            msgIndex = (msgIndex + 1) % loadingMainMessages.length;
+            loadingText.style.opacity = 0; // Fade out
+            setTimeout(() => {
+                loadingText.innerText = loadingMainMessages[msgIndex];
+                loadingText.style.opacity = 1; // Fade in
+            }, 300);
+        }, 2500);
+
+        const formData = new FormData(form);
+        const data = {
+            topic: formData.get('topic'),
+            limit: formData.get('limit'),
+            difficulty: formData.get('difficulty') // Added difficulty
+        };
+
+        try {
+            const response = await fetch("{% url 'generate_quiz_api' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.quiz_id) {
+                // Success! Redirect
+                clearInterval(interval);
+                loadingText.innerText = "Success! Launching Quiz...";
+                window.location.href = `/quiz/${result.quiz_id}/`;
+            } else {
+                if (response.status === 403 && result.limit_reached) {
+                    throw new Error('LIMIT_REACHED');
+                }
+                throw new Error(result.error || 'Unknown error occurred');
+            }
+
+        } catch (error) {
+            // Reset UI on Error
+            clearInterval(interval);
+            loadingState.classList.add('hidden');
+            form.classList.remove('hidden');
+            
+            // Allow user to retry
+            const originalBtnText = "Generate Quiz 🚀"; // Reset button text just in case
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            
+            if (error.message === 'LIMIT_REACHED') {
+                showLimitModal();
+                return; 
+            }
+            
+            errorMsg.innerText = error.message; 
+            errorMsg.classList.remove('hidden');
+        }
+    });
+
+    function showLimitModal() {
+        document.getElementById('limitModal').classList.remove('hidden');
+    }
+
+    // 🔄 FORCE RESET UI State (Fix for back button persistence)
+    function resetQuizUI() {
+        console.log("Reseting Quiz UI...");
+        loadingState.classList.add('hidden');
+        form.classList.remove('hidden');
+        errorMsg.classList.add('hidden');
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Generate Quiz 🚀";
+        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+    }
+
+    // 1. Run immediately on page show (handles bfcache)
+    window.addEventListener('pageshow', function(event) {
+        resetQuizUI();
+        // Double check after a short delay to override any browser restoration
+        setTimeout(resetQuizUI, 50);
+    });
+
+    // 2. Run on normal load if button is stuck
+    document.addEventListener('DOMContentLoaded', function() {
+        if (submitBtn.disabled || submitBtn.innerHTML.includes("Processing")) {
+            resetQuizUI();
+        }
+    });
+</script>
+
+<!-- 🛑 Limit Reached Modal -->
+<div id="limitModal" class="fixed inset-0 z-50 hidden flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('limitModal').classList.add('hidden')"></div>
+    <div class="bg-gray-900 border border-purple-500/30 rounded-2xl p-8 max-w-md w-full relative z-10 shadow-2xl animate-fade-in-up text-center">
+        <div class="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span class="text-3xl">💎</span>
+        </div>
+        <h3 class="text-2xl font-black text-white mb-2">Free Tier Limit Reached</h3>
+        <p class="text-gray-300 text-lg mb-6 leading-relaxed">
+            You are using the free tier. You can create <span class="font-bold text-white">3 AI quizzes</span> in one month.
+        </p>
+        
+        <a href="{% url 'quiz_list' %}" class="block w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl transition transform hover:scale-[1.02] shadow-lg">
+            Explore Quizzes 🚀
+        </a>
+        
+        <button onclick="document.getElementById('limitModal').classList.add('hidden')" class="mt-4 text-gray-500 hover:text-white text-sm font-medium transition">
+            Close
+        </button>
+    </div>
+</div>
+{% endblock %}

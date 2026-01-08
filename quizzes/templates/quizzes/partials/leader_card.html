@@ -1,0 +1,21 @@
+<div class="flex items-center gap-4 bg-white/5 px-4 sm:px-6 py-3 rounded-xl border border-white/5 hover:border-yellow-500/30 transition w-full sm:w-auto min-w-[200px]">
+    <div class="text-2xl font-bold 
+        {% if rank == 1 %}text-yellow-400{% elif rank == 2 %}text-gray-300{% else %}text-orange-400{% endif %}">
+        #{{ rank }}
+    </div>
+    
+    <!-- Profile Pic or Initial -->
+    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 flex items-center justify-center font-bold text-white shadow-md">
+        {{ leader.first_name|slice:":1"|default:leader.username|slice:":1"|upper }}
+    </div>
+    
+    <div>
+        <p class="text-white font-bold">{{ leader.get_full_name|default:leader.username }}</p>
+        <p class="text-xs text-gray-400">
+            {% if leader.profile.college %}
+                <span class="text-cyan-400">{{ leader.profile.college.name }}</span> • 
+            {% endif %}
+            {{ score|default:0 }} XP
+        </p>
+    </div>
+</div>

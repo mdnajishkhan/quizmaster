@@ -1,0 +1,751 @@
+{% extends 'quizzes/base.html' %}
+{% block content %}
+
+<!-- ✅ Quiz Status Bar (Fixed Top) -->
+<div class="fixed quiz-status-bar-section top-0 left-0 w-full bg-white/5 backdrop-blur-md border-b border-white/10 z-50 px-3 md:px-6 py-3 md:py-4 shadow-xl flex items-center justify-between h-20">
+    <!-- Timer (Centered/Left) -->
+    <div id="timerBox" class="flex items-center gap-2 md:gap-3 text-white font-mono font-bold text-lg md:text-2xl transition-colors duration-300">
+        <span class="text-indigo-400 animate-pulse">⏳</span> <span id="timerDisplay" class="tracking-widest">--:--</span>
+    </div>
+
+    <!-- ✅ LIFELINES (Header Center) -->
+    {% if attempt.quiz.quiz_type == 'hackathon' %}
+    <div class="flex items-center gap-2 md:gap-3 bg-gray-800/50 rounded-xl px-2 md:px-4 py-1.5 border border-white/10 scale-90 origin-right md:scale-100 md:origin-center">
+          <!-- 50-50 -->
+          <button onclick="useLifeline('5050')" id="btn-5050" 
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm
+            {% if not attempt.lifelines_used.5050 %}hover:bg-white/10{% endif %}
+            {% if attempt.lifelines_used.5050 %}opacity-40 cursor-not-allowed contrast-0{% endif %}"
+            {% if attempt.lifelines_used.5050 %}disabled{% endif %}
+            title="50-50: Remove 2 wrong answers">
+             <!-- SVG: Split Circle -->
+             <svg class="w-5 h-5 text-blue-400 transition filter drop-shadow-[0_0_8px_rgba(96,165,250,0.5)] {% if not attempt.lifelines_used.5050 %}group-hover:scale-110{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m0-18C7.029 3 3 7.029 3 12s4.029 9 9 9 9-4.029 9-9-4.029-9-9-9z" />
+             </svg>
+             <span class="font-bold text-gray-300 hidden lg:inline">50:50</span>
+          </button>
+
+          <div class="w-px h-5 bg-white/10"></div>
+
+          <!-- Audience Poll -->
+          <button onclick="useLifeline('poll')" id="btn-poll"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm
+            {% if not attempt.lifelines_used.poll %}hover:bg-white/10{% endif %}
+            {% if attempt.lifelines_used.poll %}opacity-40 cursor-not-allowed contrast-0{% endif %}"
+            {% if attempt.lifelines_used.poll %}disabled{% endif %}
+            title="Audience Poll">
+             <!-- SVG: Bar Chart -->
+             <svg class="w-5 h-5 text-green-400 transition filter drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] {% if not attempt.lifelines_used.poll %}group-hover:scale-110{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+             </svg>
+             <span class="font-bold text-gray-300 hidden lg:inline">Poll</span>
+          </button>
+
+          <div class="w-px h-5 bg-white/10"></div>
+
+          <!-- Tgays AI -->
+          <button onclick="useLifeline('ask_ai')" id="btn-ask_ai"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm
+             {% if not attempt.lifelines_used.ask_ai %}hover:bg-white/10{% endif %}
+            {% if attempt.lifelines_used.ask_ai %}opacity-40 cursor-not-allowed contrast-0{% endif %}"
+            {% if attempt.lifelines_used.ask_ai %}disabled{% endif %}
+            title="Tgays AI Hint">
+             <!-- SVG: Sparkles/Magic -->
+             <svg class="w-5 h-5 text-purple-400 transition filter drop-shadow-[0_0_8px_rgba(192,132,252,0.5)] {% if not attempt.lifelines_used.ask_ai %}group-hover:scale-110{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+             </svg>
+             <span class="font-bold text-purple-300 hidden lg:inline">Tgays AI</span>
+          </button>
+    </div>
+    {% endif %}
+
+    <!-- Warnings (Right) -->
+    {% if attempt.quiz.quiz_type == 'hackathon' %}
+    <div id="warningCounter" class="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-3 md:px-4 py-2 rounded-xl">
+        <span class="text-red-500 text-sm">●</span> 
+        <span class="text-red-100 text-sm font-bold uppercase tracking-wide">
+            <span class="hidden md:inline">Warnings: </span>{{ warningCount|default:"0" }} / 3
+        </span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Main Content (Pushed down to clear Status Bar) -->
+<div class="max-w-3xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 md:p-12 text-center shadow-2xl mt-24 relative overflow-hidden">
+  <!-- Decorative Background Blob -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none -z-10"></div>
+
+  <h2 class="text-2xl font-bold text-green-400 mb-3">{{ attempt.quiz.title }}</h2>
+  <p class="text-gray-400 text-sm mb-2">
+    Question {{ current_index }} of {{ total_questions }}
+  </p>
+  <p class="text-lg text-white mb-8">{{ question.text }}</p>
+
+  <form method="POST" class="space-y-4" id="quizForm">
+    {% csrf_token %}
+    <input type="hidden" name="action" id="action_input" value="">
+    
+    <div class="grid grid-cols-1 gap-4 mb-6">
+      {% for choice in choices %}
+      <label class="choice-option block">
+        <input
+          type="radio"
+          name="choice"
+          value="{{ choice.id }}"
+          class="hidden peer"
+          {% if selected_choice_id == choice.id %}checked{% endif %}
+        />
+        <div
+          class="peer-checked:bg-green-600 peer-checked:text-white peer-checked:scale-105
+                 bg-white/10 hover:bg-white/20 text-gray-200 font-medium rounded-xl py-3 px-4
+                 transition transform cursor-pointer hover:scale-105 shadow-md peer-checked:shadow-lg">
+          {{ choice.text }}
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div class="flex justify-between mt-6">
+      {% if prev_q %}
+        <button type="button" onclick="submitQuizForm('prev', this)"
+                class="bg-gray-500 px-6 py-2 rounded-lg text-white hover:bg-gray-600 transition flex items-center gap-2">
+          ← Prev
+        </button>
+      {% else %}
+        <button type="button"
+                class="bg-gray-400/50 px-6 py-2 rounded-lg text-gray-200 cursor-not-allowed"
+                disabled>← Prev</button>
+      {% endif %}
+
+      {% if next_q %}
+        <button type="button" onclick="submitQuizForm('next', this)"
+                class="bg-green-600 px-6 py-2 rounded-lg text-white hover:bg-green-700 transition flex items-center gap-2">
+          Next →
+        </button>
+      {% else %}
+        <button type="button" onclick="submitQuizForm('submit', this)"
+                class="bg-blue-600 px-6 py-2 rounded-lg text-white hover:bg-blue-700 transition flex items-center gap-2" id="submitBtn">
+          ✅ Submit
+        </button>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- ✅ Professional Warning Modal -->
+  <div id="warningBox" class="fixed top-24 left-1/2 transform -translate-x-1/2 bg-white text-gray-800 px-8 py-6 rounded-xl shadow-2xl z-50 hidden transition-all duration-300 border-l-8 border-red-600 flex items-center gap-4 max-w-lg w-full">
+    <div class="text-4xl">⚠️</div>
+    <div>
+        <h3 class="text-xl font-bold text-red-600 mb-1">Warning Issued</h3>
+        <p id="warningText" class="text-gray-600 font-medium text-sm leading-relaxed">
+            Your action has been recorded. Please adhere to the quiz rules.
+        </p>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ SCRIPT BLOCK -->
+<script>
+  // ---------------------------------------------------------
+  // 1️⃣ TIMER LOGIC
+  // ---------------------------------------------------------
+  const attemptId = "{{ attempt.id }}";
+  const remainingTime = {{ remaining_time }}; // Seconds from server
+  const timerDisplay = document.getElementById('timerDisplay');
+  const timerBox = document.getElementById('timerBox');
+  let timeLeft = remainingTime;
+
+  function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function updateTimer() {
+      if (timeLeft <= 0) {
+          timerDisplay.innerText = "00:00";
+          timerBox.classList.add('bg-red-600/90', 'animate-pulse');
+          autoSubmitQuiz("Time Expired");
+          return;
+      }
+
+      timerDisplay.innerText = formatTime(timeLeft);
+      
+      // Visual urgency
+      if (timeLeft <= 60) { // Last minute
+          timerBox.classList.add('text-red-400');
+          timerBox.classList.remove('text-white');
+      }
+      
+      timeLeft--;
+      setTimeout(updateTimer, 1000);
+  }
+
+  // Start timer
+  updateTimer();
+
+
+  // ---------------------------------------------------------
+  // 2️⃣ ABSOLUTELY BLOCK BACK BUTTON (browser + keyboard)
+  // ---------------------------------------------------------
+  (function() {
+    window.history.pushState(null, "", window.location.href);
+    
+    document.addEventListener("keydown", function(e) {
+      const activeTag = document.activeElement.tagName;
+      if (
+        (e.key === "Backspace" && !["INPUT", "TEXTAREA"].includes(activeTag)) ||
+        (e.altKey && e.key === "ArrowLeft")
+      ) {
+        e.preventDefault();
+      }
+    });
+  })();
+
+
+  // ---------------------------------------------------------
+  // 3️⃣ PREVENT REFRESH / TAB CLOSE
+  // ---------------------------------------------------------
+  let isSubmitting = false;
+  let isUnloading = false; // Guard for refresh vs tab switch
+  const form = document.getElementById('quizForm');
+
+  function beforeUnloadHandler(e) {
+    if (!isSubmitting) {
+      isUnloading = true;
+      if (typeof tabSwitchTimeout !== 'undefined') clearTimeout(tabSwitchTimeout);
+      
+      // Reset isUnloading if user cancels the dialog (timeout runs if page doesn't unload)
+      setTimeout(() => { isUnloading = false; }, 1000);
+
+      // Mark that a refresh attempt happened
+      sessionStorage.setItem(`refresh_attempt_${attemptId}`, "true");
+      
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    }
+  }
+
+  window.addEventListener("beforeunload", beforeUnloadHandler);
+
+  // Helper to submit form with action
+  window.submitQuizForm = function(action, btn) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      // Disable the clicked button and show spinner
+      if (btn) {
+          btn.disabled = true;
+          const originalContent = btn.innerHTML; // Keep if needed, but we are submitting so page will reload
+          btn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+          `;
+          btn.classList.add('opacity-75', 'cursor-not-allowed');
+      }
+
+      // Disable ALL other submit buttons to prevent double-nav
+      const allActionBtns = document.querySelectorAll('button[onclick^="submitQuizForm"]');
+      allActionBtns.forEach(b => {
+          b.disabled = true;
+          if (b !== btn) b.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+
+      // Clear refresh flag on valid submit to prevent false positives later
+      sessionStorage.removeItem(`refresh_attempt_${attemptId}`);
+      window.removeEventListener("beforeunload", beforeUnloadHandler);
+      document.getElementById('action_input').value = action;
+      document.getElementById('quizForm').submit();
+  };
+
+  // ✅ Global Auto-Submit Function (Works for Practice & Hackathon)
+  window.autoSubmitQuiz = function(reason) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      
+      window.removeEventListener("beforeunload", beforeUnloadHandler);
+      
+      // Visual feedback
+      const warningCounter = document.getElementById("warningCounter");
+      if (warningCounter) {
+          warningCounter.innerText = "⏳ Submitting...";
+          warningCounter.classList.remove("hidden");
+          warningCounter.classList.add("bg-red-700", "animate-pulse");
+      }
+
+      const hiddenInput = document.createElement("input");
+      hiddenInput.type = "hidden";
+      hiddenInput.name = "force_submit";
+      hiddenInput.value = "1";
+      form.appendChild(hiddenInput);
+      
+      const reasonInput = document.createElement("input");
+      reasonInput.type = "hidden";
+      reasonInput.name = "violation_reason";
+      reasonInput.value = reason;
+      form.appendChild(reasonInput);
+      
+      form.submit();
+  };
+
+  form.addEventListener("submit", () => {
+    isSubmitting = true;
+    sessionStorage.removeItem(`refresh_attempt_${attemptId}`);
+    window.removeEventListener("beforeunload", beforeUnloadHandler);
+  });
+
+
+  // ---------------------------------------------------------
+  // 4️⃣ DISABLE INSPECT ELEMENT & RIGHT CLICK
+  // ---------------------------------------------------------
+  document.addEventListener('contextmenu', event => event.preventDefault(), true);
+  window.oncontextmenu = function() { return false; };
+
+  document.addEventListener('keydown', function(e) {
+    if(e.key === "F12" || 
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+      (e.ctrlKey && e.key === 'u')) {
+      e.preventDefault();
+    }
+  });
+
+</script>
+  <!-- ✅ LIFELINES (Old bottom bar removed) -->
+  
+  {% if attempt.quiz.quiz_type == 'hackathon' %}
+  <!-- AI Modal -->
+  <!-- AI Modal -->
+  <div id="aiModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('aiModal')"></div>
+      <div class="bg-gray-900 border border-purple-500/50 rounded-2xl p-6 max-w-md w-full relative z-10 shadow-2xl animate-fade-in-up min-h-[300px] flex flex-col justify-center">
+          
+          <!-- Loader State -->
+          <div id="aiLoader" class="hidden flex flex-col items-center justify-center gap-4 py-8">
+              <div class="relative w-20 h-20">
+                  <div class="absolute inset-0 bg-purple-500/30 rounded-full animate-ping"></div>
+                  <div class="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div class="absolute inset-0 flex items-center justify-center animate-pulse">
+                     <svg class="w-8 h-8 text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.8)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                     </svg>
+                  </div>
+              </div>
+              <p class="text-purple-300 font-bold text-lg animate-pulse">Tgays AI is analyzing...</p>
+          </div>
+
+          <!-- Content State -->
+          <div id="aiContent">
+              <div class="flex items-center gap-3 mb-4">
+                  <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                     <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                     </svg>
+                  </div>
+                  <h3 class="text-xl font-bold text-white">Tgays AI Hint</h3>
+              </div>
+              <p id="aiHintText" class="text-gray-300 text-lg leading-relaxed mb-6"></p>
+              <button onclick="closeModal('aiModal')" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition">
+                  Got it!
+              </button>
+          </div>
+
+      </div>
+  </div>
+
+  <!-- Poll Modal -->
+  <div id="pollModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center px-4">
+      <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('pollModal')"></div>
+      <div class="bg-gray-900 border border-green-500/50 rounded-2xl p-6 max-w-md w-full relative z-10 shadow-2xl animate-fade-in-up">
+          <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-xl">📊</div>
+              <h3 class="text-xl font-bold text-white">Audience Poll</h3>
+          </div>
+          <div id="pollResults" class="space-y-4 mb-6">
+              <!-- Bars injected here -->
+          </div>
+          <button onclick="closeModal('pollModal')" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition">
+              Close Poll
+          </button>
+      </div>
+  </div>
+  {% endif %}
+
+<script>
+  // ---------------------------------------------------------
+  // LIFELINES LOGIC
+  // ---------------------------------------------------------
+  async function useLifeline(type) {
+      console.log('Lifeline clicked:', type);
+      
+      const btn = document.getElementById(`btn-${type}`);
+      if (!btn || btn.disabled) return;
+
+      // Special handling for AI loader
+      if (type === 'ask_ai') {
+          showAILoading();
+      }
+
+      // visual loading
+      btn.style.opacity = "0.7";
+      btn.style.cursor = "wait";
+
+      try {
+          const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+          if (!csrfInput) return;
+          const csrfToken = csrfInput.value;
+          
+          const response = await fetch("{% url 'use_lifeline_api' %}", {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken
+              },
+              body: JSON.stringify({
+                  attempt_id: "{{ attempt.id }}",
+                  question_id: "{{ question.id }}",
+                  lifeline_type: type
+              })
+          });
+          
+          if (!response.ok) {
+              console.error("Server Error", response.status);
+              btn.style.opacity = "1";
+              btn.style.cursor = "pointer";
+              if (type === 'ask_ai') closeModal('aiModal'); // close loader if fail
+              return;
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+              // Mark as used visually
+              btn.disabled = true;
+              btn.classList.add('opacity-50', 'cursor-not-allowed');
+              
+              if (type === '5050') {
+                  handle5050(data.result.remove_ids);
+              } else if (type === 'ask_ai') {
+                  showAIModal(data.result.hint);
+              } else if (type === 'poll') {
+                  showPollModal(data.result.poll_data);
+              }
+          } else {
+              alert(data.error || "Failed to use lifeline");
+              btn.style.opacity = "1";
+              btn.style.cursor = "pointer";
+              if (type === 'ask_ai') closeModal('aiModal');
+          }
+      } catch (e) {
+          console.error(e);
+          btn.style.opacity = "1";
+          btn.style.cursor = "pointer";
+          if (type === 'ask_ai') closeModal('aiModal');
+      }
+  }
+
+  function handle5050(removeIds) {
+      removeIds.forEach(id => {
+          // Find the radio input with this value
+          const input = document.querySelector(`input[name="choice"][value="${id}"]`);
+          if (input) {
+              // Fade out the parent label
+              const label = input.closest('label');
+              if (label) {
+                  label.style.opacity = "0.2";
+                  label.style.pointerEvents = "none";
+              }
+          }
+      });
+  }
+
+  function showAILoading() {
+      document.getElementById('aiContent').classList.add('hidden');
+      document.getElementById('aiLoader').classList.remove('hidden');
+      document.getElementById('aiModal').classList.remove('hidden');
+  }
+
+  function showAIModal(hint) {
+      document.getElementById('aiLoader').classList.add('hidden');
+      document.getElementById('aiContent').classList.remove('hidden');
+      document.getElementById('aiHintText').innerText = hint;
+  }
+
+  function showPollModal(pollData) {
+      const container = document.getElementById('pollResults');
+      container.innerHTML = ''; // clear
+
+      // Get all choices to match ID with Text
+      const choices = Array.from(document.querySelectorAll('input[name="choice"]')).map(input => ({
+          id: input.value,
+          text: input.nextElementSibling.innerText.trim()
+      }));
+
+      // Sort by percentage desc FOR FINAL DISPLAY logic, but for animation we keep order?
+      // Actually KBC shows options in order. Let's keep original order for now to match buttons.
+      // But user usually wants to see winner top? KBC usually keeps option order (A, B, C, D).
+      // Let's stick to option order for consistency with the Question UI.
+      const choiceIds = choices.map(c => c.id);
+
+      // Create Rows
+      const bars = {}; // Store references
+
+      choiceIds.forEach(choiceId => {
+          const choiceObj = choices.find(c => c.id == choiceId);
+          const choiceText = choiceObj ? choiceObj.text : "Option";
+
+          const row = document.createElement('div');
+          row.className = "space-y-1";
+          // Use ID for bar to update later
+          row.innerHTML = `
+              <div class="flex justify-between text-gray-400 text-sm">
+                  <span class="truncate pr-2 w-3/4">${choiceText}</span>
+                  <span class="font-bold text-white pct-text">0%</span>
+              </div>
+              <div class="h-4 bg-gray-700 rounded-full overflow-hidden relative"> <!-- h-4 for chunkier look -->
+                   <!-- Shimmer effect overlay for "live" feel -->
+                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer z-10"></div>
+                  <div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-300 ease-out bar-fill" style="width: 0%"></div>
+              </div>
+          `;
+          container.appendChild(row);
+          bars[choiceId] = {
+              bar: row.querySelector('.bar-fill'),
+              text: row.querySelector('.pct-text')
+          };
+      });
+
+      document.getElementById('pollModal').classList.remove('hidden');
+
+      // ANIMATION LOGIC
+      // 1. "Polling..." State
+      const headerTitle = document.querySelector('#pollModal h3');
+      const originalTitle = headerTitle.innerText;
+      headerTitle.innerText = "Polling Audience...";
+      headerTitle.innerHTML += ' <span class="animate-pulse">⏳</span>';
+
+      // 2. Random Fluctuation (3.5 seconds)
+      const duration = 3500;
+      const intervalTime = 150;
+      const steps = duration / intervalTime;
+      let currentStep = 0;
+
+      const timer = setInterval(() => {
+          choiceIds.forEach(id => {
+              // Random % between 10 and 90
+              const randomPct = Math.floor(Math.random() * 80) + 10;
+              bars[id].bar.style.width = `${randomPct}%`;
+              bars[id].text.innerText = `${randomPct}%`;
+          });
+          currentStep++;
+
+          if (currentStep >= steps) {
+              clearInterval(timer);
+              revealFinalResults();
+          }
+      }, intervalTime);
+
+      function revealFinalResults() {
+          headerTitle.innerText = "Audience Verdict";
+          
+          choiceIds.forEach(id => {
+              const finalPct = pollData[id] || 0;
+              bars[id].bar.style.transition = "width 1s cubic-bezier(0.4, 0, 0.2, 1)"; // Slower ease for final settling
+              bars[id].bar.style.width = `${finalPct}%`;
+              bars[id].text.innerText = `${finalPct}%`;
+              
+              // Highlight winner
+              if (finalPct >= 50) {
+                  bars[id].bar.classList.remove('from-green-500', 'to-emerald-400');
+                  bars[id].bar.classList.add('from-yellow-400', 'to-orange-500', 'shadow-[0_0_15px_rgba(234,179,8,0.5)]');
+                  bars[id].text.classList.add('text-yellow-400', 'scale-110');
+              }
+          });
+      }
+  }
+
+  function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+  }
+</script>
+
+{% if attempt.quiz.quiz_type == 'hackathon' %}
+<!-- ✅ Hackathon-Only Tab Switch Restriction -->
+<script>
+  const maxWarnings = 2;
+  const storageKey = `quiz_warnings_${attemptId}`;
+  
+  let warningCount = parseInt(sessionStorage.getItem(storageKey) || "0");
+  
+  const warningBox = document.getElementById("warningBox");
+  const warningText = document.getElementById("warningText");
+  const warningCounter = document.getElementById("warningCounter");
+  let isAutoSubmitting = false;
+
+  // Check for refresh violation on load
+  if (sessionStorage.getItem(`refresh_attempt_${attemptId}`) === "true") {
+      sessionStorage.removeItem(`refresh_attempt_${attemptId}`);
+      handleViolation("Refresh", "Refreshing the page is not allowed.", "Refresh limit exceeded.");
+  }
+
+  // Always update counter on load to show current status (even if 0)
+  updateCounter();
+
+  function updateCounter() {
+    warningCounter.classList.remove("hidden");
+    warningCounter.innerHTML = `<span class="text-red-500 text-lg">●</span> Warnings: ${warningCount} / ${maxWarnings + 1}`;
+  }
+
+  function showWarning(message) {
+    warningBox.classList.remove("hidden");
+    warningText.innerText = message;
+    warningBox.classList.add("shake");
+    
+    setTimeout(() => warningBox.classList.remove("shake"), 600);
+    setTimeout(() => warningBox.classList.add("opacity-0", "-translate-y-10"), 4000);
+    setTimeout(() => {
+      warningBox.classList.add("hidden");
+      warningBox.classList.remove("opacity-0", "-translate-y-10");
+    }, 4500);
+  }
+
+  function triggerAutoSubmit(reason) {
+      if (isAutoSubmitting) return;
+      isAutoSubmitting = true;
+      
+      sessionStorage.removeItem(storageKey);
+      
+      showWarning("Maximum violations reached. Auto-submitting quiz...");
+      warningCounter.innerText = "❌ Auto-Submitting...";
+      warningCounter.classList.remove("hidden");
+      warningCounter.classList.add("bg-red-700", "animate-pulse");
+
+      setTimeout(() => {
+          autoSubmitQuiz(reason);
+      }, 2000);
+  }
+
+  let pendingWarningMsg = null;
+
+  function handleViolation(violationType, warningMsg, submitMsg) {
+      if (!isSubmitting && !isAutoSubmitting) {
+          warningCount++;
+          sessionStorage.setItem(storageKey, warningCount);
+          updateCounter();
+
+          if (warningCount <= maxWarnings) {
+              const msg = `Warning ${warningCount}/${maxWarnings + 1}: ${warningMsg}`;
+              
+              if (document.hidden) {
+                  pendingWarningMsg = msg;
+              } else {
+                  showWarning(msg);
+                  document.body.style.backgroundColor = "rgba(255, 0, 0, 0.05)";
+                  setTimeout(() => document.body.style.backgroundColor = "", 800);
+              }
+          } else {
+              triggerAutoSubmit(submitMsg);
+          }
+      }
+  }
+
+  // 1. Tab Switching
+  let tabSwitchTimeout;
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+        // Delay violation check to see if it's actually a refresh (beforeunload will clear this)
+        tabSwitchTimeout = setTimeout(() => {
+            if (!isUnloading) {
+                handleViolation("Tab Switch", "Switching tabs is strictly prohibited.", "Tab switching limit exceeded.");
+            }
+        }, 100);
+    } else {
+        if (pendingWarningMsg) {
+            showWarning(pendingWarningMsg);
+            document.body.style.backgroundColor = "rgba(255, 0, 0, 0.05)";
+            setTimeout(() => document.body.style.backgroundColor = "", 800);
+            pendingWarningMsg = null;
+        }
+    }
+  });
+  // 2. Back Button
+  window.addEventListener("popstate", e => {
+    e.preventDefault();
+    history.pushState(null, "", location.href);
+    handleViolation("Back Button", "Back button is disabled.", "Back button usage limit exceeded.");
+  });
+
+  
+  // Clear storage on normal form submit (Next/Prev/Submit)
+  form.addEventListener("submit", () => {
+      isSubmitting = true;
+      window.removeEventListener("beforeunload", beforeUnloadHandler);
+  });
+
+</script>
+
+<style>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+</style>
+
+
+
+<!-- ✅ PROCTORING TOAST (Temporary Text Only) -->
+<div id="surveillanceToast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-red-900/90 border border-red-500/50 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center gap-3 transition-all duration-500 opacity-0 translate-y-[-20px]" style="pointer-events: none;">
+    <span class="relative flex h-3 w-3">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+    </span>
+    <span class="font-bold tracking-wider text-sm uppercase">Surveillance Active</span>
+</div>
+
+<!-- Hidden Video for Camera Light -->
+<video id="userCam" autoplay muted playsinline class="hidden"></video>
+
+<script>
+    // 📷 CAMERA LOGIC (Hidden, purely for effect)
+    (async function initProctoring() {
+        const toast = document.getElementById('surveillanceToast');
+        const sessionKey = `proctoring_shown_${attemptId}`; // Use the attemptId variable defined earlier
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            document.getElementById('userCam').srcObject = stream;
+            
+            // Only show toast if NOT shown before in this session
+            if (!sessionStorage.getItem(sessionKey)) {
+                // Show toast
+                setTimeout(() => {
+                    toast.classList.remove('opacity-0', 'translate-y-[-20px]');
+                }, 500);
+
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                }, 3500);
+                
+                // Mark as shown
+                sessionStorage.setItem(sessionKey, "true");
+            }
+
+        } catch (err) {
+            console.warn("Camera access denied or error:", err);
+            // If denied, we could show a warning toast, but user asked for minimalist approach
+        }
+    })();
+</script>
+
+
+
+
+{% endif %}
+{% endblock %}
