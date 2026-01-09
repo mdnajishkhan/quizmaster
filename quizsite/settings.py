@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'nested_admin',
     'quizzes',
+    'training',
 ]
 
 MIDDLEWARE = [

@@ -1,162 +1,551 @@
 {% extends 'quizzes/base.html' %}
 {% block content %}
 
-<div class="min-h-screen flex items-start justify-center pt-0 pb-12">
-    <div class="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 
-                rounded-3xl p-6 md:p-10 text-center shadow-[0_8px_40px_rgba(0,0,0,0.45)]
-                animate-[fadeIn_0.5s_ease-out]">
+<!-- 
+  CYBERPUNK 3D FLIP AUTH CARD 
+  ---------------------------
+  A single container holding two faces (Login / Register).
+  The 'page_type' context variable determines the initial face.
+-->
 
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-3 drop-shadow-lg">
-            Welcome Back 👋
-        </h2>
+<div class="w-full min-h-screen flex items-start justify-center -mt-10 pt-4 md:pt-8 perspective-container overflow-visible">
+    
+    <!-- 3D Card Container - Dynamic Height -->
+    <div id="authCard" class="relative w-full max-w-md transition-all duration-700 transform-style-3d 
+                {% if page_type == 'register' or page_type == 'forgot' %}rotate-y-180{% endif %}"
+         style="height: {% if page_type == 'register' %}620px{% elif page_type == 'forgot' %}350px{% else %}480px{% endif %};">
+        
+        <!-- ==========================
+             FRONT FACE: LOGIN
+             ========================== -->
+        <!-- Original style: bg-white/10 backdrop-blur-xl border border-white/20 -->
+        <div id="loginFace" class="absolute inset-0 w-full h-full backface-hidden bg-white/10 backdrop-blur-xl border border-white/20 
+                    rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.45)] flex flex-col justify-center"
+             style="z-index: 20;">
+            
+            <div class="text-center mb-1">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-1 drop-shadow-lg">
+                    Welcome Back 👋
+                </h2> 
+                <p class="text-gray-200 mb-2 text-sm tracking-wide">
+                    Log in to continue your quiz journey
+                </p>
+            </div>
 
-        <p class="text-gray-200 mb-8 text-sm tracking-wide">
-            Log in to continue your quiz journey
-        </p>
-
-        <!-- Error div -->
-        <!-- Error div -->
-        {% if form.errors %}
-        <div id="error-msg"
-            class="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg 
-                   mb-6 text-sm text-left shadow-lg backdrop-blur-md">
-            {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                    <p>⚠️ {{ error }}</p>
+            <!-- Login Error Msg -->
+            {% if login_form.errors %}
+            <div class="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6 text-sm backdrop-blur-md text-left">
+                {% for field, errors in login_form.errors.items %}
+                    {% for error in errors %}
+                        <p>⚠️ {{ error }}</p>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {{ login_form.username }}
+                </div>
+
+                <!-- Password -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    {{ login_form.password }}
+                    <!-- Eye Toggle -->
+                    <button type="button" onclick="togglePassword('login_password', this)" 
+                            class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white transition-colors z-20 focus:outline-none">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center">
+                        <input id="remember_me" name="remember_me" type="checkbox" 
+                               class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded cursor-pointer bg-white/20">
+                        <label for="remember_me" class="ml-2 block text-sm text-gray-200 cursor-pointer select-none">
+                            Remember me
+                        </label>
+                    </div>
+                    <a href="javascript:void(0);" onclick="flipCard('forgot')" class="text-sm text-purple-300 hover:text-purple-200 hover:underline">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-700 
+                           text-white font-bold py-3 rounded-xl shadow-xl transform hover:scale-[1.04] 
+                           active:scale-[0.98] transition-all duration-300">
+                    Login
+                </button>
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-300 text-sm tracking-wide">
+                    Don’t have an account?
+                    <button onclick="flipCard('register')" class="text-purple-300 hover:text-purple-200 font-semibold underline ml-1">
+                        Register
+                    </button>
+                </p>
+            </div>
         </div>
-        {% else %}
-        <div id="error-msg"
-            class="hidden bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg 
-                   mb-6 text-sm text-left shadow-lg backdrop-blur-md"></div>
-        {% endif %}
 
-        <form method="POST" class="space-y-6" id="loginForm" novalidate>
-            {% csrf_token %}
 
-            <!-- Username -->
-            <div class="relative group">
-                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
-                    <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                {{ form.username }}
+        <!-- ==========================
+             BACK FACE: REGISTER
+             ========================== -->
+        <!-- Matches Login Face Style -->
+        <div id="registerFace" class="absolute inset-0 w-full h-full backface-hidden bg-white/10 backdrop-blur-xl border border-white/20 
+                    rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.45)] rotate-y-180 flex flex-col justify-center overflow-y-auto custom-scrollbar {% if page_type == 'forgot' %}hidden{% endif %}"
+             style="z-index: 10;">
+            
+            <div class="text-center mb-1">
+                <h2 class="text-3xl font-extrabold text-white mb-1 drop-shadow-lg">Create Account 🚀</h2>
+                <p class="text-gray-200 mb-2 text-sm tracking-wide">Join the quiz world with one click</p>
             </div>
 
-            <!-- Password -->
-            <div class="relative group">
-                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
-                    <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
+            <!-- Register Error Msg -->
+            {% if register_form.errors %}
+            <div class="bg-red-500/20 border border-red-500 text-red-200 px-4 py-2 rounded-lg mb-4 text-xs backdrop-blur-md text-left">
+                {% for field, errors in register_form.errors.items %}
+                    {% for error in errors %}
+                        <p>⚠️ {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'register' %}" class="space-y-4" id="registerForm" novalidate>
+                {% csrf_token %}
+                
+                <!-- Full Name -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    {{ register_form.full_name }}
                 </div>
-                {{ form.password }}
-                <!-- Eye Toggle -->
-                <div class="absolute inset-y-0 right-3 flex items-center cursor-pointer z-10" onclick="togglePassword('login_password', this)">
-                    <svg class="h-5 w-5 text-gray-400 hover:text-purple-400 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
+
+                <!-- Email -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {{ register_form.email }}
                 </div>
+
+                <!-- College Search -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                     <!-- Custom Search Input -->
+                    <input type="text" id="college_search" placeholder="Enter College Name" autocomplete="off"
+                        class="w-full pl-12 pr-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 backdrop-blur-xl cursor-pointer">
+                    
+                    <!-- Hidden Actual Select -->
+                    <div class="hidden">{{ register_form.college }}</div>
+                    
+                    <!-- Dropdown Options -->
+                    <div id="college_options" class="absolute z-50 w-full bg-gray-900/95 border border-white/20 rounded-xl mt-1 max-h-40 overflow-y-auto hidden backdrop-blur-xl shadow-2xl"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    {{ register_form.password }}
+                    <!-- Eye Toggle -->
+                    <button type="button" onclick="togglePassword('reg_password', this)" 
+                            class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white transition-colors z-20 focus:outline-none">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    {{ register_form.confirm_password }}
+                    <!-- Eye Toggle -->
+                    <button type="button" onclick="togglePassword('reg_confirm_password', this)" 
+                            class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white transition-colors z-20 focus:outline-none">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-700 
+                           text-white font-bold py-3 rounded-xl shadow-xl transform hover:scale-[1.04] 
+                           active:scale-[0.98] transition-all duration-300">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-300 text-sm tracking-wide">
+                    Already have an account? 
+                    <button onclick="flipCard('login')" class="text-purple-300 hover:text-purple-200 font-semibold underline">
+                        Login
+                    </button>
+                </p>
+            </div>
+        </div>
+
+        <!-- ==========================
+             BACK FACE: FORGOT PASSWORD
+             ========================== -->
+        <div id="forgotFace" class="absolute inset-0 w-full h-full backface-hidden bg-white/10 backdrop-blur-xl border border-white/20 
+                    rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.45)] rotate-y-180 flex flex-col justify-center {% if page_type != 'forgot' %}hidden{% endif %}"
+             style="z-index: 10;">
+            
+            <div class="text-center mb-1">
+                <h2 class="text-3xl font-extrabold text-white mb-2 drop-shadow-lg">Reset Password 🔐</h2>
+                <p class="text-gray-200 mb-4 text-sm tracking-wide">Enter your email to receive a reset link</p>
             </div>
 
-            <div class="flex items-center justify-between">
-                <!-- Remember Me -->
-                <div class="flex items-center">
-                    <input id="remember_me" name="remember_me" type="checkbox" 
-                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded cursor-pointer bg-white/20">
-                    <label for="remember_me" class="ml-2 block text-sm text-gray-200 cursor-pointer select-none">
-                        Remember me
-                    </label>
+            <!-- Forgot Error Msg -->
+            {% if password_reset_form.errors %}
+            <div class="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6 text-sm backdrop-blur-md text-left">
+                {% for field, errors in password_reset_form.errors.items %}
+                    {% for error in errors %}
+                        <p>⚠️ {{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'password_reset' %}" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                <!-- Email -->
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-purple-400 transition-all duration-300" 
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {{ password_reset_form.email }}
                 </div>
 
-                <a href="{% url 'password_reset' %}" class="text-sm text-purple-300 hover:text-purple-200 hover:underline">
-                    Forgot Password?
-                </a>
+                <button type="submit" 
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-700 
+                           text-white font-bold py-3 rounded-xl shadow-xl transform hover:scale-[1.04] 
+                           active:scale-[0.98] transition-all duration-300">
+                    Send Reset Link
+                </button>
+            </form>
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-300 text-sm tracking-wide">
+                    Remembered it?
+                    <button onclick="flipCard('login')" class="text-purple-300 hover:text-purple-200 font-semibold underline ml-1">
+                        Back to Login
+                    </button>
+                </p>
             </div>
+        </div>
 
-            <!-- Submit Button -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-700 
-                       text-white font-bold py-3 rounded-xl shadow-xl transform hover:scale-[1.04] 
-                       active:scale-[0.98] transition-all duration-300">
-                Login
-            </button>
-        </form>
-
-        <p class="text-gray-300 mt-8 text-sm tracking-wide">
-            Don’t have an account?
-            <a href="{% url 'register' %}" class="text-purple-300 hover:text-purple-200 font-semibold underline">
-                Register
-            </a>
-        </p>
     </div>
 </div>
 
-<!-- Fade animation -->
 <style>
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px);}
-    to { opacity: 1; transform: translateY(0);}
+/* 3D Utilities */
+.perspective-container {
+    perspective: 2000px; /* Deep perspective for "cinematic" feel */
+}
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+.backface-hidden {
+    backface-visibility: hidden;
+    /* Smooth edge rendering */
+    -webkit-font-smoothing: antialiased;
+    outline: 1px solid transparent;
+}
+
+/* 
+   THE "GENIUS" ANIMATION 
+   ----------------------
+   Uses a custom cubic-bezier for a "snap" effect with slight bounce.
+   The rotation includes a slight Z-tilt to make it feel handled by a human.
+*/
+#authCard {
+    transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), height 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); /* "Anticipate" curve - pulls back first */
+    /* Default State (Login) */
+    transform: rotateY(0deg) rotateZ(0deg) scale(1);
+}
+
+/* When Flipped (Register) */
+.rotate-y-180 {
+    /* The transform replaces the one in ID, so we need full definition */
+    /* 180deg Y flip + slight 5deg Z tilt for style + Scale pulse handled by keyframes if needed, 
+       but direct transition is smoother. Let's use a simpler spring. */
+    transform: rotateY(180deg) scale(1) !important;
+}
+
+/* Let's refine the easing. The user wants "AMAZING". 
+   Let's split the transition: 
+   Go out fast, come in slow (ease-out). 
+   Standard CSS transition might be too linear.
+   
+   Let's override the transition timing function on the class add.
+*/
+#authCard.rotate-y-180 {
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy spring finish */
+}
+
+
+/* Hide Scrollbar visually but allow functionality */
+.custom-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Form Input Overrides */
+input[type="text"], input[type="password"], input[type="email"] {
+    background: rgba(255, 255, 255, 0.03) !important; /* Lighter/Subtler glass */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    padding-left: 2.5rem !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    border-radius: 0.75rem !important;
+    width: 100%;
+    transition: all 0.3s ease-out;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); /* Inner depth */
+}
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: #d8b4fe !important; /* Purple-300 */
+    box-shadow: 0 0 20px rgba(216, 180, 254, 0.15), inset 0 1px 2px rgba(255,255,255,0.1);
+    transform: translateY(-2px); /* Subtle lift on focus */
+    outline: none;
+}
+
+/* Hide Base Template Artifacts (Clean Cyberpunk Look) */
+/* RESTORED SNOWFLAKES (removed .snowflake) */
+.christmas-lights, .animate-pulse-smooth, .size-575 {
+    display: none !important;
 }
 </style>
 
 <script>
-function togglePassword(fieldId, icon) {
-    const input = document.getElementById(fieldId);
-    const svg = icon.querySelector('svg');
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        // Switch to Eye Slash
-        svg.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-        `;
-    } else {
-        input.type = 'password';
-        // Switch back to Eye
-        svg.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        `;
+    function flipCard(side) {
+        const card = document.getElementById('authCard');
+        const loginFace = document.getElementById('loginFace');
+        const registerFace = document.getElementById('registerFace');
+        const forgotFace = document.getElementById('forgotFace');
+
+        // Reset display of back faces (ensure correct one is visible)
+        if (side === 'register') {
+            registerFace.classList.remove('hidden');
+            if (forgotFace) forgotFace.classList.add('hidden');
+            
+            card.style.height = '620px'; // Expand for Register
+            card.classList.add('rotate-y-180');
+            setTimeout(() => {
+                registerFace.style.zIndex = 20;
+                loginFace.style.zIndex = 10;
+                if(forgotFace) forgotFace.style.zIndex = 10;
+            }, 400);
+            window.history.pushState(null, 'Register', '/register/');
+        } 
+        else if (side === 'forgot') {
+            if (forgotFace) forgotFace.classList.remove('hidden');
+            registerFace.classList.add('hidden');
+
+            card.style.height = '350px'; // Shrink for Forgot
+            card.classList.add('rotate-y-180');
+            setTimeout(() => {
+                if(forgotFace) forgotFace.style.zIndex = 20;
+                loginFace.style.zIndex = 10;
+                registerFace.style.zIndex = 10;
+            }, 400);
+            window.history.pushState(null, 'Reset Password', '/password-reset/');
+        }
+        else {
+            // Login
+            card.style.height = '480px'; // Reset for Login
+            card.classList.remove('rotate-y-180');
+            setTimeout(() => {
+                loginFace.style.zIndex = 20;
+                registerFace.style.zIndex = 10;
+                if(forgotFace) forgotFace.style.zIndex = 10;
+                // Optional: after animation, hide back faces? Better keep them for smoothness
+            }, 400);
+            window.history.pushState(null, 'Login', '/login/');
+        }
     }
-}
 
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-    const user = document.getElementById('login_username').value.trim();
-    const pass = document.getElementById('login_password').value.trim();
-    const errorDiv = document.getElementById('error-msg');
-
-    let errors = [];
-
-    if (!user) errors.push("⚠️ Username is required");
-    if (!pass) errors.push("⚠️ Password is required");
-
-    if (errors.length > 0) {
-        event.preventDefault();
-        errorDiv.innerHTML = errors.join("<br>");
-        errorDiv.classList.remove("hidden");
-    } else {
-        // If client-side validation passes, we don't hide the div immediately 
-        // because it might contain server-side errors we want to keep visible 
-        // until the page reloads. However, if we are submitting, the page *will* reload.
-        // But if the user corrects a client-side error, we should probably hide the old client-side error.
-        // A simple approach: clear it if we are about to submit, or just let the submit happen.
-        // If we want to clear *only* if it was showing client errors, that's complex.
-        // For now, let's just hide it if valid, assuming server errors will re-render the page.
-        errorDiv.classList.add("hidden");
+    // --- College Search Logic ---
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const svg = btn.querySelector('svg');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            // Switch to Eye Slash (Hide)
+            svg.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            `;
+        } else {
+            input.type = 'password';
+            // Switch to Eye (Show)
+            svg.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            `;
+        }
     }
-});
+
+    // Initialize Select2 (if needed) and other handlers
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Remove interfering background glows from base.html for a cleaner look
+        // 1. Remove interfering background glows from base.html for a cleaner look
+        const glows = document.querySelectorAll('.animate-pulse-smooth, .christmas-lights');
+        glows.forEach(el => el.remove());
+
+        // Initial Z-Index setup based on page type
+        const card = document.getElementById('authCard');
+        const loginFace = document.getElementById('loginFace');
+        const registerFace = document.getElementById('registerFace');
+        const forgotFace = document.getElementById('forgotFace');
+        
+        // Check if rotated already (render-time class)
+        if (card.classList.contains('rotate-y-180')) {
+             loginFace.style.zIndex = 10;
+             // Determine which back face is active
+             if (forgotFace && !forgotFace.classList.contains('hidden')) {
+                 forgotFace.style.zIndex = 20;
+                 registerFace.style.zIndex = 10;
+             } else {
+                 registerFace.style.zIndex = 20;
+                 if(forgotFace) forgotFace.style.zIndex = 10;
+             }
+        } else {
+             loginFace.style.zIndex = 20;
+             registerFace.style.zIndex = 10;
+             if(forgotFace) forgotFace.style.zIndex = 10;
+        }
+
+        const searchInput = document.getElementById('college_search');
+        if (!searchInput) return;
+
+        const optionsContainer = document.getElementById('college_options');
+        const hiddenSelect = document.querySelector('select[name="college"]');
+
+        if (!hiddenSelect) return;
+
+        const options = Array.from(hiddenSelect.options).filter(opt => opt.value);
+
+        function renderOptions(filterText = '') {
+            optionsContainer.innerHTML = '';
+            if (!filterText.trim()) {
+                optionsContainer.classList.add('hidden');
+                return;
+            }
+            const filtered = options.filter(opt => opt.text.toLowerCase().includes(filterText.toLowerCase()));
+            
+            if (filtered.length === 0) {
+                const noResult = document.createElement('div');
+                noResult.className = 'px-4 py-2 text-gray-400 text-sm';
+                noResult.textContent = 'No match found.';
+                optionsContainer.appendChild(noResult);
+            } else {
+                filtered.forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-2 text-gray-200 hover:bg-purple-600/50 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-0';
+                    div.textContent = opt.text;
+                    div.onclick = () => {
+                        searchInput.value = opt.text;
+                        hiddenSelect.value = opt.value;
+                        optionsContainer.classList.add('hidden');
+                    };
+                    optionsContainer.appendChild(div);
+                });
+            }
+            optionsContainer.classList.remove('hidden');
+        }
+
+        searchInput.addEventListener('input', (e) => renderOptions(e.target.value));
+        searchInput.addEventListener('focus', () => { if(searchInput.value.trim()) optionsContainer.classList.remove('hidden'); });
+        
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !optionsContainer.contains(e.target)) {
+                optionsContainer.classList.add('hidden');
+            }
+        });
+    });
 </script>
 
 {% endblock %}

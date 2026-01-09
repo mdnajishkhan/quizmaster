@@ -287,7 +287,14 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegistrationForm()
-    return render(request, 'quizzes/register.html', {'form': form})
+        
+    context = {
+        'login_form': UserLoginForm(),      # Always use 'login_form' for Login (Front Face)
+        'register_form': form,        # Always use 'register_form' for Register (Back Face)
+        'password_reset_form': EmailValidationPasswordResetForm(),
+        'page_type': 'register'
+    }
+    return render(request, 'quizzes/login.html', context)
 
 
 # 🔓 Activate Account
@@ -648,10 +655,34 @@ class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 # -------------------------------------------------------------------
 #  CUSTOM LOGIN VIEW (Remember Me)
 # -------------------------------------------------------------------
+class CustomPasswordResetView(auth_views.PasswordResetView):
+    template_name = 'quizzes/login.html'
+    email_template_name = 'quizzes/password_reset_email.html'
+    form_class = EmailValidationPasswordResetForm
+    success_url = reverse_lazy('password_reset_done')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_type'] = 'forgot'
+        context['login_form'] = UserLoginForm()
+        context['register_form'] = UserRegistrationForm()
+        context['password_reset_form'] = context['form'] # Alias for consistency
+        return context
+
+
 class CustomLoginView(auth_views.LoginView):
     template_name = 'quizzes/login.html'
     authentication_form = UserLoginForm
     redirect_authenticated_user = True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'form' in context:
+             context['login_form'] = context['form']
+        context['register_form'] = UserRegistrationForm() # Pass register form for the flip card
+        context['password_reset_form'] = EmailValidationPasswordResetForm()
+        context['page_type'] = 'login'
+        return context
 
     def form_valid(self, form):
         # Remember Me Logic

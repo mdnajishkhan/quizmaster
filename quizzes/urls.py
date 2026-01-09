@@ -18,11 +18,7 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     
     # Password Reset
-    path('password-reset/', auth_views.PasswordResetView.as_view(
-        template_name='quizzes/password_reset.html',
-        email_template_name='quizzes/password_reset_email.html',
-        form_class=views.EmailValidationPasswordResetForm
-    ), name='password_reset'),
+    path('password-reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
 
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='quizzes/password_reset_done.html'

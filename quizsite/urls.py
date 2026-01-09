@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('nested_admin/', include('nested_admin.urls')),
+    path('training/', include('training.urls')),
+    path('', include('quizzes.urls')),
     path('', include('quizzes.urls')),
 ]
 
