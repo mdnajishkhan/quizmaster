@@ -22,11 +22,137 @@
             </a>
         </div>
 
-        <!-- AI Features Grid -->
+        <!-- 📅 Upcoming Classes Section (Enrolled Users) -->
+        <!-- 📅 Upcoming Classes Section (Enrolled Users) -->
+        {% if upcoming_classes %}
+        <div class="mb-12 animate-fade-in-down" style="animation-delay: 0.1s;">
+            <!-- Section Header (Clean & Minimal) -->
+            <div class="flex items-center justify-between mb-6 px-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white leading-none">Upcoming Classes</h2>
+                        <p class="text-gray-400 text-xs font-medium mt-1">Don't miss your live sessions</p>
+                    </div>
+                </div>
+                <a href="{% url 'training_program' %}" class="hidden md:flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-white transition group border border-white/5 bg-white/5 py-2 px-4 rounded-lg hover:bg-white/10">
+                    <span>Full Schedule</span>
+                    <span class="transform group-hover:translate-x-1 transition">→</span>
+                </a>
+            </div>
+
+            <!-- Smart Layout: Full Width if 1 Class, Grid if > 1 -->
+            <div class="{% if upcoming_classes|length == 1 %}w-full max-w-4xl mx-auto{% else %}grid grid-cols-1 md:grid-cols-2 gap-6{% endif %}">
+                {% for class in upcoming_classes %}
+                <!-- Card -->
+                <div class="relative group cursor-pointer h-full" onclick="attemptJoinClass('{{ class.start_time|date:'c' }}', '{{ class.meeting_link|default:'' }}', '{{ class.topic|escapejs }}')">
+                    <!-- Hover Glow -->
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-3xl blur opacity-0 group-hover:opacity-30 transition duration-500"></div>
+                    
+                    <div class="relative h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700/50 rounded-3xl p-6 md:p-8 flex items-center justify-between shadow-xl hover:shadow-2xl hover:shadow-cyan-500/5 transition transform hover:-translate-y-1">
+                        
+                        <!-- Left Content -->
+                        <div class="flex-grow pr-4">
+                           <div class="flex flex-wrap items-center gap-3 mb-4">
+                               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">
+                                   <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                                   {{ class.start_time|date:"D, M j" }} • {{ class.start_time|date:"g:i A" }}
+                               </div>
+                               {% if class.batch %}
+                               <div class="px-2 py-0.5 rounded border border-white/10 text-gray-400 text-[10px] font-bold uppercase">
+                                   {{ class.batch.name }}
+                               </div>
+                               {% endif %}
+                           </div>
+                           
+                           <h3 class="text-2xl md:text-3xl font-black text-white mb-3 leading-tight tracking-tight">{{ class.topic }}</h3>
+                           
+                           <div class="flex items-center gap-2 text-sm font-medium text-gray-400">
+                               <div class="p-1 rounded-md bg-white/5">
+                                   <svg class="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                               </div>
+                               <span>Starts in <span class="text-white font-bold">{{ class.start_time|timeuntil }}</span></span>
+                           </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex items-center gap-3">
+                            <!-- Add to Calendar -->
+                            <button onclick="addToGoogleCalendar(event, '{{ class.topic|escapejs }}', '{{ class.start_time|date:'c' }}', '{{ class.end_time|date:'c' }}', '{{ class.meeting_link|default:'' }}')" 
+                                class="w-12 h-12 rounded-2xl bg-gray-800/50 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition shadow-lg relative z-20 group/cal" title="Add to Google Calendar">
+                                <svg class="w-5 h-5 group-hover/cal:text-cyan-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+
+                            <!-- Join Button -->
+                            <button class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gray-700/50 border border-white/10 flex items-center justify-center text-white group-hover:bg-gradient-to-br group-hover:from-cyan-500 group-hover:to-blue-600 group-hover:border-transparent transition-all shadow-lg group-hover:shadow-cyan-500/30 group-hover:scale-105 relative z-20 group/join">
+                                <svg class="w-6 h-6 group-hover/join:animate-ping-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Mobile Link (Bottom) -->
+            <div class="md:hidden mt-4 text-center">
+                 <a href="{% url 'training_program' %}" class="text-xs font-bold text-cyan-400 uppercase tracking-widest border-b border-cyan-400/20 pb-0.5">View Full Schedule</a>
+            </div>
+        </div>
+        <!-- ⏳ Class Countdown Modal (Redesigned) -->
+        <div id="classCountdownModal" class="glass-modal-overlay">
+            <div class="glass-card bg-[#0f172a] border border-white/10 max-w-sm w-full text-center relative p-8 rounded-2xl shadow-2xl">
+                
+                <!-- Icon -->
+                <div class="text-6xl mb-4 animate-bounce-slow">⏳</div>
+
+                <h3 class="text-2xl font-bold text-white mb-2">Class Starting Soon</h3>
+                <p class="text-gray-400 text-sm mb-8">
+                    Please wait, the session hasn't started yet.
+                </p>
+
+                <!-- Timer 4-Box Layout -->
+                <div class="flex items-center justify-center gap-3 mb-8">
+                    <!-- Days -->
+                    <div class="bg-[#1e293b] rounded-lg py-3 w-16 flex flex-col items-center border border-white/5">
+                        <span id="timerDays" class="text-2xl font-bold text-blue-400 font-mono">00</span>
+                        <span class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Days</span>
+                    </div>
+                    <!-- Hours -->
+                    <div class="bg-[#1e293b] rounded-lg py-3 w-16 flex flex-col items-center border border-white/5">
+                        <span id="timerHours" class="text-2xl font-bold text-blue-400 font-mono">00</span>
+                        <span class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Hrs</span>
+                    </div>
+                    <!-- Minutes -->
+                    <div class="bg-[#1e293b] rounded-lg py-3 w-16 flex flex-col items-center border border-white/5">
+                        <span id="timerMinutes" class="text-2xl font-bold text-blue-400 font-mono">00</span>
+                        <span class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Mins</span>
+                    </div>
+                    <!-- Seconds -->
+                    <div class="bg-[#1e293b] rounded-lg py-3 w-16 flex flex-col items-center border border-white/5">
+                        <span id="timerSeconds" class="text-2xl font-bold text-blue-400 font-mono">00</span>
+                        <span class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Secs</span>
+                    </div>
+                </div>
+
+                <!-- Bottom Close Button -->
+                <button onclick="closeClassModal()" class="bg-[#1e293b] hover:bg-[#334155] border border-white/10 text-white font-semibold px-8 py-2.5 rounded-lg transition-colors text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+        {% endif %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-start">
             
             <!-- 1. AI Performance Coach -->
-            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px]">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px] hover-tilt">
                 <!-- Decorative Glow -->
                 <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition duration-700"></div>
                 
@@ -52,7 +178,7 @@
             </div>
 
             <!-- 2. AI Quiz Architect (New) -->
-            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px]">
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden group text-left min-h-[280px] hover-tilt">
                 <!-- Decorative Glow -->
                 <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition duration-700"></div>
                 
@@ -697,6 +823,162 @@
                 }
             });
         }
+    });
+</script>
+
+<!-- 🧠 Smart Class Logic -->
+<script>
+    let countdownInterval;
+
+    function attemptJoinClass(startIso, link, topic) {
+        if (!link) {
+            alert("The meeting link for this class is not available yet. Please check back later.");
+            return;
+        }
+
+        const now = new Date();
+        const startTime = new Date(startIso);
+        const timeDiff = startTime - now;
+        const fifteenMinsMs = 15 * 60 * 1000;
+
+        // JOIN WINDOW LOGIC:
+        // If timeDiff <= 15 mins (meaning start time is in 15 mins or less) 
+        // OR timeDiff is negative (meaning start time has passed, class is live)
+        if (timeDiff <= fifteenMinsMs) {
+            // Check if class is arguably "over" (e.g., > 4 hours ago)? 
+            // For now, simpler is better: if it's past start-15m, let them click.
+            window.open(link, '_blank');
+        } else {
+            // Too early -> Show Countdown
+            showClassCountdown(startTime, topic);
+        }
+    }
+
+    function showClassCountdown(targetTime, topic) {
+        const modal = document.getElementById('classCountdownModal');
+        // document.getElementById('modalClassTopic').innerText = topic; // Removed in new design
+        
+        // Use the 'show' class for visibility (consistent with other modals)
+        modal.classList.add('show');
+        
+        // Clear existing
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        function update() {
+            const now = new Date();
+            const diff = targetTime - now;
+
+            // If we reach the 15 min window while watching
+            if (diff <= (15 * 60 * 1000)) {
+                clearInterval(countdownInterval);
+                modal.classList.remove('show');
+                if(confirm("Class is about to start! Do you want to join now?")) {
+                    location.reload(); 
+                }
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('timerDays').innerText = String(d).padStart(2, '0');
+            document.getElementById('timerHours').innerText = String(h).padStart(2, '0');
+            document.getElementById('timerMinutes').innerText = String(m).padStart(2, '0');
+            document.getElementById('timerSeconds').innerText = String(s).padStart(2, '0');
+        }
+
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
+    function addToGoogleCalendar(event, title, startIso, endIso, link) {
+        event.stopPropagation();
+        
+        const formatTime = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+        
+        const startDate = new Date(startIso);
+        // If no end time, assume 1 hour duration
+        const endDate = endIso ? new Date(endIso) : new Date(startDate.getTime() + 60*60000);
+
+        const startStr = formatTime(startDate);
+        const endStr = formatTime(endDate);
+        
+        const details = `Join your class here: ${link}`;
+        const location = link;
+
+        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
+        
+        window.open(calendarUrl, '_blank');
+    }
+
+    function closeClassModal() {
+        const modal = document.getElementById('classCountdownModal');
+        modal.classList.remove('show');
+        if (countdownInterval) clearInterval(countdownInterval);
+    }
+</script>
+
+<!-- 🌌 Holographic 3D Tilt Logic -->
+<style>
+    .hover-tilt {
+        transition: transform 0.1s ease-out;
+        transform-style: preserve-3d;
+        will-change: transform; /* Performance optimization */
+    }
+    .tilt-glare {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4), transparent 60%);
+        opacity: 0;
+        mix-blend-mode: overlay; /* Holographic shine effect */
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        border-radius: inherit;
+        z-index: 50;
+    }
+    /* Lift content slightly for depth */
+    .hover-tilt > * {
+        transform: translateZ(20px);
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.hover-tilt');
+
+        cards.forEach(card => {
+            const glare = document.createElement('div');
+            glare.classList.add('tilt-glare');
+            card.appendChild(glare);
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Calculate rotation (max 15 degrees)
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10; // Inverted for natural feel
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                // Apply 3D Transform
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                
+                // Move Glare
+                glare.style.left = `${x}px`; // Just centering logic helper if needed, but radial gradient uses background-position usually. 
+                // Using simpler background radial gradient movement:
+                glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.3), transparent 60%)`;
+                glare.style.opacity = '1';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                glare.style.opacity = '0';
+            });
+        });
     });
 </script>
 {% endblock %}

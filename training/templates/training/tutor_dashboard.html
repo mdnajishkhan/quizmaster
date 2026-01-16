@@ -1,0 +1,236 @@
+{% extends "quizzes/base.html" %}
+{% load training_extras %}
+{% load static %}
+
+{% block content %}
+<div class="px-4 py-8 max-w-7xl mx-auto">
+    
+    <!-- 🌟 Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-6 relative z-10">
+        <div class="text-center md:text-left">
+            <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-2">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Tutor Dashboard</span>
+            </h1>
+            <p class="text-gray-400 text-lg">Manage classes you are assigned to teach.</p>
+        </div>
+        
+        <!-- Navigation Controls (Same as User) -->
+        <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-sm shadow-xl">
+            <a href="{{ prev_link }}" onclick="navigateCalendar(event, '{{ prev_link }}')" id="nav-prev" class="p-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition group">
+                <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h2 id="calendar-title" class="text-xl font-bold text-white min-w-[200px] text-center tracking-wide uppercase">
+                {{ month_name }} <span class="text-blue-400">{{ current_year }}</span>
+            </h2>
+            <a href="{{ next_link }}" onclick="navigateCalendar(event, '{{ next_link }}')" id="nav-next" class="p-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition group">
+                <svg class="w-6 h-6 transform group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+
+
+    <!-- 🗓️ Calendar Grid Container -->
+    <div id="calendar-container" class="transition-opacity duration-300">
+        {% include 'training/partials/calendar_grid.html' %}
+    </div>
+    
+    <!-- Legend -->
+    <div class="mt-8 flex justify-center gap-6">
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></span>
+            <span class="text-sm font-bold text-blue-200">Upcoming</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></span>
+            <span class="text-sm font-bold text-emerald-200">Completed</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></span>
+            <span class="text-sm font-bold text-rose-200">Missed</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- ⏳ Countdown Modal (Resued Logic) -->
+<div id="countdown-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#0F172A] border border-blue-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="countdown-content">
+        <!-- Background Glows -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-blue-500/10 blur-3xl -z-10"></div>
+        
+        <div class="text-6xl mb-4">⏳</div>
+        <h3 class="text-2xl font-black text-white mb-2">Class Starting Soon</h3>
+        <p class="text-gray-400 mb-6 font-medium">Please wait, the session hasn't started yet.</p>
+        
+        <!-- Timer -->
+        <div class="grid grid-cols-4 gap-2 mb-8 text-center">
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span id="cd-days" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Days</span>
+            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span id="cd-hours" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Hrs</span>
+            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span id="cd-mins" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Mins</span>
+            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span id="cd-secs" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Secs</span>
+            </div>
+        </div>
+
+        <button onclick="closeModal('countdown-modal')" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">
+            Close
+        </button>
+    </div>
+</div>
+
+<!-- 🏁 Class Ended Modal -->
+<div id="ended-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#0F172A] border border-rose-500/30 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="ended-content">
+        <div class="text-6xl mb-4 text-rose-500 grayscale opacity-50">🏁</div>
+        <h3 class="text-2xl font-black text-rose-200 mb-2">Class Ended</h3>
+        <p class="text-gray-400 mb-6">This session has already finished.</p>
+        
+        <button onclick="closeModal('ended-modal')" class="px-6 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-xl font-bold transition">
+            Close
+        </button>
+    </div>
+</div>
+
+<!-- SCRIPTS (Copied from Calendar.html for identical behavior) -->
+<script>
+    let countdownInterval;
+
+    function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl, hasLink) {
+        event.preventDefault();
+        
+        const now = new Date();
+        const start = new Date(startTimeIso);
+        const end = new Date(endTimeIso);
+
+        if (now < start) {
+            // Class hasn't started -> Show Countdown
+            showCountdown(start);
+        } else if (now > end) {
+            // Class ended -> Show Ended Modal
+            showModal('ended-modal', 'ended-content');
+        } else {
+            // Class is live
+            if (hasLink) {
+                // Join in New Tab (Meeting)
+                window.open(joinUrl, '_blank');
+                // Reload page to update status
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                // No link -> Navigate in Same Tab to trigger server Warning
+                window.location.href = joinUrl;
+            }
+        }
+    }
+
+    function showModal(modalId, contentId) {
+        const modal = document.getElementById(modalId);
+        const content = document.getElementById(contentId);
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const content = modal.firstElementChild; 
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            if (countdownInterval) clearInterval(countdownInterval);
+        }, 300);
+    }
+
+    function showCountdown(targetDate) {
+        showModal('countdown-modal', 'countdown-content');
+        
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                closeModal('countdown-modal');
+                alert("Class Started! Please click Join again.");
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("cd-days").innerText = String(days).padStart(2, '0');
+            document.getElementById("cd-hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("cd-mins").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("cd-secs").innerText = String(seconds).padStart(2, '0');
+        }
+
+        updateTimer();
+        countdownInterval = setInterval(updateTimer, 1000);
+    }
+
+    function navigateCalendar(e, url) {
+        e.preventDefault();
+        
+        const container = document.getElementById('calendar-container');
+        const titleEl = document.getElementById('calendar-title');
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+        
+        container.style.opacity = '0.5';
+        
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            container.innerHTML = html;
+            container.style.opacity = '1';
+
+            const partialHeader = document.getElementById('calendar-header-partial');
+            if (partialHeader) {
+                titleEl.innerHTML = partialHeader.dataset.monthName + ` <span class="text-blue-400">` + partialHeader.dataset.monthName.split(' ')[1] + `</span>`;
+                titleEl.innerText = partialHeader.dataset.monthName; 
+
+                prevBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.prevLink}')`);
+                prevBtn.setAttribute('href', partialHeader.dataset.prevLink);
+                
+                nextBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.nextLink}')`);
+                nextBtn.setAttribute('href', partialHeader.dataset.nextLink);
+
+                history.pushState(null, '', url);
+            }
+        })
+        .catch(err => {
+            console.error('Failed to load calendar', err);
+            container.style.opacity = '1';
+            window.location.href = url;
+        });
+    }
+
+    window.addEventListener('popstate', function() {
+        location.reload();
+    });
+</script>
+{% endblock %}

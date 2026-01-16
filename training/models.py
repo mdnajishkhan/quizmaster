@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
+from django.core.exceptions import ValidationError
 
 class Workshop(models.Model):
     title = models.CharField(max_length=200)
@@ -38,11 +39,30 @@ class ClassSchedule(models.Model):
     start_time = models.DateTimeField(null=True, blank=True, help_text="Class start time")
     end_time = models.DateTimeField(null=True, blank=True, help_text="Class end time")
     meeting_link = models.URLField(max_length=500, blank=True, null=True, help_text="Zoom/Google Meet link")
+    
+    # Automated Reminder Flags
+    reminder_6hr_sent = models.BooleanField(default=False)
+    reminder_30min_sent = models.BooleanField(default=False)
+    
+    tutor = models.ForeignKey(User, related_name='tutor_schedules', on_delete=models.SET_NULL, null=True, blank=True, help_text="Assigned Tutor")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         time_str = self.start_time.strftime('%Y-%m-%d %H:%M') if self.start_time else "TBA"
         return f"{self.topic} ({time_str})"
+
+    def clean(self):
+        if self.tutor and self.start_time and self.end_time:
+            # Check for overlaps
+            overlaps = ClassSchedule.objects.filter(
+                tutor=self.tutor,
+                start_time__lt=self.end_time,
+                end_time__gt=self.start_time
+            ).exclude(pk=self.pk)
+            
+            if overlaps.exists():
+                raise ValidationError(f"Tutor {self.tutor.username} is already occupied at this time.")
 
 
 class Coupon(models.Model):
@@ -127,3 +147,24 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.user.username} joined {self.class_schedule.topic}"
+
+
+class Resource(models.Model):
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
+    schedule = models.ForeignKey(ClassSchedule, on_delete=models.CASCADE, related_name='resources', null=True, blank=True)
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='training/resources/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        # Auto-fill batch from schedule if not set
+        if not self.batch and self.schedule and self.schedule.batch:
+            self.batch = self.schedule.batch
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Resource"
+        verbose_name_plural = "Resources"

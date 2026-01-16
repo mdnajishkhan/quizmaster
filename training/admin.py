@@ -1,13 +1,52 @@
+from django import forms
+from django.db import models # Added missing import
 from django.contrib import admin
+from django.db.models import Q
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from .models import Workshop, Batch, ClassSchedule, Coupon, Enrollment, Attendance
+from .models import Workshop, Batch, ClassSchedule, Coupon, Enrollment, Attendance, Resource
 from django.contrib import messages
+
+class ClassScheduleForm(forms.ModelForm):
+    # Explicitly define fields to ensure correct input format validation for datetime-local
+    start_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M']
+    )
+    end_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M'],
+        required=False
+    )
+
+    class Meta:
+        model = ClassSchedule
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter tutor dropdown: Group='Tutor' OR Superuser OR Staff
+        # This prevents random students from appearing in the list
+        self.fields['tutor'].queryset = User.objects.filter(
+            Q(groups__name='Tutor') | Q(is_superuser=True) | Q(is_staff=True)
+        ).distinct()
 
 class ClassScheduleInline(admin.TabularInline):
     model = ClassSchedule
+    form = ClassScheduleForm # Use the form
     extra = 1
+
+class ResourceBatchInline(admin.TabularInline):
+    model = Resource
+    extra = 1
+    # Do NOT exclude 'batch' here, as it is the FK to the parent Batch model
+
+class ResourceScheduleInline(admin.TabularInline):
+    model = Resource
+    extra = 1
+    exclude = ('batch',)  # Exclude batch here, it will be auto-filled from the schedule
 
 @admin.register(Workshop)
 class WorkshopAdmin(admin.ModelAdmin):
@@ -17,12 +56,17 @@ class WorkshopAdmin(admin.ModelAdmin):
 class BatchAdmin(admin.ModelAdmin):
     list_display = ('name', 'workshop', 'start_date', 'end_date')
     list_filter = ('workshop',)
-    inlines = [ClassScheduleInline]
+    inlines = [ClassScheduleInline, ResourceBatchInline]
 
 @admin.register(ClassSchedule)
 class ClassScheduleAdmin(admin.ModelAdmin):
-    list_display = ('topic', 'batch', 'start_time', 'end_time')
-    list_filter = ('batch', 'start_time')
+    form = ClassScheduleForm # Use the form
+    list_display = ('topic', 'batch', 'tutor', 'start_time', 'end_time', 'reminder_6hr_sent', 'reminder_30min_sent')
+    list_filter = ('batch', 'tutor', 'start_time', 'reminder_6hr_sent', 'reminder_30min_sent')
+    inlines = [ResourceScheduleInline]
+    readonly_fields = ('reminder_6hr_sent', 'reminder_30min_sent')
+
+
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
@@ -127,3 +171,4 @@ class EnrollmentAdmin(admin.ModelAdmin):
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('user', 'class_schedule', 'joined_at')
     list_filter = ('class_schedule__batch',)
+

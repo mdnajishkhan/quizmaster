@@ -1,0 +1,372 @@
+{% extends "quizzes/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="relative overflow-hidden w-screen -ml-4 md:-ml-8 -mt-12 bg-[#0f172a]">
+
+    <!-- 🌟 HERO SECTION -->
+    <div class="relative min-h-[90vh] flex items-center justify-center p-6 md:p-12 overflow-hidden">
+        <!-- Hero Background Image (Generated) -->
+        <div class="absolute inset-0 z-0 opacity-40">
+             <img src="{% static 'quizzes/images/hero_tech_future.png' %}" class="w-full h-full object-cover" alt="Future Tech Background">
+             <div class="absolute inset-0 bg-gradient-to-b from-[#0f172a]/80 via-[#0f172a]/60 to-[#0f172a]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-5xl mx-auto text-center">
+            <div class="inline-block px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm font-bold tracking-wider uppercase mb-8 animate-fade-in-down">
+                🚀 Master The Future
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight mb-6 drop-shadow-[0_4px_10px_rgba(0,0,0,1)]">
+                Build The <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Impossible</span>.
+            </h1>
+            
+            <p class="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                We don't just teach coding. We forge <strong>Full Stack Engineers</strong> and <strong>AI Architects</strong>. From Python & Django to 
+                <span class="text-yellow-400 font-bold">AI Agents, RAG, and Automation</span>.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#stacks" class="px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition transform">
+                    Explore Stacks 👇
+                </a>
+                <a href="#contact" class="px-8 py-4 rounded-full bg-white/10 border border-white/20 text-white font-bold text-lg hover:bg-white/20 hover:scale-105 transition transform backdrop-blur-md">
+                    Get in Touch
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💻 TECH STACK SECTION -->
+    <div id="stacks" class="py-20 px-6 relative z-10 bg-[#0f172a]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">Complete Tech Arsenal</h2>
+                <div class="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Card 1: Backend Engineering -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Backend Engineering</h3>
+                            <span class="text-2xl">🐍</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build scalable, production-ready backend systems.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Python</span>
+                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Django</span>
+                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">FastAPI</span>
+                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">PostgreSQL</span>
+                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Redis</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Backend Developer · API Engineer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Full Stack Web -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                         <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Full Stack Web</h3>
+                            <span class="text-2xl">🌐</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Develop modern web apps from frontend to backend.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">Django</span>
+                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">Next.js</span>
+                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">React</span>
+                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">JS (ES6+)</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Full Stack Developer · Web Engineer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: High-Performance APIs -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Microservices & APIs</h3>
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Design fast, scalable, distributed systems.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">FastAPI</span>
+                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">Node.js</span>
+                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">RabbitMQ</span>
+                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">Docker</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Backend Engineer · Microservices Arch</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: AI & Automation -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                         <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">AI Agents & RAG</h3>
+                            <span class="text-2xl">🤖</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build real-world AI systems used by businesses.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">LLMs</span>
+                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">n8n</span>
+                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">RAG</span>
+                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">Zapier</span>
+                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">Vector DB</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">AI Engineer · Automation Specialist</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5: Data Handling -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Data Analytics</h3>
+                            <span class="text-2xl">📊</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Work confidently with real-world data pipelines.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">Pandas</span>
+                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">NumPy</span>
+                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">SQL</span>
+                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">Visualization</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Data Engineer · Backend Dev</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6: Cloud & DevOps -->
+                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Cloud & DevOps</h3>
+                            <span class="text-2xl">☁️</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Ship and maintain production applications.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">AWS</span>
+                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">Docker</span>
+                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">Linux</span>
+                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">CI/CD</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">DevOps Associate · Cloud Engineer</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 7: Web Scraping (Initially Hidden) -->
+                <div class="more-stack hidden group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-pink-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                         <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Scraping & Automation</h3>
+                            <span class="text-2xl">🕷️</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build scalable data collection pipelines.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Selenium</span>
+                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Scrapy</span>
+                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Playwright</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Automation Engineer · Data Scraper</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 8: Engineering Practices (Initially Hidden) -->
+                <div class="more-stack hidden group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
+                    <div class="absolute inset-0 bg-gradient-to-br from-teal-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
+                    <div class="relative z-10 flex-grow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white">Engineering Best Practices</h3>
+                            <span class="text-2xl">🏛️</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Work like a real software engineer.</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Focus Areas</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">Clean Code</span>
+                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">System Design</span>
+                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">Agile</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
+                            <p class="text-xs text-gray-400">Software Engineer · Tech Lead</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+             <!-- View More Button -->
+             <div class="text-center mt-12">
+                <button id="toggle-stack-btn" onclick="toggleStack()" class="px-8 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold transition flex items-center gap-2 mx-auto">
+                    <span>View Full Tech Stack</span>
+                    <span id="stack-arrow">↓</span>
+                </button>
+            </div>
+            
+            <script>
+                function toggleStack() {
+                    const hiddenCards = document.querySelectorAll('.more-stack');
+                    const btn = document.getElementById('toggle-stack-btn');
+                    const arrow = document.getElementById('stack-arrow');
+                    
+                    hiddenCards.forEach(card => {
+                        card.classList.toggle('hidden');
+                    });
+                    
+                    if (btn.querySelector('span').innerText === "View Full Tech Stack") {
+                        btn.querySelector('span').innerText = "View Less";
+                        arrow.innerText = "↑";
+                        arrow.style.transform = "rotate(0deg)";
+                    } else {
+                        btn.querySelector('span').innerText = "View Full Tech Stack";
+                        arrow.innerText = "↓";
+                    }
+                }
+            </script>
+        </div>
+    </div>
+
+    <!-- 🤖 AI & AUTOMATION SECTION (Featured) -->
+    <div class="py-24 px-6 relative z-10">
+        <!-- AI Card generated image background -->
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 mix-blend-multiply"></div>
+        
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            <div class="order-2 lg:order-1 relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+                <img src="{% static 'quizzes/images/ai_automation.png' %}" class="w-full transform group-hover:scale-105 transition duration-700" alt="AI Automation">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-60"></div>
+            </div>
+
+            <div class="order-1 lg:order-2 relative z-10">
+                <div class="inline-block px-3 py-1 rounded bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold uppercase tracking-widest mb-4 border border-fuchsia-500/30">
+                    Next Gen Skills
+                </div>
+                <h2 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                    AI Agents & <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-400">Automation</span>
+                </h2>
+                <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+                    Coding is just the start. We teach you how to build <strong>AI Agents</strong>, implement <strong>RAG (Retrieval Augmented Generation)</strong>, and orchestrate complex workflows using <strong>n8n</strong> and <strong>Zapier</strong>.
+                </p>
+                
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-gray-300">
+                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
+                        Build Custom LLM Applications
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300">
+                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
+                        Automate Business Workflows with n8n
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300">
+                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
+                        Deploy Production-Ready AI Agents
+                    </li>
+                </ul>
+
+                <a href="#contact" class="inline-block px-8 py-4 rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold shadow-[0_0_20px_rgba(192,38,211,0.4)] transition transform hover:-translate-y-1">
+                    Start Automating Today
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 📞 CONTACT/FOOTER SECTION -->
+    <div id="contact" class="py-24 px-6 relative z-10 bg-gradient-to-b from-[#0f172a] to-black text-center">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-6">Ready to Level Up?</h2>
+            <p class="text-xl text-gray-400 mb-10">
+                Join our next live batch. Limited seats available for personalized mentorship.
+            </p>
+            
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                    <div>
+                        <h4 class="text-white font-bold text-lg mb-2">📞 Call / WhatsApp</h4>
+                        <p class="text-cyan-400 text-2xl font-mono">+91 98765 43210</p>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold text-lg mb-2">📧 Email Us</h4>
+                        <p class="text-cyan-400 text-2xl font-mono">info@tgaystechnology.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-12 text-gray-600 text-sm">© 2026 Tgays Education. All Rights Reserved.</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

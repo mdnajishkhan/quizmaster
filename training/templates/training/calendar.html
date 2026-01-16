@@ -146,7 +146,7 @@
 
     <!-- 🗓️ Calendar Grid Container -->
     <div id="calendar-container" class="transition-opacity duration-300">
-        {% include 'workshops/partials/calendar_grid.html' %}
+        {% include 'training/partials/calendar_grid.html' %}
     </div>
     
     <!-- Legend -->
@@ -220,7 +220,7 @@
 <script>
     let countdownInterval;
 
-    function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl) {
+    function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl, hasLink) {
         event.preventDefault();
         
         const now = new Date();
@@ -239,10 +239,16 @@
             // Class ended -> Show Ended Modal
             showModal('ended-modal', 'ended-content');
         } else {
-            // Class is live -> Join
-            window.open(joinUrl, '_blank');
-            // Reload page to update status to "Joined" (Green)
-            setTimeout(() => location.reload(), 1000);
+            // Class is live
+            if (hasLink) {
+                // Join in New Tab (Meeting)
+                window.open(joinUrl, '_blank');
+                // Reload page to update status to "Joined" (Green)
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                // No link -> Navigate in Same Tab to trigger server Warning
+                window.location.href = joinUrl;
+            }
         }
     }
 

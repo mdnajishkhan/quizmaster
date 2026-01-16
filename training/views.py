@@ -5,15 +5,33 @@ from django.utils import timezone
 from datetime import timedelta, date, datetime
 import calendar as py_calendar
 from .models import Coupon, Enrollment, Batch, ClassSchedule, Attendance
+from django.core.exceptions import PermissionDenied
+
+def check_is_tutor(user):
+    """
+    Check if user is a designated tutor.
+    Criteria: Belongs to 'Tutor' group OR has assigned schedules OR is superuser.
+    """
+    if user.is_superuser:
+        return True
+    if user.groups.filter(name='Tutor').exists():
+        return True
+    if ClassSchedule.objects.filter(tutor=user).exists():
+        return True
+    return False
 
 @login_required
 def training_program(request):
     """
     Gatekeeper View:
-    1. Check if user has ANY active enrollment.
-    2. If NO -> Show Coupon Entry Page.
-    3. If YES -> Show Calendar Grid.
+    1. Check if user is a Tutor -> Redirect to Tutor Dashboard.
+    2. Check if user has ANY active enrollment.
+    3. If NO -> Show Coupon Entry Page.
+    4. If YES -> Show Calendar Grid.
     """
+    # --- 0. CHECK IF TUTOR ---
+    if check_is_tutor(request.user):
+        return redirect('tutor_dashboard')
     
     # --- 1. HANDLE COUPON SUBMISSION (POST) ---
     if request.method == 'POST' and 'coupon_code' in request.POST:
@@ -43,11 +61,37 @@ def training_program(request):
                 else:
                     expires_dt = timezone.now() + timedelta(days=coupon.valid_days)
 
-                Enrollment.objects.get_or_create(
+                enrollment, created = Enrollment.objects.get_or_create(
                     user=request.user,
                     batch=coupon.batch,
                     defaults={'expires_at': expires_dt}
                 )
+
+                # Send Welcome Email only on FIRST enrollment (creation)
+                if created and request.user.email:
+                    try:
+                        from django.core.mail import send_mail
+                        from django.template.loader import render_to_string
+                        from django.conf import settings
+
+                        subject = f"Welcome to {coupon.batch.workshop.title} - Enrollment Success!"
+                        html_message = render_to_string('training/emails/welcome_email.html', {
+                            'user': request.user,
+                            'enrollment': enrollment,
+                        })
+                        plain_message = f"Welcome aboard, {request.user.first_name}! You have successfully enrolled in {coupon.batch.workshop.title}. Visit your dashboard: https://quizmaster.tgaystechnology.com/training/"
+                        
+                        send_mail(
+                            subject,
+                            plain_message,
+                            settings.EMAIL_HOST_USER,
+                            [request.user.email],
+                            html_message=html_message,
+                            fail_silently=True
+                        )
+                    except Exception as e:
+                        print(f"Failed to send welcome email: {e}")
+
                 # Mark used
                 coupon.is_used = True
                 coupon.save()
@@ -157,21 +201,19 @@ def training_program(request):
         now_dt = timezone.now()
         
         status = 'upcoming'
-        color_class = 'bg-yellow-100 text-yellow-800 border-yellow-300'
-        
+        is_past = sched.end_time and now_dt > sched.end_time
+
         if sched.id in attended_ids:
+            # If they attended, it is ALWAYS joined (whether past or active)
             status = 'joined'
-            color_class = 'bg-green-100 text-green-800 border-green-300'
-        elif sched.end_time and now_dt > sched.end_time:
+        elif is_past:
+             # Only missed if past AND NOT attended
             status = 'missed'
-            color_class = 'bg-red-100 text-red-800 border-red-300'
-            
             
         events_map[day].append({
             'schedule': sched,
             'status': status,
-            'color': color_class,
-            'is_past': sched.end_time and now_dt > sched.end_time
+            'is_past': is_past
         })
 
     # Prepare Month Name
@@ -260,7 +302,11 @@ def track_attendance(request, schedule_id):
     Attendance.objects.get_or_create(user=request.user, class_schedule=schedule)
     
     # Redirect to Meeting
-    return redirect(schedule.meeting_link)
+    if schedule.meeting_link:
+        return redirect(schedule.meeting_link)
+    else:
+        messages.warning(request, "Meeting link has not been added yet.")
+        return redirect('training_program')
 
 
 @login_required
@@ -303,3 +349,94 @@ def payment_history(request):
         'history': formatted_history
     }
     return render(request, 'training/payment_history.html', context)
+
+
+def training_overview(request):
+    """
+    Public landing page for Training Programs.
+    """
+    return render(request, 'training/training_overview.html')
+
+@login_required
+def tutor_dashboard(request):
+    """
+    Dashboard for Tutors to see their schedule.
+    """
+    if not check_is_tutor(request.user):
+        # If not a tutor, send back to student view (which handles its own logic)
+        # or show 403 if strictness is needed.
+        # But for UX, let's redirect to student view if they are lost.
+        return redirect('training_program')
+
+    # 1. Upcoming & Past Lists
+    now = timezone.now()
+    upcoming_classes = ClassSchedule.objects.filter(tutor=request.user, start_time__gte=now).order_by('start_time')
+    past_classes = ClassSchedule.objects.filter(tutor=request.user, end_time__lt=now).order_by('-start_time')
+
+    # 2. Calendar Logic
+    today = now.date()
+    try:
+        current_year = int(request.GET.get('year', today.year))
+        current_month = int(request.GET.get('month', today.month))
+    except ValueError:
+        current_year = today.year
+        current_month = today.month
+
+    cal = py_calendar.Calendar(firstweekday=6)
+    month_days = cal.monthdayscalendar(current_year, current_month)
+
+    # Filter events for this month (TUTOR SPECIFIC)
+    schedules = ClassSchedule.objects.filter(
+        tutor=request.user,
+        start_time__year=current_year,
+        start_time__month=current_month
+    ).select_related('batch', 'batch__workshop').order_by('start_time')
+
+    events_map = {}
+    for sched in schedules:
+        if not sched.start_time: continue
+        day = sched.start_time.day
+        if day not in events_map: events_map[day] = []
+        
+        # Color logic
+        # Color logic
+        status = 'upcoming'
+        is_past = sched.end_time and now > sched.end_time
+
+        if is_past:
+            # For Tutor, Past = Completed (visually equivalent to 'joined' for students)
+            # We map it to 'joined' so the partial renders the green Checkmark style
+            status = 'joined' 
+        else:
+             status = 'upcoming'
+        
+        events_map[day].append({
+            'schedule': sched,
+            'status': status,
+            'is_past': is_past
+        })
+
+    month_name = py_calendar.month_name[current_month]
+    
+    def get_month_link(y, m):
+        if m > 12: return f"?year={y+1}&month=1"
+        if m < 1: return f"?year={y-1}&month=12"
+        return f"?year={y}&month={m}"
+
+    next_link = get_month_link(current_year, current_month + 1)
+    prev_link = get_month_link(current_year, current_month - 1)
+
+    context = {
+        'upcoming_classes': upcoming_classes,
+        'past_classes': past_classes,
+        'month_days': month_days,
+        'events_map': events_map,
+        'current_year': current_year,
+        'current_month': current_month,
+        'month_name': month_name,
+        'next_link': next_link,
+        'prev_link': prev_link,
+        'today': today,
+    }
+    
+    return render(request, 'training/tutor_dashboard.html', context)

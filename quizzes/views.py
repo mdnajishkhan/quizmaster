@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Sum, Count, F, Avg, Max
 from django.db.models.functions import Coalesce
 from .models import Quiz, Question, Choice, Attempt, Answer, QuizAccessGrant, Category
+from training.models import Enrollment, ClassSchedule
 from .forms import UserRegistrationForm, UserLoginForm, EmailValidationPasswordResetForm, CustomSetPasswordForm, UserUpdateForm, ProfileUpdateForm
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -225,6 +226,34 @@ def home(request):
         if total_score >= 1000:
             badges.append({'icon': '👑', 'name': 'Grandmaster', 'desc': 'Earned 1000+ XP'})
 
+        # 7. 📅 Upcoming Classes (Training)
+        # 7. 📅 Upcoming Classes (Training)
+        upcoming_classes = []
+        is_tutor_user = False
+        
+        # Check if user is a designated tutor (Mirroring 'check_is_tutor' logic)
+        if user.is_superuser or user.groups.filter(name='Tutor').exists() or ClassSchedule.objects.filter(tutor=user).exists():
+            is_tutor_user = True
+            
+        if is_tutor_user:
+             # If Tutor, Show Teaching Schedule (Priority)
+             upcoming_classes = ClassSchedule.objects.filter(
+                 tutor=user,
+                 start_time__gte=timezone.now()
+             ).order_by('start_time')[:2]
+        else:
+            # If Student, Show Enrolled Classes
+            active_enrollments = Enrollment.objects.filter(
+                user=user, 
+                expires_at__gt=timezone.now()
+            )
+            if active_enrollments.exists():
+                 batch_ids = active_enrollments.values_list('batch_id', flat=True)
+                 upcoming_classes = ClassSchedule.objects.filter(
+                     batch__id__in=batch_ids,
+                     start_time__gte=timezone.now()
+                 ).order_by('start_time')[:2]
+
         context = {
             'total_score': total_score,
             'quizzes_passed': quizzes_passed,
@@ -242,7 +271,8 @@ def home(request):
             'graph_data_prac': data_prac,
             
             'leaderboard_data': leaderboard_data, # New Matrix Data
-            'has_college': True if hasattr(user, 'profile') and user.profile.college else False
+            'has_college': True if hasattr(user, 'profile') and user.profile.college else False,
+            'upcoming_classes': upcoming_classes,
         }
         return render(request, 'quizzes/home.html', context)
     
@@ -691,8 +721,9 @@ class CustomLoginView(auth_views.LoginView):
             # Set session expiry to 30 days (2592000 seconds)
             self.request.session.set_expiry(2592000)
         else:
-            # Set session to expire when browser closes (0)
-            self.request.session.set_expiry(0)
+            # Default behavior: Don't expire on browser close. 
+            # Set to standard 2 weeks (1209600 seconds) to prevent "cut tab = logout" frustration
+            self.request.session.set_expiry(1209600)
             
         return super().form_valid(form)
 
