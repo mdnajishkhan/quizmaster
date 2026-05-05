@@ -42,12 +42,12 @@
                             </p>
 
                             <!-- Class Details Box -->
-                            <div style="background-color: #0f172a; border-left: 4px solid #fbbf24; padding: 15px; margin-bottom: 25px; border-radius: 4px; text-align: left;">
+                            <div style="background-color: #0f172a; border-left: 4px solid #22d3ee; padding: 15px; margin-bottom: 25px; border-radius: 4px; text-align: left;">
                                 <p style="margin: 0 0 10px 0; color: #e2e8f0; font-size: 15px;">
-                                    <strong>📚 Topic:</strong> {{ class_schedule.topic }}
+                                    <strong>📚 Topic:</strong> {{ topic }}
                                 </p>
                                 <p style="margin: 0; color: #e2e8f0; font-size: 15px;">
-                                    <strong>🕒 Start Time:</strong> {{ class_schedule.start_time|date:"g:i A" }}
+                                    <strong>🕒 Start Time:</strong> {{ start_time|date:"l, F j, Y at g:i A" }}
                                 </p>
                             </div>
 

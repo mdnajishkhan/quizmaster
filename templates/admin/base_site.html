@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        (function() {
+            function initSidebarFix() {
+                // Find sidebar by ID, common classes, or by locating the search filter
+                const sidebar = document.getElementById('nav-sidebar') || 
+                                document.querySelector('.sidebar') || 
+                                document.querySelector('nav') ||
+                                document.querySelector('#nav-filter')?.closest('nav') ||
+                                document.querySelector('.main-sidebar');
+                
+                if (!sidebar) return;
+
+                // 1. Find the active/highlighted section
+                const activeLink = sidebar.querySelector('.current-model') || 
+                                   sidebar.querySelector('.active') || 
+                                   sidebar.querySelector('[aria-current="page"]') ||
+                                   sidebar.querySelector('.selected');
+
+                if (activeLink) {
+                    // Force the sidebar to center on the active item
+                    activeLink.scrollIntoView({ block: 'center', behavior: 'instant' });
+                } else {
+                    // Fallback to last saved scroll position
+                    const savedPos = sessionStorage.getItem('admin_sidebar_scroll');
+                    if (savedPos) sidebar.scrollTop = parseInt(savedPos, 10);
+                }
+
+                // 2. Save scroll position on every movement/click
+                const saveScroll = () => sessionStorage.setItem('admin_sidebar_scroll', sidebar.scrollTop);
+                sidebar.addEventListener('scroll', saveScroll);
+                sidebar.addEventListener('click', saveScroll);
+                sidebar.addEventListener('mousedown', saveScroll);
+                window.addEventListener('beforeunload', saveScroll);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initSidebarFix);
+            } else {
+                initSidebarFix();
+            }
+        })();
+    </script>
+    <style>
+        #nav-sidebar { scroll-behavior: smooth; }
+
+        /* High-Visibility Active Section */
+        #nav-sidebar .current-model,
+        #nav-sidebar .active,
+        #nav-sidebar .selected,
+        #nav-sidebar tr.current-model {
+            background-color: #1e293b !important; /* Professional Dark Blue */
+            color: white !important;
+        }
+
+        #nav-sidebar .current-model a,
+        #nav-sidebar .active a,
+        #nav-sidebar .selected a,
+        #nav-sidebar tr.current-model a {
+            color: white !important;
+            font-weight: 800 !important;
+        }
+
+        /* Hover effect for better feedback */
+        #nav-sidebar tr:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

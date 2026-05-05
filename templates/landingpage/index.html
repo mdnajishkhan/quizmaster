@@ -1,0 +1,3544 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{% if hero %}{{ hero.title_tag }}{% else %}RecgetUp Music | Vocal Excellence Training by Md Shahbaz Khan{% endif %}</title>
+    
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Lucide SVG engine for maximum reliability) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Favicon (Premium Boutique Style) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%235c0909'/%3E%3Ctext x='50' y='68' font-family='serif' font-size='65' font-weight='bold' fill='%23c5a028' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%235c0909'/%3E%3Ctext x='50' y='68' font-family='serif' font-size='65' font-weight='bold' fill='%23c5a028' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+    
+    <!-- Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        html { background: #150909; scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            background-image: url("{% if settings.body_background %}{{ settings.body_background.url }}{% else %}{% static 'assets/images/landing/music_scroll_bg.png' %}{% endif %}");
+            background-size: 800px;
+            background-repeat: repeat;
+            background-attachment: fixed;
+            background-blend-mode: multiply;
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+        }
+        :root {
+            --maroon: #5c0909;
+            --gold: #c5a028;
+            --cream: #fdf8f0;
+            --white: #ffffff;
+            --text: #1a0f0f;
+            --text-muted: #3d2f2f;
+            /* Visual Tokens */
+            --shadow-soft: 0 10px 40px rgba(92, 9, 9, 0.08);
+            --radius-xl: 16px;
+            --radius-main: 12px;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* FINAL SPACING RULES */
+            --section-spacing-desktop: 50px;
+            --section-spacing-tablet: 35px;
+            --section-spacing-mobile: 50px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Section Lockdown (Sticky-Safe) */
+        section:not(.curriculum-section) {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--maroon);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Responsive Typography */
+        h1 { font-size: clamp(30px, 8vw, 48px); }
+        h2 { font-size: clamp(26px, 6vw, 36px); }
+        h3 { font-size: 24px; }
+        
+        p, .subtext { font-size: 17px; }
+
+        .italic { font-style: italic; color: var(--gold); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        section { padding: var(--section-spacing-desktop) 0; }
+        @media (max-width: 991px) { section { padding: var(--section-spacing-tablet) 0; } }
+        @media (max-width: 767px) {
+            section {
+                padding: 40px 0 !important;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 80px;
+            background: rgba(253, 248, 240, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(122, 12, 12, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .brand { display: flex; flex-direction: column; text-decoration: none; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--maroon); }
+        .sublogo { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); margin-top: -4px; font-weight: 700; }
+
+        .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; transition: var(--transition); }
+        .nav-links a:hover { color: var(--maroon); }
+
+        .nav-cta {
+            display: block;
+        }
+        .mobile-sidebar { display: none; }
+        .desktop-menu { display: flex; }
+
+        /* Mobile Menu Toggle */
+        .mobile-toggle { display: none; background: none; border: none; color: var(--maroon); cursor: pointer; z-index: 1001; }
+
+        .lang-toggle { display: flex; background: rgba(122, 12, 12, 0.05); padding: 4px; border-radius: 30px; margin-right: 15px; border: 1px solid rgba(122, 12, 12, 0.1); }
+        .lang-btn { padding: 6px 14px; border-radius: 20px; border: none; background: transparent; cursor: pointer; font-weight: 700; font-size: 11px; color: var(--maroon); transition: var(--transition); }
+        .lang-btn.active { background: var(--maroon); color: var(--white); box-shadow: 0 4px 10px rgba(122, 12, 12, 0.2); }
+
+        @media (max-width: 991px) {
+            nav { 
+                height: 70px; 
+                background: #fffdf9 !important; 
+                backdrop-filter: none !important; 
+                -webkit-backdrop-filter: none !important; 
+                box-shadow: 0 2px 15px rgba(0,0,0,0.05) !important;
+            }
+            .logo { font-size: 1.2rem; }
+            .sublogo { font-size: 8px; letter-spacing: 2px; }
+            
+            .desktop-menu { display: none !important; }
+            .mobile-sidebar {
+                display: flex;
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 85vw;
+                max-width: 320px;
+                height: 100vh;
+                background: linear-gradient(180deg, #fffdf9 0%, #f7f0e4 100%);
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 6rem 2.5rem 3rem;
+                gap: 0;
+                box-shadow: -20px 0 60px rgba(0,0,0,0.15);
+                transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 2000;
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                visibility: hidden;
+                pointer-events: none;
+                transform: translateX(100%);
+            }
+            .mobile-sidebar.active {
+                transform: translateX(0);
+                visibility: visible;
+                pointer-events: auto;
+            }
+            
+            .mobile-sidebar a:not(.btn) {
+                font-size: 1.1rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: #2c1810;
+                padding: 1.2rem 0;
+                border-bottom: 1px solid rgba(122, 12, 12, 0.05);
+                width: 100%;
+                text-align: left;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                opacity: 0;
+                transform: translateX(30px);
+                transition: 0.4s ease;
+            }
+            
+            .mobile-sidebar.active a:not(.btn) {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            
+            .mobile-sidebar .btn {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: 0.5s ease;
+                margin-top: 2rem !important;
+            }
+            
+            .mobile-sidebar.active .btn {
+                opacity: 1;
+                transform: translateY(0);
+                transition-delay: 0.6s;
+            }
+            
+            /* Staggered Animation */
+            .mobile-sidebar.active a:nth-child(2) { transition-delay: 0.1s; }
+            .mobile-sidebar.active a:nth-child(3) { transition-delay: 0.2s; }
+            .mobile-sidebar.active a:nth-child(4) { transition-delay: 0.3s; }
+            .mobile-sidebar.active a:nth-child(5) { transition-delay: 0.4s; }
+            .mobile-sidebar.active .lang-toggle { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+            
+            .mobile-sidebar a:not(.btn)::after {
+                content: '→';
+                font-size: 0.9rem;
+                opacity: 0.3;
+            }
+            
+            .sidebar-footer {
+                margin-top: auto;
+                text-align: center;
+                padding-top: 2rem;
+                border-top: 1px solid rgba(122, 12, 12, 0.1);
+            }
+            
+            .sidebar-footer p {
+                font-size: 10px;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--maroon);
+                opacity: 0.6;
+            }
+            .mobile-toggle { display: block; font-size: 1.8rem; order: 3; }
+            .nav-cta { 
+                display: none !important; /* Removed as per user request */
+            }
+            .lang-toggle { 
+                margin-right: 0; 
+                margin-top: 2rem;
+                margin-bottom: 2rem; 
+                opacity: 0;
+                transform: translateY(20px);
+                transition: 0.5s ease;
+            }
+            
+            /* Sidebar Overlay */
+            .nav-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(21, 9, 9, 0.4);
+                opacity: 0;
+                visibility: hidden;
+                transition: 0.3s;
+                z-index: 1500;
+                backdrop-filter: blur(3px);
+            }
+            .nav-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* Buttons (Desktop default) */
+        .btn {
+            display: inline-flex;
+            flex-direction: row; 
+            align-items: center;
+            justify-content: center;
+            height: 54px; 
+            padding: 0 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(122, 12, 12, 0.12);
+            white-space: nowrap;
+            width: fit-content;
+            text-transform: none;
+        }
+
+        /* MOBILE BUTTON OPTIMIZATION */
+        @media (max-width: 767px) {
+            .btn {
+                height: 48px; /* Slightly smaller for mobile elegance */
+                padding: 0 1.5rem;
+                font-size: 0.85rem;
+                width: 100%; /* Default to full width for sidebar/forms */
+                max-width: 100%; 
+            }
+            
+            /* Side-by-side Hero Buttons Optimization */
+            .hero-btns {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 10px !important;
+                justify-content: center;
+                width: 100%;
+                margin-top: 25px !important;
+            }
+            .hero-btns .cta-group {
+                width: 50%;
+                flex: 1;
+            }
+            .hero-btns .btn {
+                width: 100% !important;
+                padding: 0 10px !important;
+                font-size: 13px !important;
+                height: 46px !important;
+                letter-spacing: 0;
+            }
+        }
+
+        /* UNIFIED BUTTON SYSTEM */
+        .btn-primary, .cta-btn, .submit-btn { 
+            background: #7a0c0c !important; 
+            color: var(--white) !important; 
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(122, 12, 12, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .btn-primary:hover, .cta-btn:hover, .submit-btn:hover { 
+            background: #911212 !important; 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px rgba(122, 12, 12, 0.25); 
+        }
+
+        /* CUSTOM CINEMATIC REVEAL ENGINE */
+        .reveal-init {
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform, opacity;
+        }
+        .reveal-fade-up { transform: translateY(50px); }
+        .reveal-fade-down { transform: translateY(-50px); }
+        .reveal-fade-right { transform: translateX(-50px); }
+        .reveal-fade-left { transform: translateX(50px); }
+
+        .reveal-active {
+            opacity: 1 !important;
+            transform: translate(0, 0) !important;
+        }
+
+        .btn-outline { border: 2px solid var(--maroon); color: var(--maroon); background: var(--white); }
+
+        .cta-group { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; width: auto; position: relative; }
+        .micro-text { font-size: 13px; color: var(--text-muted); font-weight: 500; opacity: 0.8; }
+
+        /* APPLE-STYLE PRO ANIMATION OVERRIDES */
+        [data-aos="fade-up"] {
+            transform: translateY(40px);
+            opacity: 0;
+            transition-property: transform, opacity;
+        }
+        [data-aos="fade-up"].aos-animate {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* GOLDEN SHIMMER EFFECT (PRO LUXURY) */
+        .now-txt {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .now-txt::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -150%;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(212, 175, 55, 0.4),
+                transparent
+            );
+            transform: rotate(25deg);
+            animation: shimmer 4s infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -150%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* INDEPENDENT PREMIUM SEAL (V8 - BOLD & PROFESSIONAL) */
+        .hero-content { position: relative; }
+
+        .luxury-offer-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 35px 0;
+            justify-content: flex-start;
+            flex-wrap: nowrap; /* Forces side-by-side on desktop */
+        }
+        @media (max-width: 991px) {
+            .luxury-offer-row {
+                flex-wrap: wrap; 
+                gap: 0.8rem;
+                justify-content: center !important;
+            }
+            .price-details {
+                width: auto !important;
+                min-width: 100px;
+            }
+        }
+        .price-seal-group {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: nowrap; /* Never wrap Seal and Price */
+        }
+        @media (max-width: 767px) {
+            .price-seal-group {
+                gap: 0.8rem;
+            }
+        }
+        .cta-block .luxury-offer-row {
+            margin: 35px auto;
+            width: fit-content;
+            justify-content: center;
+        }
+
+        .schedule-card {
+            background: rgba(197, 160, 40, 0.08);
+            border: 1.5px dashed rgba(197, 160, 40, 0.4);
+            border-radius: 16px;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulse-soft 3s infinite ease-in-out;
+            min-width: 250px;
+        }
+
+        /* Glow Edition for Dark Backgrounds (Timer Section) */
+        .cta-block .schedule-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .cta-block .schedule-label {
+            color: var(--gold);
+            opacity: 1;
+        }
+        .cta-block .schedule-time {
+            color: var(--white);
+        }
+        .cta-block .schedule-icon-box {
+            background: var(--gold);
+            color: var(--maroon);
+        }
+
+        /* SOUL OF ACADEMY - AUDIO CONTROLLER */
+        .audio-controller {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 18px 8px 8px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(122, 12, 12, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(212, 175, 55, 0.3);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .audio-controller:hover {
+            transform: scale(1.05) translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 15px 35px rgba(122, 12, 12, 0.2);
+        }
+        .audio-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--maroon);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            position: relative;
+        }
+        .music-pulse {
+            position: absolute;
+            inset: -4px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            animation: music-ripple 2s infinite;
+            opacity: 0;
+        }
+        @keyframes music-ripple {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        .audio-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--maroon);
+            white-space: nowrap;
+        }
+        @media (max-width: 767px) {
+            .audio-controller { bottom: 100px; left: 20px; padding: 6px 12px 6px 6px; }
+            .audio-btn { width: 36px; height: 36px; }
+            .audio-label { font-size: 9px; }
+        }
+
+        .schedule-icon-box {
+            width: 42px;
+            height: 42px;
+            background: var(--maroon);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            box-shadow: 0 4px 15px rgba(92, 9, 9, 0.2);
+        }
+
+        .schedule-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .schedule-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--maroon);
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+
+        .schedule-time {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text);
+            font-family: 'Playfair Display', serif;
+            white-space: nowrap;
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { box-shadow: 0 0 0 rgba(197, 160, 40, 0); }
+            50% { box-shadow: 0 0 25px rgba(197, 160, 40, 0.15); }
+        }
+
+        .premium-seal-v5 {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            background: var(--maroon);
+            border: 2px solid var(--gold);
+            clip-path: polygon(50% 0%, 54% 10%, 63% 5%, 65% 15%, 75% 13%, 75% 23%, 85% 25%, 83% 35%, 92% 40%, 88% 50%, 92% 60%, 83% 65%, 85% 75%, 75% 77%, 75% 87%, 65% 85%, 63% 95%, 54% 90%, 50% 100%, 46% 90%, 37% 95%, 35% 85%, 25% 87%, 25% 77%, 15% 75%, 17% 65%, 8% 60%, 12% 50%, 8% 40%, 17% 35%, 15% 25%, 25% 23%, 25% 13%, 35% 15%, 37% 5%, 46% 10%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 40px rgba(74, 5, 5, 0.4);
+            animation: sealGlow 4s infinite; /* Smoother, non-scaling glow */
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .premium-seal-v5 .free-text {
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transform: rotate(-5deg);
+        }
+
+        /* The "Hook" (Ribbon Tails) */
+        .seal-hook {
+            position: absolute;
+            bottom: -15px;
+            width: 35px;
+            height: 50px;
+            background: var(--maroon);
+            border: 1.5px solid var(--gold);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+            z-index: -1;
+        }
+        .seal-hook.left { left: 25px; transform: rotate(-15deg); }
+        .seal-hook.right { right: 25px; transform: rotate(15deg); }
+
+        .price-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .price-details .was-txt {
+            font-size: 24px;
+            color: rgba(26, 15, 15, 0.4);
+            font-weight: 700;
+            margin-bottom: -2px;
+        }
+        .was-txt .old-price-val { text-decoration: line-through; }
+
+        .price-details {
+            width: 160px; /* The 'Goldilocks' width: Close but safe */
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .price-details .now-txt {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--maroon);
+            line-height: 1;
+            letter-spacing: -2px;
+            font-variant-numeric: tabular-nums; /* Prevents layout shifting during price animation */
+        }
+
+        .currency-label {
+            font-family: var(--body-font) !important;
+            font-size: 0.7em;
+            font-weight: 800;
+            margin-right: 2px;
+        }
+
+        /* DARK THEME (TIMER) */
+        .cta-block .price-details .was-txt { color: rgba(255, 255, 255, 0.3); }
+        .cta-block .price-details .now-txt { color: var(--gold); }
+        .price-details { justify-self: start; }
+        
+        @keyframes sealGlow {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+            100% { filter: brightness(1); }
+        }
+
+        /* DARK THEME (TIMER) */
+        .cta-block .luxury-star-seal {
+            box-shadow: 0 15px 45px rgba(212, 175, 55, 0.2);
+        }
+        .cta-block .now-free { 
+            color: var(--gold); 
+            text-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+        .cta-block .was-old { color: rgba(255, 255, 255, 0.4); }
+        .cta-block .luxury-offer-group { justify-content: center; }
+
+        /* Conversion Block (Timer) */
+        .cta-block {
+            background: linear-gradient(rgba(21, 9, 9, 0.7), rgba(21, 9, 9, 0.85)), url("{% if timer.background_image %}{{ timer.background_image.url }}{% else %}{% static 'assets/images/landing/timer_bg.png' %}{% endif %}");
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 50px 20px;
+            text-align: center;
+            border-radius: 30px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @media (max-width: 767px) {
+            .cta-block { padding: 50px 15px; margin: 20px 0; }
+        }
+
+        .cta-block h2 { color: var(--white); font-size: 2.5rem; margin-bottom: 1rem; }
+        .cta-block p { color: rgba(255,255,255,0.6); margin-bottom: 2rem; }
+        
+        .timer-urgency {
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        @media (max-width: 767px) {
+            .timer-urgency { font-size: 0.9rem; margin-bottom: 1rem; }
+        }
+        
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap; 
+        }
+        .timer-unit { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 0.3rem; 
+            background: rgba(255, 255, 255, 0.03); 
+            padding: 1.5rem; 
+            border-radius: 18px; 
+            min-width: 100px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .timer-unit:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--gold);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 767px) {
+            #countdown { gap: 0.5rem; flex-wrap: nowrap; }
+            .timer-unit { min-width: 65px; padding: 0.6rem; gap: 0.2rem; }
+            .timer-unit span:first-child { font-size: 1.6rem !important; }
+            .timer-label { font-size: 0.6rem; letter-spacing: 0.5px; }
+        }
+
+        .timer-unit span:first-child {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .timer-label { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            color: var(--white);
+            opacity: 0.6; 
+            font-weight: 700;
+        }
+
+        .cta-btn { 
+            padding: 1.2rem 3rem; 
+            border-radius: 12px; 
+        }
+        @media (max-width: 767px) {
+            .cta-btn { padding: 1rem 1.5rem; width: 100%; max-width: 300px; font-size: 0.9rem; }
+        }
+        .cta-btn:hover { background: #5e0909; transform: scale(1.05); }
+
+        /* Hero */
+        .hero { 
+            padding-top: 110px; 
+            overflow: hidden; 
+            position: relative;
+            background: linear-gradient(rgba(253, 248, 240, 0.90), rgba(253, 248, 240, 0.93)), url("{% if hero.background_image %}{{ hero.background_image.url }}{% else %}{% static 'assets/images/landing/banner_bg.png' %}{% endif %}");
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 5rem; align-items: center; position: relative; z-index: 2; }
+        .hero-content { max-width: 520px; }
+        .hero h1 { margin-bottom: 1.5rem; }
+        .hero p { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1.1rem; }
+        .hero-btns { display: flex; gap: 1.5rem; align-items: flex-start; }
+
+        @media (max-width: 991px) {
+            .hero { padding-top: 100px; }
+
+            .hero-grid { text-align: center; }
+            .hero-btns { align-items: center; }
+            .hero p { margin-inline: auto; }
+        }
+
+        .hero-image-wrapper { position: relative; }
+        .hero-image {
+            width: 100%;
+            border-radius: var(--radius-xl);
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            box-shadow: 0 30px 80px rgba(122, 12, 12, 0.15);
+            border: 4px solid var(--white);
+            cursor: pointer;
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.8s ease;
+        }
+        .hero-image:hover {
+            transform: scale(1.02) translateY(-10px);
+            box-shadow: 0 50px 100px rgba(122, 12, 12, 0.25);
+        }
+        @media (max-width: 767px) {
+            .hero-image { max-height: 400px; aspect-ratio: 1/1; }
+        }
+
+        /* Urgency Strip */
+        .urgency-banner {
+            background: var(--maroon);
+            color: var(--white);
+            padding: 1.2rem 0;
+            overflow: hidden;
+        }
+        .marquee {
+            display: flex;
+            gap: 2rem;
+            white-space: nowrap;
+            width: fit-content;
+            animation: marquee 40s linear infinite;
+        }
+        .marquee:hover { animation-play-state: paused; }
+        @keyframes marquee { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-50%); } 
+        }
+        .marquee span { font-weight: 700; display: flex; align-items: center; gap: 1rem; font-size: 1rem; }
+        @media (max-width: 767px) { .marquee span { font-size: 0.85rem; } }
+
+        /* Mentor Section */
+        .mentor { 
+            background: linear-gradient(rgba(253, 248, 240, 0.9), rgba(253, 248, 240, 0.94)), url("{% if mentor.background_image %}{{ mentor.background_image.url }}{% else %}{% static 'assets/images/landing/interior.png' %}{% endif %}");
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .mentor-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 6rem; align-items: center; position: relative; z-index: 2; }
+        .mentor-image-frame { cursor: pointer; }
+        .mentor-image-frame img { 
+            transition: transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1); 
+        }
+        .mentor-image-frame:hover img { 
+            transform: scale(1.08); 
+        }
+        .mentor-text { position: relative; z-index: 2; }
+        .mentor-subtitle { text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--gold); font-size: 0.85rem; margin-bottom: 0.8rem; display: block; }
+        .mentor-name { font-size: 3.5rem; font-weight: 700; margin-bottom: 2rem; position: relative; }
+        .mentor-name::after { content: ''; display: block; width: 60px; height: 4px; background: var(--gold); margin-top: 1rem; }
+        @media (max-width: 767px) { 
+            .mentor-name { font-size: 2.2rem; margin-bottom: 1rem; }
+            .mentor-name::after { display: none; }
+        }
+        
+        .quote {
+            font-size: 1.4rem;
+            font-style: italic;
+            border-left: 4px solid var(--gold);
+            padding-left: 2rem;
+            margin: 2.5rem 0;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        @media (max-width: 767px) { .quote { font-size: 1.1rem; margin: 1.5rem 0; padding-left: 1rem; } }
+        
+        .stats { display: flex; gap: 3rem; margin: 3rem 0; }
+        .stat-item h4 { font-size: 2.2rem; color: var(--maroon); }
+        .stat-item p { font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
+
+        /* Philosophy Cards */
+        .philosophy { 
+            background: linear-gradient(rgba(253, 248, 240, 0.94), rgba(253, 248, 240, 0.94)), url("{% if mastery.background_image %}{{ mastery.background_image.url }}{% else %}{% static 'assets/images/landing/classical_music_bg.png' %}{% endif %}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative; 
+        }
+        .philosophy::before { content: ''; position: absolute; inset: 0; background: rgba(122, 12, 12, 0.02); pointer-events: none; }
+        .section-header { text-align: center; margin-bottom: 40px; }
+        @media (max-width: 767px) { .section-header { margin-bottom: 25px; } }
+
+        .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .p-card { 
+            background: var(--white); 
+            padding: 24px; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow-soft);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        @media (max-width: 767px) { .p-card { padding: 16px; gap: 1rem; } }
+        .p-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(122, 12, 12, 0.1); }
+        .p-card-image { width: 100%; aspect-ratio: 16/10; border-radius: 12px; overflow: hidden; cursor: pointer; }
+        .p-card-image img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .p-card:hover .p-card-image img {
+            transform: scale(1.1);
+        }
+        .p-card h3 { font-size: 22px; display: flex; align-items: center; gap: 0.8rem; }
+        .p-card p { font-size: 15px; color: var(--text-muted); }
+
+        /* Showcase */
+        .showcase { 
+            background: linear-gradient(rgba(253, 248, 240, 0.95), rgba(253, 248, 240, 0.95)), url("{% if gallery.background_image %}{{ gallery.background_image.url }}{% else %}{% static 'assets/images/landing/music_scroll_bg.png' %}{% endif %}");
+            background-size: 800px;
+            background-attachment: fixed;
+            padding: var(--section-spacing-desktop) 0;
+        }
+        .grid-showcase { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 320px); gap: 1.5rem; margin-top: 4rem; }
+        .showcase-item { 
+            border-radius: 20px; 
+            overflow: hidden; 
+            border: 4px solid var(--white); 
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            cursor: pointer;
+        }
+        .showcase-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.8s ease; 
+        }
+        .showcase-item:hover img {
+            transform: scale(1.1);
+            filter: brightness(0.85);
+        }
+        .showcase-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(92, 9, 9, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .showcase-item:hover::after {
+            opacity: 1;
+        }
+        .showcase-lg { grid-column: span 2; grid-row: span 2; }
+
+        /* Video Enhancements */
+        .gallery-video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 1; /* Visible by default on mobile */
+            transition: opacity 0.5s ease, transform 0.8s ease;
+            pointer-events: none;
+            background: #000; /* Prevent white flash */
+        }
+        
+        .showcase-item:hover .gallery-video {
+            transform: scale(1.1);
+        }
+
+        .video-indicator {
+            position: absolute;
+            top: 15px; right: 15px;
+            width: 34px; height: 34px;
+            background: rgba(122, 12, 12, 0.85);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+            opacity: 1;
+            transition: var(--transition);
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Video Lightbox */
+        .video-lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); z-index: 10000;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+        .video-lightbox.active { display: flex; }
+        
+        .video-container { 
+            width: 100%; 
+            height: 100%; 
+            max-width: 100vw; 
+            max-height: 100vh; 
+            position: relative; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-container video, .video-container img { 
+            max-width: 100%; 
+            max-height: 90vh; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            background: #000;
+        }
+        
+        .lightbox-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10002;
+            opacity: 0.8;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .lightbox-nav-btn:hover { 
+            opacity: 1; 
+            background: var(--maroon); 
+            border-color: var(--gold);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .l-prev { left: 30px; }
+        .l-next { right: 30px; }
+
+        .lightbox-nav-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2.5;
+        }
+
+        @media (max-width: 767px) {
+            .lightbox-nav-btn { 
+                display: flex !important; 
+                width: 46px; 
+                height: 46px; 
+                background: rgba(21, 9, 9, 0.6);
+            }
+            .l-prev { left: 15px; }
+            .l-next { right: 15px; }
+        }
+        
+        .close-lightbox { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            color: #fff; 
+            cursor: pointer; 
+            font-size: 3rem; 
+            z-index: 10001;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Footer Restoration */
+        footer { 
+            background: linear-gradient(rgba(21, 9, 9, 0.4), rgba(21, 9, 9, 0.6)), url("{% if settings.footer_background %}{{ settings.footer_background.url }}{% else %}{% static 'assets/images/landing/moody_music_footer_texture_1776785144809.png' %}{% endif %}");
+            background-size: cover;
+            background-position: center;
+            color: var(--white); 
+            padding: 60px 0 40px; 
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 5rem; }
+        
+        .footer-brand p { color: rgba(255, 255, 255, 0.6); margin: 1.5rem 0; max-width: 350px; font-size: 0.95rem; line-height: 1.7; }
+        .footer-socials { display: flex; gap: 1rem; margin-top: 2rem; }
+        .footer-socials a {
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; justify-content: center; color: var(--white); transition: var(--transition);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .footer-socials a:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .footer-socials i { font-size: 1.1rem; }
+
+        .footer-links h4 { font-family: 'Inter', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--white); margin-bottom: 2.5rem; font-weight: 800; }
+        .footer-links ul { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: 1.2rem; }
+        .footer-links a { text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.95rem; transition: var(--transition); font-weight: 500; }
+        .footer-links a:hover { color: var(--gold); padding-left: 8px; }
+        
+        .footer-bottom { 
+            text-align: center; margin-top: 60px; padding-top: 40px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.05); 
+            color: rgba(255, 255, 255, 0.2); font-size: 0.75rem; 
+            text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
+        }
+
+        @media (max-width: 991px) { 
+            .footer-grid { grid-template-columns: 1fr; gap: 4rem; text-align: center; } 
+            .footer-brand p { margin: 1.5rem auto; }
+            .footer-socials { justify-content: center; }
+        }
+
+        /* FLOATING CTA - ROUND & PREMIUM ON MOBILE */
+        .float-cta { 
+            position: fixed; bottom: 30px; right: 20px; 
+            z-index: 2000; width: 100px; height: 100px; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0; pointer-events: none;
+        }
+        .float-cta.active { opacity: 1; pointer-events: auto; }
+        
+        body.menu-open .float-cta {
+            display: none !important;
+        }
+
+        @media (min-width: 992px) {
+            .float-cta { width: 120px; height: 120px; bottom: 40px; right: 40px; }
+        }
+
+        .cta-inner-wrap { 
+            position: relative; width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center; 
+            text-decoration: none; 
+            background: var(--white); 
+            border-radius: 50%; 
+            box-shadow: 0 15px 35px rgba(122, 12, 12, 0.15); 
+        }
+        .cta-svg-text { position: absolute; width: 100%; height: 100%; animation: rotateText 9s linear infinite; }
+
+        .cta-svg-text text { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 2.2px; fill: var(--maroon); text-transform: uppercase; }
+        
+        .cta-circle-core { 
+            width: 48px; height: 48px; 
+            background: var(--maroon); 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            color: var(--white); 
+            box-shadow: 0 10px 30px rgba(122, 12, 12, 0.3); 
+            transition: 0.3s; 
+            position: relative; z-index: 2; 
+        }
+        @media (min-width: 992px) { .cta-circle-core { width: 54px; height: 54px; } }
+
+        .cta-circle-core::after { 
+            content: ''; position: absolute; width: 100%; height: 100%; 
+            border-radius: 50%; border: 2px solid var(--maroon); 
+            animation: ctaPulse 2s infinite; 
+        }
+
+        @keyframes rotateText { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes ctaPulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        /* FAQ Section - Premium Accordion */
+        .faq-section { padding: var(--section-spacing-desktop) 20px; max-width: 900px; margin: auto; }
+        .faq-item { 
+            margin-bottom: 15px; 
+            background: var(--white); 
+            border-radius: 16px; 
+            border: 1px solid rgba(122, 12, 12, 0.08);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .faq-item:hover {
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(122, 12, 12, 0.04);
+        }
+
+        .faq-question {
+            width: 100%; text-align: left; background: transparent; border: none;
+            padding: 24px 30px; font-size: 1.15rem; font-weight: 700; cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: var(--transition); color: var(--maroon);
+            font-family: 'Georgia', serif;
+        }
+
+        .faq-question i { 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            color: var(--gold); 
+            font-size: 1.2rem;
+        }
+
+        .faq-item.open {
+            border-color: var(--maroon);
+            background: #fffdfd;
+            box-shadow: 0 15px 40px rgba(122, 12, 12, 0.06);
+        }
+
+        .faq-item.open .faq-question {
+            color: var(--maroon);
+            padding-bottom: 10px;
+        }
+
+        .faq-item.open .faq-question i { transform: rotate(180deg); }
+
+        .faq-answer { 
+            padding: 0 30px; 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            color: #555; 
+            line-height: 1.8; 
+            font-size: 1rem; 
+            opacity: 0;
+        }
+
+        .faq-item.open .faq-answer { 
+            padding-bottom: 30px; 
+            max-height: 500px; 
+            opacity: 1;
+        }
+
+        /* Curriculum Section */
+        .curriculum-section { padding: var(--section-spacing-desktop) 0; background: var(--cream); }
+        .timeline { position: relative; max-width: 800px; margin: 4rem auto; }
+        .timeline-item { display: flex; gap: 2rem; margin-bottom: 3rem; position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: 24px; top: 48px; bottom: -48px; width: 2px; background: rgba(122, 12, 12, 0.1); }
+        .timeline-item:last-child::before { display: none; }
+        
+        .step-num { 
+            width: 50px; height: 50px; border-radius: 50%; background: var(--maroon); color: var(--white); 
+            display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0;
+            box-shadow: 0 10px 20px rgba(122, 12, 12, 0.2); position: relative; z-index: 2;
+        }
+        .step-content { padding-top: 5px; }
+        .step-content h3 { font-size: 24px; margin-bottom: 0.5rem; color: var(--text); }
+        .step-content p { color: var(--text-muted); line-height: 1.6; }
+        @media (max-width: 767px) {
+            .timeline-item { gap: 1rem; }
+            .step-num { width: 40px; height: 40px; font-size: 1rem; }
+            .timeline-item::before { left: 19px; }
+            .step-content h3 { font-size: 20px; }
+        }
+
+        /* Curriculum Section - Sticky Scroll Behavior */
+        .curriculum-section { 
+            padding: 50px 0; 
+            background: linear-gradient(rgba(253, 248, 240, 0.94), rgba(253, 248, 240, 0.94)), url("{% static 'assets/images/landing/tanpura_harmonium_curriculum.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .curriculum-section {
+            overflow: visible !important;
+        }
+        .sticky-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 5rem;
+            position: relative;
+            align-items: start;
+            overflow: visible !important;
+        }
+        
+        .sticky-visual-area {
+            position: sticky;
+            top: 110px; /* Safe distance from 80px header */
+            height: calc(100vh - 150px); /* Maximized height growing toward the bottom */
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            background: var(--cream);
+            border: 8px solid var(--white);
+        }
+        
+        .sticky-image-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .sticky-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1.1);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(20%);
+        }
+        
+        .sticky-img.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .sticky-visual-area:hover .sticky-img.active {
+            transform: scale(1.1) !important;
+        }
+
+        .scroll-content-area {
+            padding-bottom: 30vh;
+        }
+        
+        .scroll-step-block {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(122, 12, 12, 0.05);
+        }
+        
+        .scroll-step-block:last-child { border-bottom: none; }
+        
+        .step-label {
+            font-weight: 800;
+            color: var(--gold);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .scroll-step-block h3 {
+            font-size: 2.8rem;
+            color: var(--maroon);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .scroll-step-block p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 500px;
+        }
+
+        @media (max-width: 991px) {
+            .sticky-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+            .sticky-visual-area { 
+                position: relative; top: 0; height: 350px; 
+                order: -1; margin-bottom: 2rem;
+            }
+            .scroll-step-block { min-height: auto; padding: 40px 0; }
+            .scroll-step-block h3 { font-size: 2rem; }
+        }
+
+        /* Contact Section */
+        .contact-section { 
+            background: linear-gradient(rgba(253, 248, 240, 0.94), rgba(253, 248, 240, 0.96)), url("{% static 'assets/images/landing/classical_music_bg.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: var(--section-spacing-desktop) 0; 
+        }
+        .contact-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 4rem; align-items: center; }
+        
+        .contact-info h2 { font-size: 3rem; margin-bottom: 1.5rem; }
+        .contact-info p { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1.1rem; max-width: 450px; }
+        
+        .info-perks { display: flex; gap: 3rem; }
+        .perk-item h4 { font-size: 1.5rem; color: var(--maroon); display: flex; flex-direction: column; }
+        .perk-item span { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+
+        .contact-form-card { background: var(--white); padding: 3rem; border-radius: 24px; box-shadow: var(--shadow-soft); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 8px; }
+        
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 14px 18px; background: rgba(122, 12, 12, 0.03); border: 1px solid rgba(122, 12, 12, 0.05);
+            border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text-main); transition: var(--transition);
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--maroon); background: var(--white); box-shadow: 0 5px 15px rgba(122, 12, 12, 0.05); }
+        
+        .submit-btn { width: 100%; height: 56px; border-radius: 12px; margin-top: 1rem; }
+
+        @media (max-width: 991px) {
+            .contact-grid { grid-template-columns: 1fr; gap: 3rem; text-align: center; }
+            .contact-info p { margin-inline: auto; }
+            .info-perks { justify-content: center; }
+            .contact-form-card { padding: 2rem; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        /* Registration Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(21, 9, 9, 0.85); backdrop-filter: blur(10px);
+            z-index: 5000; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--cream); width: 100%; max-width: 600px;
+            border-radius: 32px; padding: 4rem; position: relative;
+            box-shadow: 0 50px 100px -20px rgba(92, 9, 9, 0.3);
+            max-height: 95vh; overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.6);
+            /* Hide scrollbar for a cleaner look */
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+        .modal-content::-webkit-scrollbar { display: none; }
+        @media (max-width: 767px) { 
+            .modal-content { 
+                padding: 4rem 1.25rem 2rem; 
+                width: 92%;
+                border-radius: 24px;
+            } 
+            .modal-header h3 { font-size: 1.6rem; }
+            .radio-grid { gap: 8px; }
+            .radio-grid label { padding: 10px 8px; font-size: 12px; letter-spacing: 0; }
+            .radio-grid label span { font-size: 11px; }
+            .close-modal { top: 15px; right: 15px; width: 36px; height: 36px; font-size: 1.2rem; }
+        }
+        
+        .modal-header { text-align: center; margin-bottom: 2.5rem; }
+        .modal-header h3 { font-size: 2.2rem; color: var(--maroon); margin-bottom: 0.5rem; line-height: 1.2; }
+        .modal-header p { font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; }
+        
+        .close-modal {
+            position: absolute; top: 30px; right: 30px; background: rgba(122, 12, 12, 0.05); 
+            border: none; width: 44px; height: 44px; border-radius: 50%;
+            font-size: 1.5rem; color: var(--maroon); cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .close-modal:hover { background: var(--maroon); color: var(--white); transform: rotate(90deg); }
+        
+        .sub-label { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 8px; display: block; }
+        .radio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .radio-grid label {
+            background: var(--white); padding: 14px; border-radius: 12px; border: 1.5px solid rgba(122,12,12,0.08);
+            font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            transition: 0.3s; color: var(--text);
+        }
+        .radio-grid input { accent-color: var(--maroon); width: 16px; height: 16px; flex-shrink: 0; }
+        .radio-grid label:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.05); }
+        .radio-grid label.selected { border-color: var(--maroon); background: rgba(122, 12, 12, 0.03); }
+        
+        @media (max-width: 480px) {
+            .radio-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group input::placeholder { color: rgba(26, 15, 15, 0.3); }
+
+        /* Thank You Modal - Pure Minimalist Refinement */
+        #thankYouModal .modal-content {
+            max-width: 420px;
+            text-align: center;
+            padding: 50px 30px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05); /* Ultra light shadow */
+            position: relative;
+            border-radius: 24px;
+        }
+        
+        .ty-success-visual {
+            width: 60px;
+            height: 60px;
+            background: transparent; /* Removed heavy circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--gold);
+        }
+
+        .ty-success-visual svg {
+            width: 50px;
+            height: 50px;
+            stroke-width: 1.5; /* Thinner, more elegant stroke */
+            animation: checkFadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes checkFadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        #thankYouModal h3 {
+            font-size: 1.8rem; /* Scaled down for minimalism */
+            color: #1a0f0f;
+            margin-bottom: 12px;
+            font-family: 'Georgia', serif;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+        }
+        
+        #thankYouModal p {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .community-btn {
+            background: var(--maroon);
+            color: white !important;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .sidebar-footer, .nav-links .mobile-toggle { display: none; }
+        
+        @media (min-width: 992px) {
+            .sidebar-footer, .nav-links .mobile-toggle { display: none !important; }
+            .nav-links #sidebarCTA { display: none !important; }
+        }
+        
+        .community-btn:hover {
+            background: #600a0a;
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .community-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        #thankYouModal .close-modal {
+            top: 20px;
+            right: 20px;
+            font-size: 1.2rem;
+            color: #ccc;
+            background: rgba(0,0,0,0.03);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        #thankYouModal .close-modal:hover {
+            color: var(--maroon);
+            background: rgba(0,0,0,0.08);
+        }
+
+        @media (max-width: 768px) {
+            .hero{
+                padding-top: 50px;
+            }
+        
+        /* ===================== GLOBAL FIX ===================== */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Prevent horizontal scroll */
+html, body {
+    overflow-x: hidden;
+    background-attachment: scroll !important;
+}
+
+@media (max-width: 767px) {
+    body {
+        background-image: linear-gradient(rgba(253, 248, 240, 0.97), rgba(253, 248, 240, 0.97)), url("{% static 'assets/images/landing/music_scroll_bg.png' %}") !important;
+        background-size: 400px !important;
+        background-attachment: scroll !important;
+    }
+    
+    .philosophy, .curriculum-section, .contact-section, .showcase {
+        background-attachment: scroll !important;
+    }
+}
+
+/* ===================== MOBILE RESPONSIVENESS ===================== */
+@media (max-width: 767px) {
+
+    /* CONTAINER SPACING */
+    .container {
+        padding: 0 1rem !important;
+    }
+
+    /* ================= HERO FIX ================= */
+    .hero {
+        padding-top: 100px !important; /* Increased to prevent overlapping with fixed header */
+    }
+
+    .hero-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 28px !important;
+        line-height: 1.3;
+        text-shadow: none !important; /* Clear shadows for mobile clarity */
+    }
+
+    .hero p {
+        font-size: 15px !important;
+        margin-top: 1rem !important;
+    }
+    
+    .urgency-banner {
+        padding: 0.6rem 0 !important;
+    }
+    
+    .marquee {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 13px !important;
+    }
+
+    .hero-image {
+        max-height: 300px;
+    }
+
+    /* BUTTONS FIX (Side-by-side for Hero) */
+    .hero-btns {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-top: 25px !important;
+    }
+
+    .hero-btns .cta-group {
+        width: 50% !important;
+        flex: 1 !important;
+    }
+
+    .hero-btns .btn {
+        width: 100% !important;
+        padding: 0 8px !important;
+        font-size: 13px !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0;
+    }
+
+    /* Single buttons remain full width */
+    .btn, .cta-btn, .submit-btn {
+        width: 100% !important;
+        max-width: 320px !important;
+        margin-inline: auto !important;
+        padding: 1rem !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Side-by-side for Hero specifically */
+    .hero-btns .btn {
+        width: 100% !important;
+        padding: 0 5px !important;
+        font-size: 13px !important;
+        height: 46px !important;
+        letter-spacing: 0;
+    }
+
+    /* ================= PRICE + BADGE ================= */
+    .luxury-offer-row {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 20px !important;
+        margin: 35px 0 !important;
+        width: 100% !important;
+    }
+
+    .premium-seal-v5 {
+        width: 130px;
+        height: 130px;
+    }
+
+    .premium-seal-v5 .free-text {
+        font-size: 18px;
+    }
+
+    .price-details {
+        width: 110px !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .price-details .now-txt {
+        font-size: 48px !important;
+    }
+
+    .price-details .was-txt {
+        font-size: 18px;
+        display: block;
+    }
+
+    /* ================= NAV FIX ================= */
+    .nav-links.active {
+        text-align: center;
+    }
+
+    /* ================= HEADINGS ================= */
+    h2, .section-header h2 {
+        font-size: 26px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    .section-header p {
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* ================= SECTION SPACING ================= */
+    section {
+        padding: 40px 0 !important;
+    }
+    
+    .philosophy, .curriculum-section, .contact-section, .showcase, .mentor, .faq-section {
+        padding: 40px 0 !important;
+    }
+
+    /* ================= MENTOR STATS ================= */
+    .stats {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 30px !important;
+        margin: 1.5rem 0 !important;
+    }
+    
+    .stat-item h4 {
+        font-size: 1.8rem !important;
+    }
+
+    /* ================= CARDS ================= */
+    .card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+    
+    .p-card h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .p-card {
+        padding: 16px;
+    }
+
+    .grid-showcase {
+        display: flex !important;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1.5rem !important;
+        padding: 20px !important;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        grid-template-rows: none !important;
+        align-items: flex-start; /* Align to top to prevent jumping */
+    }
+    .grid-showcase::-webkit-scrollbar { display: none; }
+
+    .showcase-item {
+        flex: 0 0 82vw !important; /* Show most of the item */
+        height: auto !important;
+        scroll-snap-align: center;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: block !important;
+        position: relative;
+    }
+
+    .showcase-item img, .showcase-item video {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 70vh !important; /* Cap height for very tall phones */
+        object-fit: contain !important;
+        border-radius: 25px !important;
+        border: 4px solid var(--white) !important;
+        box-shadow: var(--shadow-soft) !important;
+        display: block !important;
+        opacity: 1 !important;
+        background: #111;
+    }
+
+    .gallery-video {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .gallery-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2.5rem;
+        margin-top: 25px;
+        padding-bottom: 20px;
+    }
+
+    .nav-btn {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: var(--maroon);
+        border: 1px solid rgba(122, 12, 12, 0.1);
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(92, 9, 9, 0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: pointer;
+    }
+    
+    .nav-btn:hover, .nav-btn:active {
+        background: var(--maroon);
+        color: var(--gold);
+        border-color: var(--gold);
+        transform: scale(1.1);
+        box-shadow: 0 15px 35px rgba(122, 12, 12, 0.2);
+    }
+
+    .nav-btn svg {
+        width: 22px;
+        height: 22px;
+        stroke-width: 2.5;
+    }
+
+    .slide-dots {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(122, 12, 12, 0.1);
+        transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .dot.active {
+        background: var(--gold);
+        width: 28px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(197, 160, 40, 0.3);
+    }
+
+    /* REDUCE ALL SECTION SPACING ON MOBILE */
+    section, .curriculum-section, .contact-section, .philosophy, .faq-section, .showcase {
+        padding: var(--section-spacing-mobile) 0 !important;
+    }
+    
+    .section-header {
+        margin-bottom: 35px !important;
+    }
+    
+    .footer-grid {
+        padding-top: var(--section-spacing-mobile) !important;
+    }
+
+    .showcase-lg {
+        grid-column: span 1 !important;
+        grid-row: span 1 !important;
+    }
+
+    /* ================= MENTOR ================= */
+    .mentor-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+        text-align: center;
+    }
+
+    .mentor-name {
+        font-size: 2rem !important;
+    }
+
+    .stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    /* ================= CURRICULUM ================= */
+    .sticky-wrapper {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+
+    .sticky-visual-area {
+        height: 250px !important;
+    }
+
+    .scroll-content-area {
+        padding-bottom: 0 !important; /* Remove desktop sticky padding */
+    }
+
+    .scroll-step-block {
+        height: auto !important;
+        min-height: auto !important; /* Remove desktop min-height */
+        padding: 20px 0;
+        opacity: 1 !important;
+    }
+
+    .scroll-step-block:last-child {
+        padding-bottom: 0 !important;
+    }
+
+    .scroll-step-block h3 {
+        font-size: 1.5rem !important;
+    }
+
+    .scroll-step-block p {
+        font-size: 0.95rem !important;
+    }
+
+    .curriculum-cta-container {
+        margin-top: 1.5rem !important;
+        padding-bottom: 20px;
+    }
+
+    /* ================= CTA BLOCK ================= */
+    .cta-block {
+        padding: 40px 15px !important;
+    }
+
+    .cta-block h2 {
+        font-size: 1.6rem !important;
+    }
+
+    /* ================= TIMER ================= */
+    .timer-unit {
+        min-width: 65px;
+        padding: 0.7rem;
+    }
+
+    .timer-unit span:first-child {
+        font-size: 1.6rem !important;
+    }
+
+    /* ================= FORM ================= */
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .contact-form-card {
+        padding: 1.5rem;
+    }
+
+    /* ================= FAQ ================= */
+    .faq-question {
+        font-size: 1rem;
+        padding: 18px;
+    }
+
+}
+
+/* ===================== STICKY MOBILE CTA (VERY IMPORTANT) ===================== */
+@media (max-width: 767px) {
+
+    .mobile-sticky-cta {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #7a0c0c;
+        padding: 12px;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    }
+
+    .mobile-sticky-cta a {
+        width: 100%;
+        max-width: 320px;
+        text-align: center;
+        background: white;
+        color: #7a0c0c;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    body {
+        padding-bottom: 70px; /* space for sticky button */
+    }
+}
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-inner">
+            <a href="{% url 'landingpage:workshop_landing' %}" class="brand">
+                <span class="logo">RecgetUp</span>
+                <span class="sublogo">Music</span>
+            </a>
+            
+            <!-- Desktop Menu (Hidden on Mobile) -->
+            <div class="nav-links desktop-menu">
+                <a href="#mentor" data-i18n="nav_mentor">The Mentor</a>
+                <a href="#soul" data-i18n="nav_soul">Soul of Learning</a>
+                <a href="#achieve" data-i18n="nav_program">Program</a>
+                <div class="lang-toggle">
+                    <button class="lang-btn active" id="g-btn-en" onclick="setGlobalLanguage('en')">English</button>
+                    <button class="lang-btn" id="g-btn-hi" onclick="setGlobalLanguage('hi')">हिन्दी</button>
+                </div>
+            </div>
+
+            <!-- Header CTA -->
+            <div class="nav-cta">
+                <a href="javascript:void(0)" onclick="openRegistrationModal()" class="btn btn-primary" style="height: 44px; padding: 0 1.5rem; font-size: 0.85rem;" data-i18n="nav_btn">Join Now</a>
+            </div>
+
+            <button class="mobile-toggle" id="mobileToggle" onclick="toggleMobileMenu()">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Sidebar (Outside nav to fix blur bug) -->
+    <div class="nav-links mobile-sidebar" id="navMenu">
+        <button class="mobile-toggle close-sidebar-btn" onclick="toggleMobileMenu()" style="position: absolute; top: 25px; right: 25px; display: block !important;">
+            <i data-lucide="x"></i>
+        </button>
+
+        <a href="#mentor" data-i18n="nav_mentor" onclick="toggleMobileMenu()">The Mentor</a>
+        <a href="#soul" data-i18n="nav_soul" onclick="toggleMobileMenu()">Soul of Learning</a>
+        <a href="#achieve" data-i18n="nav_program" onclick="toggleMobileMenu()">Program</a>
+        <div class="lang-toggle">
+            <button class="lang-btn active" id="m-btn-en" onclick="setGlobalLanguage('en')">English</button>
+            <button class="lang-btn" id="m-btn-hi" onclick="setGlobalLanguage('hi')">हिन्दी</button>
+        </div>
+        <a href="javascript:void(0)" onclick="openRegistrationModal(); toggleMobileMenu();" class="btn btn-primary" style="margin-top: 1rem; width: 100%;" data-i18n="nav_btn">Join Free Workshop</a>
+        
+        <div class="sidebar-footer" style="display: block !important;">
+            <p>RecgetUp Music Academy</p>
+        </div>
+    </div>
+    <div class="nav-overlay" id="navOverlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <span class="badge" data-aos="fade-right" data-aos-delay="0" style="background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.2); color: #8e6d15; padding: 5px 15px; border-radius: 30px; font-size: 10px; font-weight: 700; display: inline-block; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px;" data-i18n="hero_badge">Beginner Friendly • Limited Seats</span>
+                
+                
+                <h1 data-aos="fade-right" data-aos-delay="0" data-i18n="hero_title" style="margin-top: 15px;">Refine Your Voice Through <span class="italic">Timeless</span> Classical Training</h1>
+                
+                <!-- Independent Premium Offer Row -->
+                <div class="luxury-offer-row" data-aos="fade-right" data-aos-delay="0">
+                    <div class="price-seal-group">
+                        {% if not pricing or pricing.new_price == 0 %}
+                        <div class="premium-seal-v5">
+                            <div class="seal-hook left"></div>
+                            <div class="seal-hook right"></div>
+                            <span class="free-text" data-i18n="free_access_tag">FREE</span>
+                        </div>
+                        {% endif %}
+                        <div class="price-details">
+                            <span class="was-txt"><span class="currency-label">₹</span><span class="old-price-val">{{ pricing.old_price|default:499 }}</span></span>
+                            <span class="now-txt" id="animatedPrice" data-price="{{ pricing.old_price|default:499 }}" data-new-price="{{ pricing.new_price|default:0 }}"><span class="currency-label">₹</span>{{ pricing.new_price|default:0 }}</span>
+                        </div>
+                    </div>
+
+                    <!-- New Premium Schedule Card -->
+                    <div class="schedule-card" data-aos="fade-left" data-aos-delay="200">
+                        <div class="schedule-icon-box">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <div class="schedule-info">
+                            <span class="schedule-label" data-i18n="sched_label">Save the Date</span>
+                            <span class="schedule-time" data-i18n="sched_val">Coming Sunday • 11:00 AM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p data-aos="fade-right" data-aos-delay="0" data-i18n="hero_desc">Experience a disciplined journey of riyaaz, guided mentorship, and structured learning designed to build your musical identity.</p>
+                
+                <div class="hero-btns" data-aos="fade-right" data-aos-delay="0">
+                    <div class="cta-group">
+                        <a href="javascript:void(0)" onclick="openRegistrationModal()" class="btn btn-primary" data-i18n="hero_btn_main"> Join Free Workshop</a>
+                    </div>
+                    <div class="cta-group">
+                        <a href="javascript:void(0)" onclick="openRegistrationModal()" class="btn btn-outline" data-i18n="hero_btn_outline">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image-wrapper" data-aos="fade-left" data-aos-delay="100">
+                <img src="{% if hero.image %}{{ hero.image.url }}{% else %}{% static 'assets/images/landing/classical_hero.png' %}{% endif %}" class="hero-image" alt="Classical Music Studio" style="border: 6px solid var(--white); box-shadow: 0 40px 100px rgba(122, 12, 12, 0.15);" fetchpriority="high" decoding="async">
+            </div>
+        </div>
+    </section>
+
+    <!-- Urgency Strip -->
+    <section class="urgency-banner">
+        <div class="marquee">
+            {% with text_en=marquee.text_en|default:"✨ Transform Your Voice • Master Ancient Vocal Secrets • Free Workshop Starting Soon • Only a Few Seats Left • Join the Clinical Riyaaz Revolution" %}
+            {% with text_hi=marquee.text_hi|default:"✨ अपनी आवाज़ को निखारें • गायन के प्राचीन रहस्य सीखें • मुफ़्त वर्कशॉप जल्द शुरू हो रही है • अपनी सीट अभी सुरक्षित करें" %}
+                <!-- First Set -->
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <!-- Duplicate Set for Seamless Loop -->
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+                <span class="dynamic-trans" data-en="{{ text_en }}" data-hi="{{ text_hi }}" data-i18n="urgency_text">{{ text_en }}</span>
+            {% endwith %}
+            {% endwith %}
+        </div>
+    </section>
+
+    <!-- What You Will Master -->
+    <section id="soul" class="philosophy">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="mentor-subtitle dynamic-trans" data-en="{% if mastery %}{{ mastery.subtitle_en }}{% else %}Subtle Intelligence{% endif %}" data-hi="{% if mastery %}{{ mastery.subtitle_hi }}{% else %}आपका परिवर्तन{% endif %}" style="text-align: center; display: block;" data-i18n="mastery_badge">{% if mastery %}{{ mastery.subtitle_en }}{% else %}Subtle Intelligence{% endif %}</span>
+                <h2 class="dynamic-trans" data-en="{% if mastery %}{{ mastery.title_en }}{% else %}What You Will Master{% endif %}" data-hi="{% if mastery %}{{ mastery.title_hi }}{% else %}आप क्या सीखेंगे{% endif %}" style="font-size: 3.5rem;" data-i18n="mastery_title">{% if mastery %}{{ mastery.title_en }}{% else %}What You Will Master{% endif %}</h2>
+                <p class="dynamic-trans" data-en="{% if mastery %}{{ mastery.desc_en }}{% else %}A curriculum designed not just to teach singing, but to build a professional musical mindset.{% endif %}" data-hi="{% if mastery %}{{ mastery.desc_hi }}{% else %}आपकी संगीतमय यात्रा के तीन मुख्य स्तंभ।{% endif %}" style="max-width: 700px; margin: auto;" data-i18n="mastery_desc">{% if mastery %}{{ mastery.desc_en }}{% else %}A curriculum designed not just to teach singing, but to build a professional musical mindset.{% endif %}</p>
+            </div>
+            
+            <div class="card-grid">
+                {% if mastery and mastery.cards.all %}
+                    {% for item in mastery.cards.all %}
+                    <div class="p-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                        <div class="p-card-image">
+                            <img src="{{ item.image.url }}" alt="{{ item.title_en }}" loading="lazy" decoding="async">
+                        </div>
+                        <h3 data-i18n="m_card_db_{{ forloop.counter }}_title">{% if current_lang == 'hi' %}{{ item.title_hi }}{% else %}{{ item.title_en }}{% endif %}</h3>
+                        <p data-i18n="m_card_db_{{ forloop.counter }}_desc">{% if current_lang == 'hi' %}{{ item.desc_hi }}{% else %}{{ item.desc_en }}{% endif %}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Premium Fallback Philosophy Cards -->
+                    <div class="p-card" data-aos="fade-up">
+                        <div class="p-card-image"><img src="{% static 'assets/images/landing/mastery_breath_abstract.png' %}" alt="Breath Control" loading="lazy" decoding="async"></div>
+                        <h3 data-i18n="m_card1_title"><i class="lucide-wind" style="color: var(--gold);"></i> Breath Control</h3>
+                        <p data-i18n="m_card1_desc">Master the art of long sustain and effortless projection through ancient breathing techniques.</p>
+                    </div>
+                    <div class="p-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="p-card-image"><img src="{% static 'assets/images/landing/mastery_swar_abstract.png' %}" alt="Swar Precision" loading="lazy" decoding="async"></div>
+                        <h3 data-i18n="m_card2_title"><i class="lucide-mic-2" style="color: var(--gold);"></i> Swar Precision</h3>
+                        <p data-i18n="m_card2_desc">Identify and strike every swar with absolute mathematical precision.</p>
+                    </div>
+                    <div class="p-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="p-card-image"><img src="{% static 'assets/images/landing/mastery_raga_abstract.png' %}" alt="Raga Soul" loading="lazy" decoding="async"></div>
+                        <h3 data-i18n="m_card3_title"><i class="lucide-music" style="color: var(--gold);"></i> Raga Soul</h3>
+                        <p data-i18n="m_card3_desc">Go beyond notes and discover the emotional soul within every Raga.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Curriculum Section (Sticky Scroll) -->
+    <section id="curriculum" class="curriculum-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up" style="margin-bottom: 80px;">
+                <span class="mentor-subtitle dynamic-trans" data-en="{% if curriculum %}{{ curriculum.subtitle_en }}{% else %}The Learning Path{% endif %}" data-hi="{% if curriculum %}{{ curriculum.subtitle_hi }}{% else %}सीखने की राह{% endif %}" style="text-align: center; display: block;" data-i18n="curr_badge">{% if curriculum %}{{ curriculum.subtitle_en }}{% else %}The Learning Path{% endif %}</span>
+                <h2 class="dynamic-trans" data-en="{% if curriculum %}{{ curriculum.title_en }}{% else %}Workshop Schedule{% endif %}" data-hi="{% if curriculum %}{{ curriculum.title_hi }}{% else %}वर्कशॉप शेड्यूल{% endif %}" style="font-size: 3.5rem;" data-i18n="curr_title">{% if curriculum %}{{ curriculum.title_en }}{% else %}Workshop Schedule{% endif %}</h2>
+                <p class="dynamic-trans" data-en="{% if curriculum %}{{ curriculum.desc_en }}{% else %}A scientifically structured journey into the depths of Hindustani Classical Vocal.{% endif %}" data-hi="{% if curriculum %}{{ curriculum.desc_hi }}{% else %}हिंदुस्तानी शास्त्रीय गायन की गहराइयों में एक वैज्ञानिक रूप से संरचित यात्रा।{% endif %}" style="max-width: 700px; margin: auto;" data-i18n="curr_desc">{% if curriculum %}{{ curriculum.desc_en }}{% else %}A scientifically structured journey into the depths of Hindustani Classical Vocal.{% endif %}</p>
+            </div>
+            
+            <div class="sticky-wrapper">
+                <div class="sticky-visual-area">
+                    <div class="sticky-image-stack" id="stickyImageStack">
+                        {% if curriculum and curriculum.steps.all %}
+                            {% for step in curriculum.steps.all %}
+                                <img src="{% if step.image %}{{ step.image.url }}{% else %}{% static 'assets/images/landing/mentor_ai_breath.png' %}{% endif %}" class="sticky-img {% if forloop.first %}active{% endif %}" id="sticky-img-{{ forloop.counter0 }}" alt="{{ step.title_en }}" loading="lazy" decoding="async">
+                            {% endfor %}
+                        {% else %}
+                            <!-- Mentor-Consistent AI Fallback Images -->
+                            <img src="{% static 'assets/images/landing/mentor_ai_breath.png' %}" class="sticky-img active" id="sticky-img-0" alt="Breath Science" loading="lazy" decoding="async">
+                            <img src="{% static 'assets/images/landing/mentor_ai_swar.png' %}" class="sticky-img" id="sticky-img-1" alt="Swar Sadhana" loading="lazy" decoding="async">
+                            <img src="{% static 'assets/images/landing/mentor_ai_raga.png' %}" class="sticky-img" id="sticky-img-2" alt="Raga Soul" loading="lazy" decoding="async">
+                            <img src="{% static 'assets/images/landing/mentor_ai_performance_v2_1776937131038.png' %}" class="sticky-img" id="sticky-img-3" alt="Stage Mastery" loading="lazy" decoding="async">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="scroll-content-area">
+                    {% if curriculum and curriculum.steps.all %}
+                        {% for step in curriculum.steps.all %}
+                        <div class="scroll-step-block" data-step="{{ forloop.counter0 }}" data-aos="fade-up">
+                            <span class="step-label"><span data-i18n="m_label">Module</span> 0{{ forloop.counter }}</span>
+                            <h3 data-i18n="curr_db_m{{ forloop.counter }}_title">{% if current_lang == 'hi' %}{{ step.title_hi }}{% else %}{{ step.title_en }}{% endif %}</h3>
+                            <p data-i18n="curr_db_m{{ forloop.counter }}_desc">{% if current_lang == 'hi' %}{{ step.desc_hi }}{% else %}{{ step.desc_en }}{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Premium Fallback Content -->
+                        <div class="scroll-step-block" data-step="0" data-aos="fade-up">
+                            <span class="step-label"><span data-i18n="m_label">Module</span> 01</span>
+                            <h3 data-i18n="curr_m1_title">The Science of Breath (Pranayama)</h3>
+                            <p data-i18n="curr_m1_desc">Learn the specific breathing techniques used by master vocalists to sustain long notes and eliminate vocal strain instantly.</p>
+                        </div>
+                        <div class="scroll-step-block" data-step="1" data-aos="fade-up">
+                            <span class="step-label"><span data-i18n="m_label">Module</span> 02</span>
+                            <h3 data-i18n="curr_m2_title">Precision & Swar Sadhana</h3>
+                            <p data-i18n="curr_m2_desc">Develop a pitch-perfect ear and learn to identify swars with surgical precision through structured riyaaz patterns.</p>
+                        </div>
+                        <div class="scroll-step-block" data-step="2" data-aos="fade-up">
+                            <span class="step-label"><span data-i18n="m_label">Module</span> 03</span>
+                            <h3 data-i18n="curr_m3_title">The Soul of Raga & Bhava</h3>
+                            <p data-i18n="curr_m3_desc">Go beyond technicality. Understand how to breathe life into a Raga by mastering the emotional expression (Bhava).</p>
+                        </div>
+                        <div class="scroll-step-block" data-step="3" data-aos="fade-up">
+                            <span class="step-label"><span data-i18n="m_label">Module</span> 04</span>
+                            <h3 data-i18n="curr_m4_title">Stage Presence & Performance</h3>
+                            <p data-i18n="curr_m4_desc">Finalize your transformation by learning how to connect with an audience and perform with absolute confidence.</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Centralized CTA after modules -->
+                    <div class="curriculum-cta-container" style="margin-top: 3rem;">
+                        <a href="javascript:void(0)" onclick="openRegistrationModal()" class="btn btn-primary" data-i18n="curriculum_btn" style="padding: 1.2rem 2.5rem; font-size: 1.1rem;">Unlock This Training</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentor Section -->
+    <section id="mentor" class="mentor">
+        <div class="container">
+            <div class="mentor-grid">
+                <div class="mentor-media" data-aos="fade-right">
+                    <div class="mentor-image-frame" style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-soft);">
+                        <img src="{% if mentor.image %}{{ mentor.image.url }}{% else %}{% static 'assets/images/landing/mentor_real.jpg' %}{% endif %}" style="width: 100%; display: block;" alt="Md Shahbaz Khan" loading="lazy" decoding="async">
+                    </div>
+                </div>
+                <div class="mentor-text" data-aos="fade-left">
+                    <span class="mentor-subtitle dynamic-trans" data-en="{% if mentor %}{{ mentor.subtitle_en }}{% else %}Your Guide & Mentor{% endif %}" data-hi="{% if mentor %}{{ mentor.subtitle_hi }}{% else %}आपके मार्गदर्शक और मेंटर{% endif %}" data-i18n="mentor_subtitle">{% if mentor %}{{ mentor.subtitle_en }}{% else %}Your Guide & Mentor{% endif %}</span>
+                    <h2 class="mentor-name dynamic-trans" data-en="{% if mentor %}{{ mentor.name_en }}{% else %}Md Shahbaz Khan{% endif %}" data-hi="{% if mentor %}{{ mentor.name_hi }}{% else %}MD SHAHBAZ KHAN{% endif %}" data-i18n="mentor_name">{% if mentor %}{{ mentor.name_en }}{% else %}Md Shahbaz Khan{% endif %}</h2>
+                    <p class="dynamic-trans" data-en="{% if mentor %}{{ mentor.tagline_en }}{% else %}Classical Vocal Mentor{% endif %}" data-hi="{% if mentor %}{{ mentor.tagline_hi }}{% else %}शास्त्रीय गायन शिक्षक{% endif %}" style="font-weight: 600; font-size: 1.1rem; color: var(--gold); margin-bottom: 2rem;" data-i18n="mentor_tag">Classical Vocal Mentor</p>
+                    <div class="quote dynamic-trans" data-en="{% if mentor %}{{ mentor.quote_en }}{% else %}“True classical training is about discipline, patience, and discovering the depth of your own voice.”{% endif %}" data-hi="{% if mentor %}{{ mentor.quote_hi }}{% else %}“सच्चा शास्त्रीय प्रशिक्षण अनुशासन, धैर्य और अपनी आवाज़ की गहराई को खोजने के बारे में है।”{% endif %}" data-i18n="quote">“True classical training is about discipline, patience, and discovering the depth of your own voice.”</div>
+                    <p class="dynamic-trans" data-en="{% if mentor %}{{ mentor.bio_en }}{% else %}With years of dedicated training in Hindustani Classical music, Md Shahbaz Khan has mentored students across all levels. His approach blends tradition with modern structured guidance.{% endif %}" data-hi="{% if mentor %}{{ mentor.bio_hi }}{% else %}हिंदुस्तानी शास्त्रीय संगीत में वर्षों के समर्पित प्रशिक्षण के साथ, एमडी शाहबाज़ खान ने सभी स्तरों के छात्रों को प्रशिक्षित किया है।{% endif %}" data-i18n="mentor_bio">With years of dedicated training in Hindustani Classical music, Md Shahbaz Khan has mentored students across all levels. His approach blends tradition with modern structured guidance.</p>
+                    <div class="stats">
+                        <div class="stat-item"><h4>15+</h4><p class="dynamic-trans" data-en="{% if mentor %}{{ mentor.exp_label_en }}{% else %}Years Experience{% endif %}" data-hi="{% if mentor %}{{ mentor.exp_label_hi }}{% else %}वर्षों का अनुभव{% endif %}" data-i18n="stat_exp">Years Experience</p></div>
+                        <div class="stat-item"><h4>500+</h4><p class="dynamic-trans" data-en="{% if mentor %}{{ mentor.students_label_en }}{% else %}Vocalists Trained{% endif %}" data-hi="{% if mentor %}{{ mentor.students_label_hi }}{% else %}छात्र प्रशिक्षित{% endif %}" data-i18n="stat_students">Vocalists Trained</p></div>
+                    </div>
+                    <a href="javascript:void(0)" onclick="openRegistrationModal()" class="btn btn-primary" data-i18n="mentor_btn">👉 Join the Workshop</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase -->
+    <section id="gallery" class="showcase">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 data-i18n="showcase_title">{% if gallery %}{{ gallery.title_en }}{% else %}Inside the Academy{% endif %}</h2>
+                <p data-i18n="showcase_desc">{% if gallery %}{{ gallery.desc_en }}{% else %}Where tradition meets creativity.{% endif %}</p>
+            </div>
+            <div class="grid-showcase" id="gallerySlider">
+                {% if gallery and gallery.images.all %}
+                    {% for img in gallery.images.all %}
+                    <div class="showcase-item {% if img.is_main %}showcase-lg{% endif %} {% if img.is_video %}has-video{% endif %}" 
+                         data-aos="fade-up" 
+                         data-aos-delay="{{ forloop.counter|add:'100' }}"
+                         onmouseenter="handleVideoHover(this, true)" 
+                         onmouseleave="handleVideoHover(this, false)" 
+                         onclick="openVideoLightbox('{{ forloop.counter0 }}')">
+                        
+                        {% if img.is_video %}
+                        <video class="gallery-video" muted loop playsinline preload="metadata">
+                            <source src="{{ img.media_file.url }}" type="video/mp4">
+                        </video>
+                        <div class="video-indicator">
+                            <i data-lucide="play-circle"></i>
+                        </div>
+                        {% else %}
+                        <img src="{{ img.media_file.url }}" alt="{{ img.alt_text|default:'Academy' }}" loading="lazy" decoding="async" class="gallery-thumb">
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Static Fallback -->
+                    <div class="showcase-item showcase-lg" data-aos="fade-up" data-aos-delay="100"><img src="{% static 'assets/images/landing/interior.png' %}" alt="Academy Interior" loading="lazy" decoding="async"></div>
+                    <div class="showcase-item" data-aos="fade-up" data-aos-delay="200"><img src="{% static 'assets/images/landing/harmonium.png' %}" alt="Harmonium Practice" loading="lazy" decoding="async"></div>
+                    <div class="showcase-item" data-aos="fade-up" data-aos-delay="300"><img src="{% static 'assets/images/landing/group.png' %}" alt="Group Riyaaz" loading="lazy" decoding="async"></div>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Navigation Arrows -->
+            <div class="gallery-nav mobile-only">
+                <button onclick="slideGallery(-1)" class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
+                <div class="slide-dots" id="slideDots"></div>
+                <button onclick="slideGallery(1)" class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Data for Lightbox -->
+    <script>
+        const galleryItems = [
+            {% for img in gallery.images.all %}
+            {
+                url: "{{ img.media_file.url }}",
+                isVideo: {{ img.is_video|yesno:"true,false" }}
+            },
+            {% endfor %}
+        ];
+        let currentLightboxIndex = 0;
+    </script>
+
+    <!-- Timer Block -->
+    <section id="achieve">
+        <div class="container">
+            <div class="cta-block" data-aos="fade-up">
+                <h2 data-i18n="timer_h2">{% if timer %}{{ timer.title_en }}{% else %}Seats Filling Fast for Free Session{% endif %}</h2>
+                <p data-i18n="timer_desc">{% if timer %}{{ timer.desc_en }}{% else %}Limited free seats available for the upcoming session. Secure your spot before enrollment closes.{% endif %}</p>
+                <p class="timer-urgency dynamic-trans" data-i18n="timer_urgency">🔥 Offer Ending Soon — Secure Your Seat Now</p>
+                <div id="countdown">
+                    <div class="timer-unit"><span id="days">02</span><span class="timer-label" data-i18n="t_days">Days</span></div>
+                    <div class="timer-unit"><span id="hours">08</span><span class="timer-label" data-i18n="t_hours">Hours</span></div>
+                    <div class="timer-unit"><span id="mins">43</span><span class="timer-label" data-i18n="t_mins">Min</span></div>
+                    <div class="timer-unit"><span id="secs">12</span><span class="timer-label" data-i18n="t_secs">Sec</span></div>
+                </div>
+                
+                <div class="luxury-offer-row" style="margin: 2rem auto; justify-content: center;">
+                    <div class="price-seal-group">
+                        {% if not pricing or pricing.new_price == 0 %}
+                        <div class="premium-seal-v5">
+                            <div class="seal-hook left"></div>
+                            <div class="seal-hook right"></div>
+                            <span class="free-text" data-i18n="free_access_tag">FREE</span>
+                        </div>
+                        {% endif %}
+                        <div class="price-details" style="text-align: left;">
+                            <span class="was-txt"><span class="currency-label">₹</span><span class="old-price-val">{{ pricing.old_price|default:499 }}</span></span>
+                            <span class="now-txt" id="timerAnimatedPrice" data-price="{{ pricing.old_price|default:499 }}" data-new-price="{{ pricing.new_price|default:0 }}"><span class="currency-label">₹</span>{{ pricing.new_price|default:0 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-card">
+                        <div class="schedule-icon-box">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <div class="schedule-info">
+                            <span class="schedule-label" data-i18n="sched_label">Save the Date</span>
+                            <span class="schedule-time" data-i18n="sched_val">Coming Sunday • 11:00 AM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="javascript:void(0)" onclick="openRegistrationModal()" class="cta-btn" data-i18n="timer_btn">{% if timer %}{{ timer.btn_text_en }}{% else %}BOOK NOW{% endif %}</a>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faq">
+        <div class="section-header" data-aos="fade-up">
+            <h2 data-i18n="faq_title">{% if faq %}{{ faq.title_en }}{% else %}Common Questions{% endif %}</h2>
+        </div>
+        {% if faq and faq.items.all %}
+            {% for item in faq.items.all %}
+            <div class="faq-item" data-aos="{% if forloop.counter|divisibleby:2 %}fade-left{% else %}fade-right{% endif %}" data-aos-delay="{{ forloop.counter|add:'100' }}">
+                <button class="faq-question"><span class="dynamic-trans" data-en="{{ item.question_en }}" data-hi="{{ item.question_hi }}">{{ item.question_en }}</span> <i data-lucide="chevron-down"></i></button>
+                <div class="faq-answer dynamic-trans" data-en="{{ item.answer_en }}" data-hi="{{ item.answer_hi }}">{{ item.answer_en }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="faq-item" data-aos="fade-right" data-aos-delay="100">
+                <button class="faq-question"><span data-i18n="faq_q1">Can beginners join this program?</span> <i data-lucide="chevron-down"></i></button>
+                <div class="faq-answer" data-i18n="faq_a1">Yes. This training is designed for complete beginners to build a solid foundation.</div>
+            </div>
+            <div class="faq-item" data-aos="fade-left" data-aos-delay="200">
+                <button class="faq-question"><span data-i18n="faq_q2">Do I need prior classical knowledge?</span> <i data-lucide="chevron-down"></i></button>
+                <div class="faq-answer" data-i18n="faq_a2">No prior knowledge is required. We start from the absolute basics.</div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info" data-aos="fade-right">
+                    <span class="badge" style="background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.2); color: #8e6d15; padding: 5px 15px; border-radius: 30px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 15px; text-transform: uppercase;" data-i18n="contact_badge">Reach Out Directly</span>
+                    <h2 data-i18n="contact_title">Let's Start Your Musical Journey</h2>
+                    <p data-i18n="contact_desc">Have a question about the curriculum, schedule, or your vocal potential? Drop a message and let's discuss your artistic growth.</p>
+                    <div class="info-perks">
+                        <div class="perk-item">
+                            <h4 data-i18n="perk_fast">Fast</h4>
+                            <span data-i18n="perk_response">Response Time</span>
+                        </div>
+                        <div class="perk-item">
+                            <h4 data-i18n="perk_expert">Expert</h4>
+                            <span data-i18n="perk_guidance">Guidance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-card" data-aos="fade-left">
+                    <form id="queryForm">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label data-i18n="label_name">Your Full Name</label>
+                                <input type="text" id="query_name" name="name" data-i18n-placeholder="placeholder_name" placeholder="John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="label_phone">Phone Number</label>
+                                <input type="tel" id="query_phone" name="phone" data-i18n-placeholder="placeholder_phone" placeholder="+91 00000 00000" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label_email">Email Address</label>
+                            <input type="email" id="query_email" name="email" data-i18n-placeholder="placeholder_email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="label_voice">Tell me about your voice</label>
+                            <textarea id="query_message" name="message" rows="4" data-i18n-placeholder="placeholder_voice" placeholder="Tell me about your musical background..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn" id="query_submit" data-i18n="submit_query">Submit My Query</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand" data-aos="fade-up">
+                    <a href="{% url 'landingpage:workshop_landing' %}" class="brand">
+                        <span class="logo" style="color: var(--white);">RecgetUp</span>
+                        <span class="sublogo" style="color: var(--gold);">Music</span>
+                    </a>
+                    <p data-i18n="footer_desc">Preserving musical heritage through professional mentorship and disciplined training. Founded by Md Shahbaz Khan.</p>
+                    <div class="footer-socials">
+                        {% if settings.instagram_link %}
+                        <a href="{{ settings.instagram_link }}" aria-label="Instagram">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                        </a>
+                        {% endif %}
+                        {% if settings.youtube_link %}
+                        <a href="{{ settings.youtube_link }}" aria-label="YouTube">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-youtube"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 69.04 69.04 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 69.04 69.04 0 0 1-15 0 2 2 0 0 1-2-2z"/><polyline points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+                        </a>
+                        {% endif %}
+                        {% if settings.facebook_link %}
+                        <a href="{{ settings.facebook_link }}" aria-label="Facebook">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="footer-links" data-aos="fade-up" data-aos-delay="100">
+                    <h4 data-i18n="footer_h1">Explore</h4>
+                    <ul>
+                        <li><a href="#soul" data-i18n="nav_soul">Mastery Path</a></li>
+                        <li><a href="#mentor" data-i18n="nav_mentor">The Mentor</a></li>
+                        <li><a href="#achieve" data-i18n="nav_program">Program</a></li>
+                        <li><a href="#faq" data-i18n="faq_title">Questions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links" data-aos="fade-up" data-aos-delay="200">
+                    <h4 data-i18n="footer_h2">Direct Access</h4>
+                    <ul>
+                        <li><a href="{% if settings.whatsapp_link %}{{ settings.whatsapp_link }}{% else %}https://wa.me/910000000000{% endif %}">WhatsApp</a></li>
+                        <li><a href="mailto:{% if settings.contact_email %}{{ settings.contact_email }}{% else %}info@recgetup.com{% endif %}">Contact Email</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom" data-i18n="footer_copy">
+                {% if settings.copyright_text %}{{ settings.copyright_text }}{% else %}© 2026 RECGETUP MUSIC. CRAFTED FOR MUSICAL EXCELLENCE.{% endif %}
+            </div>
+        </div>
+    </footer>
+
+    <div class="float-cta" id="floating">
+        <a href="javascript:void(0)" onclick="openRegistrationModal()" class="cta-inner-wrap">
+            <svg class="cta-svg-text" viewBox="0 0 100 100">
+                <defs><path id="textCircle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" /></defs>
+                <text><textPath href="#textCircle" data-i18n="floating_cta_text">• BOOK FREE • JOIN WORKSHOP • JOIN WORKSHOP</textPath></text>
+            </svg>
+            <div class="cta-circle-core" style="display: flex; align-items: center; justify-content: center; background: var(--maroon);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+            </div>
+        </a>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeRegistrationModal()">&times;</button>
+            <div class="modal-header">
+                <h3 data-i18n="modal_title">🎶 Free Singing Workshop</h3>
+                <p data-i18n="modal_subtitle">Registration Form</p>
+            </div>
+            <form id="workshopForm">
+                <div class="form-group">
+                    <label data-i18n="label_name">Full Name</label>
+                    <input type="text" id="reg_name" required data-i18n-placeholder="placeholder_name" placeholder="Enter your full name">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label data-i18n="label_email">Email Address</label>
+                        <input type="email" id="reg_email" required data-i18n-placeholder="placeholder_email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label_whatsapp">WhatsApp Number</label>
+                        <input type="tel" id="reg_whatsapp" required data-i18n-placeholder="placeholder_phone" placeholder="+91 00000 00000">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label data-i18n="label_age">Age</label>
+                        <input type="number" id="reg_age" required data-i18n-placeholder="placeholder_age" placeholder="e.g. 25">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="label_state">State</label>
+                        <input type="text" id="reg_state" required data-i18n-placeholder="placeholder_state" placeholder="e.g. Maharashtra">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label data-i18n="label_experience">Experience Level</label>
+                    <div class="radio-grid">
+                        <label><input type="radio" name="experience" value="0-1" required> <span data-i18n="exp_0_1">0–1 Years</span></label>
+                        <label><input type="radio" name="experience" value="1-2"> <span data-i18n="exp_1_2">1–2 Years</span></label>
+                        <label><input type="radio" name="experience" value="2-3"> <span data-i18n="exp_2_3">2–3 Years</span></label>
+                        <label><input type="radio" name="experience" value="Above 3"> <span data-i18n="exp_above_3">Above 3 Years</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="label_instrument">Swar Practice Instrument</label>
+                    <span class="sub-label" data-i18n="sub_instr">(Aap Swar ka abhyas kis instrument ki madad se karte hain?)</span>
+                    <div class="radio-grid">
+                        <label><input type="radio" name="instrument" value="Harmonium" required> <span data-i18n="inst_harmonium">Harmonium</span></label>
+                        <label><input type="radio" name="instrument" value="Tanpura"> <span data-i18n="inst_tanpura">Tanpura</span></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="label_swar_id">Swar Identification</label>
+                    <span class="sub-label" data-i18n="sub_swar">(Kya aap sabhi 12 swar pahchan kar pate hain?)</span>
+                    <div class="radio-grid">
+                        <label><input type="radio" name="swar_id" value="Yes" required> <span data-i18n="yes">Yes</span></label>
+                        <label><input type="radio" name="swar_id" value="No"> <span data-i18n="no">No</span></label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="reg_submit" data-i18n="modal_btn">Complete Registration</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Thank You Modal -->
+    <div id="thankYouModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeThankYouModal()">&times;</button>
+            <div class="ty-success-visual">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 id="ty_title" data-i18n="ty_title">Welcome to the Academy!</h3>
+            <p id="ty_msg" data-i18n="ty_msg">Your musical journey has officially begun. We've sent a welcome guide to your email.</p>
+            <a href="{% if settings.whatsapp_link %}{{ settings.whatsapp_link }}{% else %}https://chat.whatsapp.com/JqEzO72JNggAi6fErSWrxX{% endif %}" class="community-btn">
+                <span data-i18n="ty_community">Join Our Community</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize Animations with Full Bidirectional Support
+        /* CUSTOM CINEMATIC ANIMATION SYSTEM (PRO FACTOR) */
+        const revealOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -80px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-active');
+                } else {
+                    entry.target.classList.remove('reveal-active');
+                }
+            });
+        }, revealOptions);
+
+        document.querySelectorAll('[data-aos]').forEach(el => {
+            // Map AOS attributes to custom classes for better control
+            const animationType = el.getAttribute('data-aos');
+            el.classList.add('reveal-init', `reveal-${animationType}`);
+            revealObserver.observe(el);
+        });
+
+        /* STICKY VISUAL SCROLL ENGINE */
+        const stickyObserverOptions = {
+            threshold: 0.6,
+            rootMargin: "0px 0px -20% 0px"
+        };
+
+        const stickyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const stepIndex = entry.target.getAttribute('data-step');
+                    document.querySelectorAll('.sticky-img').forEach(img => img.classList.remove('active'));
+                    const targetImg = document.getElementById(`sticky-img-${stepIndex}`);
+                    if (targetImg) targetImg.classList.add('active');
+                }
+            });
+        }, stickyObserverOptions);
+
+        document.querySelectorAll('.scroll-step-block').forEach(block => {
+            stickyObserver.observe(block);
+        });
+
+        // Bilingual Logic
+        const translations = {
+            en: {
+                nav_mentor: "The Lineage",
+                nav_soul: "The Mastery",
+                nav_program: "Curriculum",
+                nav_btn: "Book Your Free Seat",
+                hero_badge: "{% if hero %}{{ hero.badge_en|escapejs }}{% else %}Beginner Friendly • Elite Free Session{% endif %}",
+                hero_title: "{% if hero %}{{ hero.title_en|escapejs }}{% else %}Unlock the Soul of Your Voice: <span class='italic'>Master</span> Classical Excellence{% endif %}",
+                hero_desc: "{% if hero %}{{ hero.desc_en|escapejs }}{% else %}Join an elite circle of vocalists. Transition from a mere singer to a master performer with structured riyaaz, spiritual depth, and professional guidance.{% endif %}",
+                hero_btn_main: "Claim Free Access",
+                hero_btn_outline: "Confirm My Seat",
+                urgency_text: "{% if marquee %}{{ marquee.text_en|escapejs }}{% else %}The Window is Closing • Only 7 Seats Remain for the Elite Free Workshop • Reserve Your Legacy Now{% endif %}",
+                mentor_subtitle: "{% if mentor %}{{ mentor.subtitle_en|escapejs }}{% else %}Your Guide to the Lineage{% endif %}",
+                mentor_name: "{% if mentor %}{{ mentor.name_en|escapejs }}{% else %}Md Shahbaz Khan{% endif %}",
+                mentor_tag: "{% if mentor %}{{ mentor.tagline_en|escapejs }}{% else %}Classical Vocal Master{% endif %}",
+                quote: "{% if mentor %}{{ mentor.quote_en|escapejs }}{% else %}“Your voice is not a tool; it is a direct reflection of your soul’s discipline and patience.”{% endif %}",
+                mentor_bio: "{% if mentor %}{{ mentor.bio_en|escapejs }}{% else %}With decades of dedicated immersion in Hindustani Classical music, Md Shahbaz Khan has transformed thousands of voices. His approach bridges centuries-old tradition with surgical, modern guidance.{% endif %}",
+                mentor_btn: "Learn From the Mentor",
+                stat_exp: "{% if mentor %}{{ mentor.exp_label_en|escapejs }}{% else %}Years of Mastery{% endif %}",
+                stat_students: "{% if mentor %}{{ mentor.students_label_en|escapejs }}{% else %}Vocalists Transformed{% endif %}",
+                mastery_badge: "{% if mastery %}{{ mastery.subtitle_en|escapejs }}{% else %}The Transformation{% endif %}",
+                mastery_title: "{% if mastery %}{{ mastery.title_en|escapejs }}{% else %}The Blueprint of a Master Vocalist{% endif %}",
+                mastery_desc: "{% if mastery %}{{ mastery.desc_en|escapejs }}{% else %}A curriculum designed not just to teach singing, but to build a professional musical mindset.{% endif %}",
+                m_card1_title: "Breath Control",
+                m_card1_desc: "Master the art of long sustain and effortless projection through ancient breathing techniques.",
+                m_card2_title: "Swar Precision",
+                m_card2_desc: "Identify and strike every swar with absolute mathematical precision.",
+                m_card3_title: "Raga Soul",
+                m_card3_desc: "Go beyond notes and discover the emotional soul within every Raga.",
+                {% for item in mastery.cards.all %}
+                m_card_db_{{ forloop.counter }}_title: "{{ item.title_en|escapejs }}",
+                m_card_db_{{ forloop.counter }}_desc: "{{ item.desc_en|escapejs }}",
+                {% endfor %}
+                m_card1_title: "Divine Breath (Pranayama)",
+                m_card1_desc: "Master the art of breath control to stabilize your voice and project power effortlessly.",
+                m_card2_title: "Raga & Bhava",
+                m_card2_desc: "Understand the emotional structure of Ragas and learn to infuse 'Bhava' into every note.",
+                m_card3_title: "The Artist's Roadmap",
+                m_card3_desc: "A personalized, step-by-step journey from a curious student to a stage-ready performer.",
+                {% for card in mastery.cards.all %}
+                m_card_db_{{ forloop.counter }}_title: "{{ card.title_en|escapejs }}",
+                m_card_db_{{ forloop.counter }}_desc: "{{ card.desc_en|escapejs }}",
+                {% endfor %}
+                curr_badge: "{% if curriculum %}{{ curriculum.subtitle_en|escapejs }}{% else %}The Learning Path{% endif %}",
+                curr_title: "{% if curriculum %}{{ curriculum.title_en|escapejs }}{% else %}Workshop Schedule{% endif %}",
+                curr_desc: "{% if curriculum %}{{ curriculum.desc_en|escapejs }}{% else %}A scientifically structured journey into the depths of Hindustani Classical Vocal.{% endif %}",
+                curr_m1_title: "The Science of Breath (Pranayama)",
+                curr_m1_desc: "Learn the specific breathing techniques used by master vocalists to sustain long notes and eliminate vocal strain instantly.",
+                curr_m2_title: "Precision & Swar Sadhana",
+                curr_m2_desc: "Develop a pitch-perfect ear and learn to identify swars with surgical precision through structured riyaaz patterns.",
+                curr_m3_title: "The Soul of Raga & Bhava",
+                curr_m3_desc: "Go beyond technicality. Understand how to breathe life into a Raga by mastering the emotional expression (Bhava).",
+                curr_m4_title: "Stage Presence & Mastery",
+                curr_m4_desc: "Learn the art of performance. How to connect with your audience and project your voice with confidence and grace.",
+                {% for step in curriculum.steps.all %}
+                curr_db_m{{ forloop.counter }}_title: "{{ step.title_en|escapejs }}",
+                curr_db_m{{ forloop.counter }}_desc: "{{ step.desc_en|escapejs }}",
+                {% endfor %}
+                free_access_tag: "{% if pricing %}{{ pricing.tag_free_en|escapejs }}{% else %}FREE{% endif %}",
+                curriculum_btn: "Unlock This Training",
+                timer_h2: "{% if timer %}{{ timer.title_en|escapejs }}{% else %}The Curtains are Closing on Your Free Spot{% endif %}",
+                timer_desc: "{% if timer %}{{ timer.desc_en|escapejs }}{% else %}This is more than a workshop; it's the first note of your musical legacy. Secure your invitation before enrollment ends.{% endif %}",
+                timer_urgency: "🔥 Offer Ending Soon — Secure Your Seat Now",
+                timer_btn: "Secure My Free Spot",
+                t_days: "Days", t_hours: "Hours", t_mins: "Min", t_secs: "Sec",
+                sched_label: "Save the Date",
+                sched_val: "{% if timer %}{{ timer.target_date|date:'d F • h:i A' }}{% else %}Coming Sunday • 11:00 AM{% endif %}",
+                free_access_tag: "FREE",
+                floating_cta_text: " • BOOK YOUR FREE SEAT • NOW  ",
+                registration_btn: "Start My Journey",
+                showcase_title: "{% if gallery %}{{ gallery.title_en|escapejs }}{% else %}Inside the Academy{% endif %}",
+                showcase_desc: "{% if gallery %}{{ gallery.desc_en|escapejs }}{% else %}Where tradition meets creativity.{% endif %}",
+                faq_title: "{% if faq %}{{ faq.title_en|escapejs }}{% else %}Common Questions{% endif %}",
+                faq_q1: "Can beginners join this program?",
+                faq_a1: "Yes. This training is designed for complete beginners to build a solid foundation.",
+                faq_q2: "Do I need prior classical knowledge?",
+                faq_a2: "No prior knowledge is required. We start from the absolute basics.",
+                contact_badge: "Reach Out Directly",
+                contact_title: "Let's Start Your Musical Journey",
+                contact_desc: "Have a question about the curriculum, schedule, or your vocal potential? Drop a message and let's discuss your artistic growth.",
+                perk_fast: "Fast",
+                perk_response: "Response Time",
+                perk_expert: "Expert",
+                perk_guidance: "Guidance",
+                label_name: "Your Full Name",
+                label_phone: "Phone Number",
+                label_email: "Email Address",
+                label_voice: "Tell me about your voice",
+                placeholder_name: "John Doe",
+                placeholder_phone: "+91 00000 00000",
+                placeholder_email: "john@example.com",
+                placeholder_voice: "Tell me about your musical background...",
+                placeholder_age: "e.g. 25",
+                placeholder_state: "e.g. Maharashtra",
+                submit_query: "Submit My Query",
+                modal_title: "Free Singing Workshop",
+                modal_subtitle: "Registration Form",
+                label_whatsapp: "WhatsApp Number",
+                label_age: "Age",
+                label_state: "State",
+                label_experience: "Experience Level",
+                label_instrument: "Swar Practice Instrument",
+                label_swar_id: "Swar Identification",
+                modal_btn: "Unlock This Training",
+                sub_instr: "(Aap Swar ka abhyas kis instrument ki madad se karte hain?)",
+                sub_swar: "(Kya aap sabhi 12 swar pahchan kar pate hain?)",
+                yes: "Yes", no: "No",
+                exp_0_1: "0–1 Years", exp_1_2: "1–2 Years", exp_2_3: "2–3 Years", exp_above_3: "Above 3 Years",
+                inst_harmonium: "Harmonium", inst_tanpura: "Tanpura",
+                footer_desc: "Preserving musical heritage through professional mentorship and disciplined training. Founded by Md Shahbaz Khan.",
+                footer_h1: "Explore", footer_h2: "Direct Access",
+                footer_copy: "© 2026 RECGETUP MUSIC. CRAFTED FOR MUSICAL EXCELLENCE.",
+                ty_title: "Welcome to the Academy!",
+                ty_msg: "Your musical journey has officially begun. We've sent a welcome guide to your email.",
+                ty_community: "Join Our Community",
+                reg_success_title: "Registration Successful!",
+                reg_success_msg: "Your seat is reserved. We've sent you a welcome email.",
+                query_success_title: "Query Received!",
+                query_success_msg: "We have received your question. We will get back to you shortly.",
+                m_label: "Module",
+                btn_processing: "Processing...",
+                btn_sending: "Sending...",
+                alert_incomplete: "Please answer all musical background questions."
+            },
+            hi: {
+                nav_mentor: "संगीत की विरासत",
+                nav_soul: "महारत की यात्रा",
+                nav_program: "पाठ्यक्रम",
+                nav_btn: "अपनी फ्री सीट बुक करें",
+                hero_badge: "शुरुआत के लिए उपयुक्त • विशेष फ्री सत्र",
+                hero_title: "अपनी आवाज़ की गहराई को पहचानें: <span class='italic'>शास्त्रीय</span> संगीत में महारत",
+                hero_desc: "गायक से कलाकार बनने की यात्रा। शास्त्रीय संगीत की गहराइयों को समझें और Md Shahbaz Khan के मार्गदर्शन में अपनी संगीत पहचान बनाएं।",
+                hero_btn_main: "फ्री एक्सेस प्राप्त करें",
+                hero_btn_outline: "अपनी सीट पक्की करें",
+                sched_label: "तैयार हो जाइए",
+                sched_val: "{% if timer %}{{ timer.target_date|date:'d' }} {% with m=timer.target_date|date:'F' %}{% if m == 'January' %}जनवरी{% elif m == 'February' %}फरवरी{% elif m == 'March' %}मार्च{% elif m == 'April' %}अप्रैल{% elif m == 'May' %}मई{% elif m == 'June' %}जून{% elif m == 'July' %}जुलाई{% elif m == 'August' %}अगस्त{% elif m == 'September' %}सितंबर{% elif m == 'October' %}अक्टूबर{% elif m == 'November' %}नवंबर{% elif m == 'December' %}दिसंबर{% endif %}{% endwith %} • {{ timer.target_date|date:'h:i A' }}{% else %}आने वाले रविवार • सुबह 11:00 बजे{% endif %}",
+                urgency_text: "समय समाप्त हो रहा है • केवल 7 सीटें शेष हैं • अपनी विरासत आज ही सुरक्षित करें",
+                mentor_subtitle: "संगीत की दुनिया में आपके मार्गदर्शक",
+                mentor_name: "Md Shahbaz Khan",
+                mentor_tag: "शास्त्रीय गायन विशेषज्ञ",
+                quote: "“आपकी आवाज़ केवल एक माध्यम नहीं है; यह आपकी आत्मा के अनुशासन और धैर्य का प्रतिबिंब है।”",
+                mentor_bio: "दशकों के अनुभव के साथ, मो. शहबाज़ खान ने हजारों आवाजों को संवारा है। उनका दृष्टिकोण परंपरा और आधुनिक मार्गदर्शन का अद्भुत संगम है।",
+                mentor_btn: "मेंटर से सीखें",
+                stat_exp: "महारत के वर्ष",
+                stat_students: "परिवर्तित गायक",
+                timer_urgency: "🔥 ऑफर जल्द ही समाप्त हो रहा है - अपनी सीट अभी सुरक्षित करें",
+
+                // Mastery
+                mastery_badge: "आपका परिवर्तन",
+                mastery_title: "एक मास्टर गायक बनने का ब्लूप्रिंट",
+                mastery_desc: "आपके वैज्ञानिक और आध्यात्मिक संगीत विकास के तीन स्तंभ।",
+                m_card1_title: "दिव्य श्वास (Pranayama)",
+                m_card1_desc: "श्वास नियंत्रण की कला में महारत हासिल करें और अपनी आवाज़ को स्थिर और प्रभावशाली बनाएं।",
+                m_card2_title: "राग और भाव",
+                m_card2_desc: "रागों की भावनात्मक संरचना को समझें और हर सुर में 'भाव' पिरोना सीखें।",
+                m_card3_title: "कलाकार का रोडमैप",
+                m_card3_desc: "एक जिज्ञासु छात्र से एक मंच-तैयार कलाकार बनने तक का व्यक्तिगत और चरणबद्ध सफर।",
+                {% for item in mastery.cards.all %}
+                m_card_db_{{ forloop.counter }}_title: "{{ item.title_hi|escapejs }}",
+                m_card_db_{{ forloop.counter }}_desc: "{{ item.desc_hi|escapejs }}",
+                {% endfor %}
+
+                // Curriculum
+                curr_badge: "{% if curriculum %}{{ curriculum.subtitle_hi|escapejs }}{% else %}सीखने की यात्रा{% endif %}",
+                curr_title: "{% if curriculum %}{{ curriculum.title_hi|escapejs }}{% else %}वर्कशॉप का शेड्यूल{% endif %}",
+                curr_desc: "{% if curriculum %}{{ curriculum.desc_hi|escapejs }}{% else %}हिंदुस्तानी शास्त्रीय गायन की गहराइयों में एक वैज्ञानिक रूप से संरचित यात्रा।{% endif %}",
+                curr_m1_title: "श्वास का विज्ञान (प्राणायाम)",
+                curr_m1_desc: "लंबी तान खींचने और आवाज़ की थकान को तुरंत दूर करने के लिए मास्टर गायकों द्वारा उपयोग की जाने वाली श्वास तकनीकें सीखें।",
+                curr_m2_title: "सटीकता और स्वर साधना",
+                curr_m2_desc: "एक पिच-परफेक्ट कान विकसित करें और संरचित रियाज़ पैटर्न के माध्यम से सर्जिकल सटीकता के साथ स्वरों को पहचानना सीखें।",
+                curr_m3_title: "राग की आत्मा और भाव",
+                curr_m3_desc: "तकनीकी से परे जाएं। भावनात्मक अभिव्यक्ति (भाव) में महारत हासिल करके राग में जान डालना सीखें।",
+                curr_m4_title: "मंच उपस्थिति और महारत",
+                curr_m4_desc: "प्रदर्शन की कला सीखें। अपने दर्शकों के साथ कैसे जुड़ें और आत्मविश्वास के साथ अपनी आवाज़ को कैसे पेश करें।",
+                {% for step in curriculum.steps.all %}
+                curr_db_m{{ forloop.counter }}_title: "{{ step.title_hi|escapejs }}",
+                curr_db_m{{ forloop.counter }}_desc: "{{ step.desc_hi|escapejs }}",
+                {% endfor %}
+                free_access_tag: "{% if pricing %}{{ pricing.tag_free_hi|escapejs }}{% else %}मुफ्त{% endif %}",
+                curr_m1_title: "श्वास का विज्ञान (प्राणायाम)",
+                curr_m1_desc: "लंबी तान खींचने और आवाज़ की थकान को तुरंत दूर करने के लिए मास्टर गायकों द्वारा उपयोग की जाने वाली श्वास तकनीकें सीखें।",
+                curr_m2_title: "सटीकता और स्वर साधना",
+                curr_m2_desc: "एक सटीक कान विकसित करें और संरचित रियाज़ पैटर्न के माध्यम से सर्जिकल सटीकता के साथ स्वरों की पहचान करना सीखें।",
+                curr_m3_title: "राग और भाव की आत्मा",
+                curr_m3_desc: "तकनीकी से परे जाएं। भावनात्मक अभिव्यक्ति (भाव) में महारत हासिल करके राग में जान डालना समझें।",
+                curr_m4_title: "स्टेज प्रेजेंस और प्रदर्शन",
+                curr_m4_desc: "दर्शकों के साथ जुड़ना और पूर्ण आत्मविश्वास के साथ प्रदर्शन करना सीखकर अपना परिवर्तन पूरा करें।",
+                curriculum_btn: "इस ट्रेनिंग को अनलॉक करें",
+
+                // Timer
+                timer_h2: "फ्री स्थान समाप्त होने वाले हैं",
+                timer_desc: "यह सिर्फ एक वर्कशॉप नहीं है; यह आपकी संगीत विरासत का पहला सुर है। नामांकन समाप्त होने से पहले अपना आमंत्रण सुरक्षित करें।",
+                timer_btn: "अपनी फ्री जगह सुरक्षित करें",
+                t_days: "दिन", t_hours: "घंटे", t_mins: "मिनट", t_secs: "सेकंड",
+                free_access_tag: "फ्री",
+                floating_cta_text: " • अपनी फ्री सीट बुक करें • अपनी फ्री सीट बुक करें • ",
+                registration_btn: "अपनी यात्रा शुरू करें",
+                modal_btn: "इस ट्रेनिंग को अनलॉक करें",
+
+                // Showcase
+                showcase_title: "{% if gallery %}{{ gallery.title_hi|escapejs }}{% else %}अकादमी के अंदर{% endif %}",
+                showcase_desc: "{% if gallery %}{{ gallery.desc_hi|escapejs }}{% else %}जहाँ परंपरा रचनात्मकता से मिलती है।{% endif %}",
+
+                // FAQ
+                faq_title: "{% if faq %}{{ faq.title_hi|escapejs }}{% else %}सामान्य प्रश्न{% endif %}",
+                faq_q1: "क्या शुरुआती लोग इस कार्यक्रम में शामिल हो सकते हैं?",
+                faq_a1: "हाँ। यह प्रशिक्षण पूरी तरह से शुरुआती लोगों के लिए एक ठोस आधार बनाने के लिए डिज़ाइन किया गया है।",
+                faq_q2: "क्या मुझे पहले से शास्त्रीय संगीत की जानकारी होनी चाहिए?",
+                faq_a2: "किसी पूर्व ज्ञान की आवश्यकता नहीं है। हम बिल्कुल बुनियादी बातों से शुरुआत करते हैं।",
+
+                // Contact
+                contact_badge: "सीधे संपर्क करें",
+                contact_title: "आइए आपकी संगीत यात्रा शुरू करें",
+                contact_desc: "क्या आपके पास पाठ्यक्रम, समय सारणी या अपनी गायन क्षमता के बारे में कोई प्रश्न है? हमें बताएं।",
+                perk_fast: "तेज़",
+                perk_response: "जवाब का समय",
+                perk_expert: "विशेषज्ञ",
+                perk_guidance: "मार्गदर्शन",
+                label_name: "आपका पूरा नाम",
+                label_phone: "फोन नंबर",
+                label_email: "ईमेल पता",
+                label_voice: "अपनी आवाज़ के बारे में बताएं",
+                placeholder_name: "अपना नाम यहाँ लिखें",
+                placeholder_phone: "अपना फोन नंबर लिखें",
+                placeholder_email: "अपना ईमेल लिखें",
+                placeholder_voice: "अपनी संगीत पृष्ठभूमि के बारे में बताएं...",
+                placeholder_age: "जैसे: 25",
+                placeholder_state: "जैसे: महाराष्ट्र",
+                submit_query: "मेरा प्रश्न भेजें",
+
+                // Modal
+                modal_title: "🎶 फ्री सिंगिंग वर्कशॉप",
+                modal_subtitle: "रजिस्ट्रेशन फॉर्म",
+                label_whatsapp: "व्हाट्सएप नंबर",
+                label_age: "आयु",
+                label_state: "राज्य",
+                label_experience: "अनुभव स्तर",
+                label_instrument: "स्वर अभ्यास वाद्य यंत्र",
+                label_swar_id: "स्वर पहचान",
+                modal_btn: "रजिस्ट्रेशन पूरा करें",
+                sub_instr: "(आप स्वर का अभ्यास किस वाद्य यंत्र की मदद से करते हैं?)",
+                sub_swar: "(क्या आप सभी 12 स्वर पहचान पाते हैं?)",
+                yes: "हाँ", no: "नहीं",
+                exp_0_1: "0–1 वर्ष", exp_1_2: "1–2 वर्ष", exp_2_3: "2–3 वर्ष", exp_above_3: "3 वर्ष से अधिक",
+                inst_harmonium: "हारमोनियम", inst_tanpura: "तानपुरा",
+
+                // Footer
+                footer_desc: "पेशेवर मार्गदर्शन और अनुशासित प्रशिक्षण के माध्यम से संगीतमय विरासत का संरक्षण। एमडी शाहबाज़ खान द्वारा स्थापित।",
+                footer_h1: "एक्सप्लोर करें", footer_h2: "सीधी पहुंच",
+                footer_copy: "© 2026 RECGETUP MUSIC. उत्कृष्ट संगीत के लिए निर्मित।",
+                floating_cta_text: "• महारत हासिल करें • मेरा स्थान सुरक्षित करें •",
+                ty_title: "अकादमी में आपका स्वागत है!",
+                ty_msg: "आपकी संगीतमय यात्रा आधिकारिक रूप से शुरू हो गई है। हमने आपके ईमेल पर एक स्वागत गाइड भेजी है।",
+                ty_community: "हमारे समुदाय से जुड़ें",
+                reg_success_title: "पंजीकरण सफल!",
+                reg_success_msg: "आपकी सीट आरक्षित है। हमने आपको एक स्वागत ईमेल भेजा है।",
+                query_success_title: "प्रश्न प्राप्त हुआ!",
+                query_success_msg: "आपका प्रश्न हमें मिल गया है। हम जल्द ही आपसे संपर्क करेंगे।",
+                m_label: "मॉड्यूल",
+                btn_processing: "प्रक्रिया जारी है...",
+                btn_sending: "भेजा जा रहा है...",
+                alert_incomplete: "कृपया सभी संगीत पृष्ठभूमि प्रश्नों के उत्तर दें।"
+            }
+        };
+
+        let currentLang = localStorage.getItem('preferred_lang') || 'en';
+        
+        function setGlobalLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('preferred_lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+            // Handle Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+
+            // Dynamic translations from DB
+            document.querySelectorAll('.dynamic-trans').forEach(el => {
+                const val = el.getAttribute(`data-${lang}`);
+                if (val) el.innerHTML = val;
+            });
+
+            document.getElementById('g-btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('g-btn-hi').classList.toggle('active', lang === 'hi');
+            if(document.getElementById('m-btn-en')) document.getElementById('m-btn-en').classList.toggle('active', lang === 'en');
+            if(document.getElementById('m-btn-hi')) document.getElementById('m-btn-hi').classList.toggle('active', lang === 'hi');
+            document.documentElement.lang = lang;
+
+            // Refresh AOS to recalculate positions after content shift
+            setTimeout(() => { 
+                AOS.refresh(); 
+                lucide.createIcons(); // Re-render icons after language shift
+            }, 100);
+        }
+
+        setGlobalLanguage(currentLang);
+
+        // Mobile Menu Toggle Logic (Sidebar)
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const navOverlay = document.getElementById('navOverlay');
+            navMenu.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+            
+            // Toggle burger/x icon if needed, but we have a dedicated close button now
+            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        // Remove old mobile toggle listener since we use onclick now
+        // const mobileToggle = document.getElementById('mobileToggle');
+        // ...
+
+        // Registration Modal Logic
+        const modal = document.getElementById('registrationModal');
+        const workshopForm = document.getElementById('workshopForm');
+
+        function openRegistrationModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegistrationModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeRegistrationModal();
+        }
+
+        // Radio Selection UI helper
+        document.querySelectorAll('.radio-grid input').forEach(input => {
+            input.addEventListener('change', () => {
+                const groupName = input.name;
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(i => {
+                    i.parentElement.classList.toggle('selected', i.checked);
+                });
+            });
+        });
+
+        // FAQ Toggle Logic
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const isOpen = item.classList.contains('open');
+                
+                // Close other open FAQ items for a cleaner accordion feel
+                document.querySelectorAll('.faq-item.open').forEach(openItem => {
+                    if (openItem !== item) openItem.classList.remove('open');
+                });
+                
+                item.classList.toggle('open', !isOpen);
+                
+                // Refresh AOS after content expansion to keep animations accurate
+                setTimeout(() => { AOS.refresh(); }, 400);
+            });
+        });
+
+        const thankYouModal = document.getElementById('thankYouModal');
+
+        function openThankYouModal(title, msg) {
+            document.getElementById('ty_title').innerText = title || translations[currentLang].ty_title;
+            document.getElementById('ty_msg').innerText = msg || translations[currentLang].ty_msg;
+            thankYouModal.classList.add('active');
+        }
+
+        function closeThankYouModal() {
+            thankYouModal.classList.remove('active');
+            // If it was a registration, we might want to redirect after they close the modal
+            if (window.pendingRedirect) {
+                window.location.href = window.pendingRedirect;
+            }
+        }
+
+        workshopForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('reg_submit');
+            const originalText = btn.innerHTML;
+            
+            const expEl = document.querySelector('input[name="experience"]:checked');
+            const instEl = document.querySelector('input[name="instrument"]:checked');
+            const swarEl = document.querySelector('input[name="swar_id"]:checked');
+
+            if (!expEl || !instEl || !swarEl) {
+                alert(translations[currentLang].alert_incomplete);
+                return;
+            }
+
+            btn.innerHTML = translations[currentLang].btn_sending || "Processing...";
+            btn.disabled = true;
+
+            const data = {
+                full_name: document.getElementById('reg_name').value,
+                email: document.getElementById('reg_email').value,
+                whatsapp_number: document.getElementById('reg_whatsapp').value,
+                age: document.getElementById('reg_age').value,
+                state: document.getElementById('reg_state').value,
+                experience: expEl.value,
+                instrument: instEl.value,
+                swar_identification: swarEl.value
+            };
+
+            try {
+                // Set a timeout for the request to prevent infinite "Sending..." state
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+                const response = await fetch('{% url "landingpage:register_workshop" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // 1. Success! Close the modal first so it's gone if they return
+                    closeRegistrationModal();
+                    workshopForm.reset();
+
+                    // 2. Redirect to WhatsApp
+                    window.location.href = "{% if settings %}{{ settings.whatsapp_link }}{% else %}https://chat.whatsapp.com/JqEzO72JNggAi6fErSWrxX{% endif %}";
+                } else {
+                    alert(result.message || "Registration failed. Please try again.");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                if (error.name === 'AbortError') {
+                    alert("Request timed out. Please check your internet connection.");
+                } else {
+                    alert("Something went wrong. Please check your connection.");
+                }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } finally {
+                // Ensure button is restored if not redirecting
+                // (though on success we redirect, so this is for error cases)
+            }
+        });
+
+        // Return Refresh Logic (Clears form/modal if user comes back from WhatsApp)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+
+        // Contact Query AJAX
+        const queryForm = document.getElementById('queryForm');
+        queryForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('query_submit');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = translations[currentLang].btn_sending;
+            btn.disabled = true;
+
+            const data = {
+                name: document.getElementById('query_name').value,
+                phone: document.getElementById('query_phone').value,
+                email: document.getElementById('query_email').value,
+                message: document.getElementById('query_message').value
+            };
+
+            try {
+                const response = await fetch('{% url "landingpage:submit_query" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    queryForm.reset();
+                    openThankYouModal(
+                        translations[currentLang].query_success_title,
+                        translations[currentLang].query_success_msg
+                    );
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                } else {
+                    alert(result.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Scroll logic for Circular CTA
+        window.addEventListener('scroll', () => {
+            const float = document.getElementById('floating');
+            if (window.scrollY > 300) { float.classList.add('active'); } else { float.classList.remove('active'); }
+        });
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Timer
+        function startTimer(duration) {
+            let timer = duration;
+            const interval = setInterval(() => {
+                let d = Math.floor(timer / (24 * 3600));
+                let h = Math.floor((timer % (24 * 3600)) / 3600);
+                let m = Math.floor((timer % 3600) / 60);
+                let s = timer % 60;
+                if(document.getElementById('days')) document.getElementById('days').textContent = String(d).padStart(2, '0');
+                if(document.getElementById('hours')) document.getElementById('hours').textContent = String(h).padStart(2, '0');
+                if(document.getElementById('mins')) document.getElementById('mins').textContent = String(m).padStart(2, '0');
+                if(document.getElementById('secs')) document.getElementById('secs').textContent = String(s).padStart(2, '0');
+                
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    timer = 0;
+                }
+            }, 1000);
+        }
+
+        {% if timer and timer.target_date %}
+            const targetDate = new Date("{{ timer.target_date|date:'Y/m/d H:i:s' }}").getTime();
+            const now = new Date().getTime();
+            const diff = Math.floor((targetDate - now) / 1000);
+            startTimer(diff > 0 ? diff : 0);
+        {% else %}
+            startTimer(2 * 24 * 3600 + 8 * 3600 + 43 * 60 + 12);
+        {% endif %}
+
+        // Price Animation logic with Infinite Observer
+        const priceObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animatePrice(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        function animatePrice(el) {
+            if (!el) return;
+            
+            let startVal = parseInt(el.getAttribute('data-price')) || 499;
+            let endVal = parseInt(el.getAttribute('data-new-price')) || 0;
+            const duration = 2500; 
+            const startTime = performance.now();
+
+            function update(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 4); 
+                const val = Math.floor(startVal - ((startVal - endVal) * eased));
+                
+                el.innerHTML = `<span class="currency-label">₹</span>${val}`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.innerHTML = `<span class="currency-label">₹</span>${endVal}`;
+                }
+            }
+            requestAnimationFrame(update);
+        }
+        
+        const heroPrice = document.getElementById('animatedPrice');
+        const timerPrice = document.getElementById('timerAnimatedPrice');
+        if (heroPrice) priceObserver.observe(heroPrice);
+        if (timerPrice) priceObserver.observe(timerPrice);
+
+        // Video Gallery Logic - Desktop Hover
+        function handleVideoHover(container, isEnter) {
+            if (window.innerWidth < 992) return; // Ignore on mobile (handled by scroll observer)
+            const video = container.querySelector('video');
+            if (!video) return;
+
+            if (isEnter) {
+                container.classList.add('playing');
+                video.play().catch(e => console.log("Hover play failed"));
+            } else {
+                container.classList.remove('playing');
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+
+        // Mobile Scroll-to-Play Logic
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target.querySelector('video');
+                if (!video) return;
+
+                if (entry.isIntersecting) {
+                    video.play().catch(e => console.log("Mobile autoplay blocked"));
+                    entry.target.classList.add('playing');
+                } else {
+                    video.pause();
+                    entry.target.classList.remove('playing');
+                }
+            });
+        }, { threshold: 0.6 });
+
+        document.querySelectorAll('.showcase-item.has-video').forEach(item => {
+            videoObserver.observe(item);
+        });
+
+        // --- STRICT AUDIO MANAGER ---
+        // Automatically pause background music when ANY video starts playing
+        document.addEventListener('play', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const soulAudio = document.getElementById('soulAudio');
+                if (soulAudio && e.target !== soulAudio) {
+                    soulAudio.pause();
+                }
+            }
+        }, true);
+        
+        // Resume background music ONLY when lightbox is closed (handled in closeVideoLightbox)
+        // -----------------------------
+
+        // Gallery Slider Logic (Seamless Infinite Engine)
+        const slider = document.getElementById('gallerySlider');
+        const dotsContainer = document.getElementById('slideDots');
+        let autoScrollInterval;
+        let isUserInteracting = false;
+        const SLIDE_SPEED = 2200; // Balanced premium speed
+        let originalCount = 0;
+
+        function initGallery() {
+            if (!slider) return;
+            const items = Array.from(slider.querySelectorAll('.showcase-item'));
+            originalCount = items.length;
+            if (originalCount <= 1) return;
+
+            // --- SEAMLESS CLONING ---
+            // Clone first 3 items and append to end for infinite look
+            const clonesToAppend = items.slice(0, 3).map(item => item.cloneNode(true));
+            clonesToAppend.forEach(clone => {
+                // Remove AOS from clones to prevent re-animation jumps
+                clone.removeAttribute('data-aos');
+                slider.appendChild(clone);
+            });
+
+            renderDots();
+            startAutoScroll();
+            
+            // Touch/Mouse Interactivity
+            const pauseTriggers = ['touchstart', 'mousedown'];
+            const resumeTriggers = ['touchend', 'mouseup', 'mouseleave'];
+
+            pauseTriggers.forEach(t => {
+                slider.addEventListener(t, () => {
+                    isUserInteracting = true;
+                    stopAutoScroll();
+                }, {passive: true});
+            });
+
+            resumeTriggers.forEach(t => {
+                slider.addEventListener(t, () => {
+                    isUserInteracting = false;
+                    startAutoScroll();
+                }, {passive: true});
+            });
+
+            slider.addEventListener('scroll', handleScrollEvents);
+        }
+
+        function handleScrollEvents() {
+            updateDots();
+            checkInfiniteReset();
+        }
+
+        function checkInfiniteReset() {
+            const items = slider.querySelectorAll('.showcase-item');
+            const itemWidth = items[0].offsetWidth + 24; 
+            const resetPoint = originalCount * itemWidth;
+
+            // If we've scrolled past all original items into the clones
+            if (slider.scrollLeft >= resetPoint) {
+                // Instant jump back to start (NO behavior: smooth)
+                slider.scrollLeft = 0;
+            }
+        }
+
+        function slideGallery(direction) {
+            if (!slider) return;
+            const items = slider.querySelectorAll('.showcase-item');
+            const itemWidth = items[0].offsetWidth + 24;
+            
+            slider.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
+            
+            // Temporary pause on manual button click
+            stopAutoScroll();
+            setTimeout(() => {
+                if (!isUserInteracting) startAutoScroll();
+            }, 3000);
+        }
+
+        function renderDots() {
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < originalCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateDots() {
+            if (!dotsContainer) return;
+            const items = slider.querySelectorAll('.showcase-item');
+            if (items.length === 0) return;
+            
+            const itemWidth = items[0].offsetWidth + 24;
+            const rawIndex = Math.round(slider.scrollLeft / itemWidth);
+            const activeIndex = rawIndex % originalCount;
+
+            const dots = dotsContainer.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === activeIndex);
+            });
+        }
+
+        function startAutoScroll() {
+            if (!slider) return;
+            stopAutoScroll();
+            autoScrollInterval = setInterval(() => {
+                if (!isUserInteracting) {
+                    slideGallery(1);
+                }
+            }, SLIDE_SPEED);
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) clearInterval(autoScrollInterval);
+        }
+
+        document.addEventListener('DOMContentLoaded', initGallery);
+
+        // --- THEATRE MODE (LIGHTBOX) LOGIC ---
+        function openVideoLightbox(index) {
+            currentLightboxIndex = parseInt(index);
+            const lightbox = document.getElementById('videoLightbox');
+            const soulAudio = document.getElementById('soulAudio');
+            
+            if (soulAudio) soulAudio.pause();
+            
+            renderLightboxContent();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function renderLightboxContent() {
+            const container = document.getElementById('lightboxMediaContainer');
+            const item = galleryItems[currentLightboxIndex];
+            if (!item) return;
+
+            container.innerHTML = ''; // Clear current
+
+            if (item.isVideo) {
+                const video = document.createElement('video');
+                video.src = item.url;
+                video.controls = true;
+                video.autoplay = true;
+                video.className = 'lightbox-media';
+                container.appendChild(video);
+            } else {
+                const img = document.createElement('img');
+                img.src = item.url;
+                img.className = 'lightbox-media';
+                container.appendChild(img);
+            }
+        }
+
+        function navigateLightbox(direction) {
+            currentLightboxIndex += direction;
+            if (currentLightboxIndex >= galleryItems.length) currentLightboxIndex = 0;
+            if (currentLightboxIndex < 0) currentLightboxIndex = galleryItems.length - 1;
+            renderLightboxContent();
+        }
+
+        function closeVideoLightbox() {
+            const lightbox = document.getElementById('videoLightbox');
+            const container = document.getElementById('lightboxMediaContainer');
+            const soulAudio = document.getElementById('soulAudio');
+            
+            container.innerHTML = ''; // Stop video/clear
+            lightbox.classList.remove('active');
+            document.body.style.overflow = ''; 
+
+            if (soulAudio && isSoulActive) soulAudio.play();
+        }
+
+        // Swipe support for Lightbox
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const lightboxEl = document.getElementById('videoLightbox');
+        
+        lightboxEl.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
+        }, {passive: true});
+
+        lightboxEl.addEventListener('touchend', e => {
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+            
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            // Only navigate if it was a horizontal swipe
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+                if (dx > 0) navigateLightbox(-1); // Swipe Right -> Previous
+                else navigateLightbox(1); // Swipe Left -> Next
+            }
+        }, {passive: true});
+    </script>
+
+    <!-- Video Lightbox Structure -->
+    <div id="videoLightbox" class="video-lightbox" onclick="closeVideoLightbox()">
+        <span class="close-lightbox" onclick="closeVideoLightbox()">&times;</span>
+        
+        <div class="lightbox-nav-btn l-prev" onclick="event.stopPropagation(); navigateLightbox(-1)">
+            <i data-lucide="chevron-left"></i>
+        </div>
+        
+        <div class="video-container" id="lightboxMediaContainer" onclick="event.stopPropagation()">
+            <!-- Dynamic content injected here -->
+        </div>
+
+        <div class="lightbox-nav-btn l-next" onclick="event.stopPropagation(); navigateLightbox(1)">
+            <i data-lucide="chevron-right"></i>
+        </div>
+    </div>
+    <!-- Soul of Academy - Background Music (Invisible Mode) -->
+    <div class="audio-controller" id="audioToggle" style="display: none !important;"></div>
+    
+    <audio id="soulAudio" loop preload="auto">
+        <source src="{% static 'assets/images/landing/raga-nand-nadiyon-topic-128k_Bu1YTRC0.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const soulAudio = document.getElementById('soulAudio');
+        let isSoulActive = false;
+
+        // Soul of Academy - Classical Meditative Volume (Max)
+        soulAudio.volume = 1.0;
+
+        // SOUL ENGINE - UNIVERSAL ACTIVATION
+        function forceSoulPlay() {
+            if (!isSoulActive) {
+                // Mute-Unmute Trick (Bypasses strict Mobile blocks)
+                soulAudio.muted = true; 
+                soulAudio.play().then(() => {
+                    soulAudio.muted = false;
+                    isSoulActive = true;
+                    console.log("Academy Soul: ONLINE");
+                }).catch(err => {
+                    // Fail silently, listener will try again on next movement
+                });
+            }
+        }
+
+        // HIGH-PRIORITY MOBILE IGNITE (Must NOT be passive)
+        document.body.addEventListener('touchstart', forceSoulPlay, { passive: false });
+        document.body.addEventListener('click', forceSoulPlay, { once: true });
+        
+        // DESKTOP & SCROLL TRIGGERS
+        const triggers = ['scroll', 'wheel', 'mousewheel', 'keydown'];
+        triggers.forEach(eventType => {
+            window.addEventListener(eventType, forceSoulPlay, { passive: true });
+        });
+
+        // Silent Error Detection
+        soulAudio.addEventListener('error', function(e) {
+            console.error("Classical audio file could not be loaded.");
+        });
+    </script>
+</body>
+</html>

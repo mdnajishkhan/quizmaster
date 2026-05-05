@@ -12,6 +12,7 @@ from .forms import QuestionImportForm
 from nested_admin import NestedModelAdmin, NestedTabularInline, NestedStackedInline
 from .models import Quiz, Question, Choice, Attempt, Answer, QuizAccessGrant, Profile, Category, HackathonResult, Announcement, Expense, AdminDashboard
 from training.models import Coupon
+from background_task.models import Task, CompletedTask
 
 @admin.register(AdminDashboard)
 class AdminDashboardAdmin(admin.ModelAdmin):
@@ -141,3 +142,7 @@ class ExpenseAdmin(admin.ModelAdmin):
     list_filter = ('category', 'date')
     search_fields = ('title', 'description')
     date_hierarchy = 'date'
+
+# 🚫 Hide Background Tasks from Admin (Client Request)
+admin.site.unregister(Task)
+admin.site.unregister(CompletedTask)

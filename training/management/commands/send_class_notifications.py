@@ -3,101 +3,131 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from training.models import ClassSchedule, Enrollment
-from datetime import timedelta
+from training.models import ClassSession, Enrollment, SpecialClass
+from django.contrib.auth.models import User
+from datetime import datetime, timedelta
 
 class Command(BaseCommand):
     help = 'Send email reminders for upcoming classes (3 hours and 30 minutes before)'
 
     def handle(self, *args, **kwargs):
-        now = timezone.now()
-        self.stdout.write(f"Checking for classes at {now}")
+        # Convert UTC 'now' to Local Time (IST) because database fields (date/time) are stored as naive local time.
+        now = timezone.localtime(timezone.now()) 
+        self.stdout.write(f"Checking for classes at {now} (Local Time)")
 
-        # --- 3 HOUR REMINDER ---
-        # Trigger ONLY if class is <= 3 hours away (but not too late, e.g. > 1 hr)
-        start_range_early = now + timedelta(hours=3)
+        # Define narrow windows (assuming cron runs every 5 minutes)
+        # Window: [Target - 2.5 min, Target + 2.5 min]
+        # This ensures we catch the event roughly once per cron cycle.
         
-        # We look for classes starting anytime between NOW and 3 hours from now
-        # But we rely on the 'reminder_6hr_sent' flag (repurposed for 3hr) to ensure we do it only once.
+        # --- 3 HOUR REMINDER (Target: 180 mins) ---
+        range_3h_start = now + timedelta(minutes=177) # 180 - 3
+        range_3h_end = now + timedelta(minutes=183)   # 180 + 3
         
-        classes_early = ClassSchedule.objects.filter(
-            start_time__gte=now + timedelta(hours=1), # Don't send early reminder if it's already < 1 hour away
-            start_time__lte=start_range_early,
-            reminder_6hr_sent=False # Using existing DB field
+        self.check_and_send(range_3h_start, range_3h_end, '3hr', now)
+
+        # --- 30 MINUTE REMINDER (Target: 30 mins) ---
+        range_30m_start = now + timedelta(minutes=27) # 30 - 3
+        range_30m_end = now + timedelta(minutes=33)   # 30 + 3
+        
+        self.check_and_send(range_30m_start, range_30m_end, '30min', now)
+
+    def check_and_send(self, start_range, end_range, type_code, now):
+        # 1. Regular Sessions
+        classes = ClassSession.objects.filter(
+            date=now.date(),
+            start_time__gte=start_range.time(),
+            start_time__lte=end_range.time(),
+            status='scheduled'
         )
+        for session in classes:
+            self.send_notifications(session, type_code)
+            self.stdout.write(self.style.SUCCESS(f"Sent {type_code} reminders for session: {session}"))
 
-        for schedule in classes_early:
-            self.send_notifications(schedule, '3hr')
-            schedule.reminder_6hr_sent = True
-            schedule.save()
-            self.stdout.write(self.style.SUCCESS(f"Sent 3hr reminders for {schedule}"))
-
-        # --- 30 MINUTE REMINDER ---
-        # Trigger ONLY if class is <= 30 minutes away
-        start_range_30m = now + timedelta(minutes=30)
-
-        classes_30min = ClassSchedule.objects.filter(
-            start_time__gte=now,
-            start_time__lte=start_range_30m,
-            reminder_30min_sent=False
+        # 2. Special Classes
+        # One Time
+        sc_ot = SpecialClass.objects.filter(
+            scheduling_type='one_time',
+            start_datetime__gte=start_range,
+            start_datetime__lte=end_range
         )
+        # Recurring
+        sc_rec = SpecialClass.objects.filter(
+            scheduling_type='recurring',
+            day_of_week=now.weekday(),
+            start_time__gte=start_range.time(),
+            start_time__lte=end_range.time()
+        )
+        
+        for sc in list(sc_ot) + list(sc_rec):
+            self.send_notifications(sc, type_code, is_special=True)
+            self.stdout.write(self.style.SUCCESS(f"Sent {type_code} reminders for special: {sc}"))
 
-        for schedule in classes_30min:
-            self.send_notifications(schedule, '30min')
-            schedule.reminder_30min_sent = True
-            schedule.save()
-            self.stdout.write(self.style.SUCCESS(f"Sent 30min reminders for {schedule}"))
-
-    def send_notifications(self, schedule, type_code):
+    def send_notifications(self, schedule, type_code, is_special=False):
         from django.urls import reverse
-        batch = schedule.batch
-        self.stdout.write(f"Processing batch: {batch}")
+        
+        # Common data extraction
+        if is_special:
+            topic = schedule.title
+            tutor = schedule.tutor
+            batch_name = "Special Class"
+            # Get start_time
+            if schedule.scheduling_type == 'one_time':
+                start_time_val = schedule.start_datetime.time()
+                date_val = schedule.start_datetime.date()
+                start_dt = schedule.start_datetime
+            else:
+                start_time_val = schedule.start_time
+                date_val = timezone.now().date()
+                start_dt = timezone.make_aware(datetime.combine(date_val, start_time_val))
+        else:
+            topic = schedule.topic
+            tutor = schedule.tutor
+            batch_name = schedule.batch.name
+            start_time_val = schedule.start_time
+            date_val = schedule.date
+            start_dt = timezone.make_aware(datetime.combine(date_val, start_time_val))
 
         # Determine Dashboard Link (Absolute URL)
         if settings.DEBUG:
             base_url = "http://127.0.0.1:8000"
         else:
-            base_url = "https://platform.recgetupmusic.com"
+            base_url = "https://recgetupmusic.in"
         
         dashboard_link = f"{base_url}{reverse('training_program')}"
         
         # Calculate time remaining string
-        now = timezone.now()
-        diff = schedule.start_time - now
-        minutes_left = int(diff.total_seconds() / 60)
-        
-        if minutes_left <= 0:
-            time_str = "now"
-            subject = f"Class Starting Now: {schedule.topic}"
-        elif type_code == '3hr':
+        if type_code == '3hr':
              time_str = "3 hours"
-             subject = f"Reminder: Class in 3 Hours - {schedule.topic}"
+             subject = f"Reminder: Class in 3 Hours - {topic}"
         else:
-             time_str = f"{minutes_left} minutes"
-             subject = f"Class Starting in {minutes_left} Mins: {schedule.topic}"
+             time_str = "30 minutes"
+             subject = f"Class Starting Soon: {topic}"
 
         # --- SEND TUTOR REMINDER (ONLY 30 MIN BEFORE) ---
-        if type_code == '30min' and schedule.tutor and schedule.tutor.email:
-            tutor = schedule.tutor
-            self.stdout.write(f"Found assigned tutor: {tutor.username}")
+        if type_code == '30min' and tutor and tutor.email:
+            self.stdout.write(f"Processing Tutor Reminder for: {tutor.username}")
             
             tutor_dashboard_link = f"{base_url}{reverse('tutor_dashboard')}"
-            tutor_subject = f"Action Required: Class in {time_str} - {schedule.topic}"
+            tutor_subject = f"Action Required: Class in {time_str} - {topic}"
             
             try:
                 tutor_html = render_to_string('training/emails/tutor_class_reminder.html', {
                     'user': tutor,
                     'class_schedule': schedule,
+                    'is_special': is_special, 
+                    'topic': topic,
+                    'start_time': start_time_val,
+                    'batch_name': batch_name,
                     'time_str': time_str,
                     'dashboard_link': tutor_dashboard_link,
                 })
                 
-                tutor_text = f"Hello {tutor.first_name},\n\nYou have a class to teach in about {time_str}.\n\nTopic: {schedule.topic}\nBatch: {schedule.batch.name}\nStart Time: {schedule.start_time.strftime('%I:%M %p')}\n\nLink: {tutor_dashboard_link}\n\nPlease be on time."
+                tutor_text = f"Hello {tutor.first_name},\n\nYou have a class to teach in about {time_str}.\n\nTopic: {topic}\nType: {batch_name}\nStart Time: {start_time_val.strftime('%I:%M %p')}\n\nLink: {tutor_dashboard_link}\n\nPlease be on time."
                 
                 send_mail(
                     tutor_subject,
                     tutor_text,
-                    settings.EMAIL_HOST_USER,
+                    settings.DEFAULT_FROM_EMAIL,
                     [tutor.email],
                     html_message=tutor_html,
                     fail_silently=False
@@ -107,71 +137,68 @@ class Command(BaseCommand):
                  self.stderr.write(self.style.ERROR(f"Failed to send Tutor email: {e}"))
 
         # --- SEND STUDENT REMINDERS ---
-        # Find active enrollments
-        active_enrollments = Enrollment.objects.filter(
-            batch=batch,
-            expires_at__gte=timezone.now()
-        )
-        self.stdout.write(f"Found {active_enrollments.count()} active enrollments.")
+        # Both 3hr and 30min triggers send to students
+        users = set()
         
-        # Get unique users
-        users = set(e.user for e in active_enrollments if e.user.email)
-        self.stdout.write(f"Found {len(users)} unique users with emails.")
-        
+        try:
+            if is_special:
+                # 1. Explicitly allowed students (M2M)
+                users.update(list(schedule.allowed_students.filter(email__isnull=False)))
+                # 2. Students with Special Access pass
+                users.update(list(User.objects.filter(
+                    enrollments__has_special_access=True,
+                    enrollments__expires_at__gte=timezone.now(),
+                    email__isnull=False
+                ).distinct()))
+            else:
+                # Regular Batch Students
+                active_enrollments = Enrollment.objects.filter(
+                    batch=schedule.batch,
+                    expires_at__gte=timezone.now()
+                ).select_related('user')
+                
+                # Filter locally to avoid complex joins if needed, or just iterate
+                for enr in active_enrollments:
+                    if enr.user.email:
+                        users.add(enr.user)
+                        
+        except Exception as e:
+             self.stderr.write(self.style.ERROR(f"Error fetching users: {e}"))
+             return
+
         if not users:
-            self.stdout.write(f"No active students found for {schedule}")
+            self.stdout.write(f"No active students found for {topic}")
             return
             
         # Select Template
         template_name = 'training/emails/class_reminder_6hr.html' if type_code == '3hr' else 'training/emails/class_reminder_30min.html'
 
-        # Exclude Tutors from Student List
-        excluded_ids = self.check_is_tutor_bulk(list(users))
-        
         for user in users:
-            if user.id in excluded_ids or user.is_superuser:
-                 self.stdout.write(f"Skipping tutor/admin: {user.username}")
+            # Skip if user is the tutor
+            if tutor and user.id == tutor.id:
                  continue
-
-            self.stdout.write(f"Attempting to send to: '{user.email}' (User: {user.username})")
+            
             try:
                 html_message = render_to_string(template_name, {
                     'user': user,
                     'class_schedule': schedule,
+                    'is_special': is_special,
+                    'topic': topic,
+                    'start_time': start_dt,
                     'time_str': time_str,
                     'dashboard_link': dashboard_link,
                 })
                 
-                plain_message = f"Hello {user.first_name},\n\nYour class is starting in about {time_str}.\n\nTopic: {schedule.topic}\nStart Time: {schedule.start_time.strftime('%I:%M %p')}\n\nLink: {dashboard_link}\n\nSee you there!"
+                plain_message = f"Hello {user.first_name},\n\nYour class is starting in about {time_str}.\n\nTopic: {topic}\nStart Time: {start_time_val.strftime('%I:%M %p')}\n\nLink: {dashboard_link}\n\nSee you there!"
                 
-                sent_count = send_mail(
+                send_mail(
                     subject,
                     plain_message,
-                    settings.EMAIL_HOST_USER, # From email
-                    [user.email], # To email
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
                     html_message=html_message,
                     fail_silently=False
                 )
-                self.stdout.write(self.style.SUCCESS(f"Send_mail returned: {sent_count}"))
-                
+                self.stdout.write(f"Sent Student reminder to {user.email}")
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to send email to {user.email}: {e}"))
-
-    def check_is_tutor_bulk(self, users):
-        """
-        Identify which users in the provided list are effectively Tutors.
-        Returns a set of User IDs that should be excluded.
-        """
-        if not users:
-            return set()
-            
-        user_ids = [u.id for u in users]
-        
-        # 1. Check Group 'Tutor'
-        from django.contrib.auth.models import User
-        group_tutor_ids = set(User.objects.filter(id__in=user_ids, groups__name='Tutor').values_list('id', flat=True))
-        
-        # 2. Check if they are assigned as Tutor for ANY schedule
-        schedule_tutor_ids = set(ClassSchedule.objects.filter(tutor_id__in=user_ids).values_list('tutor_id', flat=True))
-        
-        return group_tutor_ids | schedule_tutor_ids

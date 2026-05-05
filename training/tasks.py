@@ -33,7 +33,7 @@ def send_new_coupon_email(coupon_id):
         email = user.email
         
         # Context
-        dashboard_link = "https://platform.recgetupmusic.com/training/" # Hardcoded based on project knowledge or use reverse
+        dashboard_link = "https://recgetupmusic.in/training/" 
         # Better to try reverse if possible, but context irrelevant of request
         # Just use generic link or what 
         context = {
@@ -41,7 +41,7 @@ def send_new_coupon_email(coupon_id):
             'code': coupon.code,
             'batch_name': coupon.batch.name if coupon.batch else "Your Batch",
             'valid_until': coupon.enrollment_valid_until,
-            'dashboard_link': "https://platform.recgetupmusic.com" + "/training/" # Approximation
+            'dashboard_link': "https://recgetupmusic.in" + "/training/" # Approximation
         }
         
         html_message = render_to_string('training/emails/coupon_new.html', context)

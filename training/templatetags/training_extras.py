@@ -27,6 +27,8 @@ def indian_currency(value):
     pairs = re.findall(r'.{1,2}', remaining[::-1])
     formatted_remaining = ",".join(pairs)[::-1]
     
+    return formatted_remaining + "," + last_three
+    
 @register.filter
 def whatsapp_format(value):
     """

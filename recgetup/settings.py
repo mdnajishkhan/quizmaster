@@ -12,8 +12,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://quizmaster.tgaystechnology.com',
-    'http://quizmaster.tgaystechnology.com',
+    'https://recgetupmusic.in',
+    'http://recgetupmusic.in',
     'http://localhost:9999',
     'http://127.0.0.1:9999',
 ]
@@ -31,6 +31,9 @@ INSTALLED_APPS = [
     'background_task',
     'core',
     'training',
+    'training_sales.apps.TrainingSalesConfig',
+    'training_content.apps.TrainingContentConfig',
+    'landingpage',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +60,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
                 'training.context_processors.training_context',
                 'core.context_processors.active_announcement',
             ],
@@ -93,6 +97,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'core' / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -112,6 +117,7 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = f"RecgetUp Music <{EMAIL_HOST_USER}>"
 
 # ✅ OpenAI Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

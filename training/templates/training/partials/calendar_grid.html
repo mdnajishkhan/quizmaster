@@ -68,12 +68,20 @@
                                 {% if events_map|get_item:day %}
                                     {% for event in events_map|get_item:day %}
                                         
+                                        
                                         <!-- Premium Event Card -->
-                                        <div class="relative overflow-hidden rounded-xl border border-white/10 bg-[#0F172A] shadow-xl group/event transition-all duration-300 hover:-translate-y-1 hover:shadow-cyan-500/20">
+                                        <div class="relative overflow-hidden rounded-xl border shadow-xl group/event transition-all duration-300 hover:-translate-y-1 
+                                            {% if event.schedule.is_special %}
+                                                border-yellow-500/50 bg-[#F4B860]/10 hover:shadow-yellow-500/20
+                                            {% else %}
+                                                border-white/10 bg-[#0F172A] hover:shadow-cyan-500/20
+                                            {% endif %}">
+                                            
                                             <!-- Card Header -->
                                             <div class="flex items-start justify-between p-3 pb-1">
                                                 <div class="flex items-center gap-1.5">
-                                                    <span class="text-[10px] font-bold text-cyan-400 font-mono tracking-wider">
+                                                    <span class="text-[10px] font-bold font-mono tracking-wider
+                                                        {% if event.schedule.is_special %} text-yellow-400 {% else %} text-cyan-400 {% endif %}">
                                                         {{ event.schedule.start|date:"h:i A" }}
                                                     </span>
                                                 </div>
@@ -83,18 +91,22 @@
                                                     {% elif event.status == 'missed' %}
                                                         border-rose-500/50 bg-rose-500/10 text-rose-400
                                                     {% else %}
-                                                        border-white/10 bg-white/5
+                                                        {% if event.schedule.is_special %} border-yellow-500/30 bg-yellow-500/10 text-yellow-200 {% else %} border-white/10 bg-white/5 {% endif %}
                                                     {% endif %}">
                                                     {% if event.status == 'joined' or event.status == 'completed' %}
                                                         <span class="text-[10px]">✓</span>
                                                     {% elif event.status == 'missed' %}
                                                         <span class="text-[10px]">✕</span>
+                                                    {% elif event.schedule.is_special %}
+                                                        <span class="text-[10px]">★</span>
                                                     {% endif %}
                                                 </div>
                                             </div>
 
                                             <div class="px-3 pb-3">
-                                                <h4 class="text-xs font-bold text-gray-100 leading-snug line-clamp-2 mb-3" title="{{ event.schedule.topic }}">
+                                                <h4 class="text-xs font-bold leading-snug line-clamp-2 mb-3
+                                                    {% if event.schedule.is_special %} text-yellow-100 {% else %} text-gray-100 {% endif %}" 
+                                                    title="{{ event.schedule.topic }}">
                                                     {{ event.schedule.topic }}
                                                 </h4>
 
@@ -109,12 +121,21 @@
                                                         <span class="text-[10px] font-black tracking-widest uppercase">Missed</span>
                                                     </div>
                                                 {% elif event.status == 'upcoming' or event.status == 'scheduled' %}
-                                                     <a href="#" 
-                                                       onclick="checkClassStatus(event, '{{ event.schedule.start|date:'c' }}', '{{ event.schedule.end|date:'c' }}', '{% url 'track_attendance' event.schedule.id %}', {{ event.schedule.meeting_link|yesno:'true,false' }})"
-                                                       class="w-full flex items-center justify-center gap-2 py-1.5 rounded bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/50 border border-blue-500/50 text-white transition">
-                                                        <span class="text-[10px]">🚀</span>
-                                                        <span class="text-[10px] font-black tracking-widest uppercase">Join</span>
-                                                    </a>
+                                                     {% if event.schedule.is_special %}
+                                                        <a href="#" 
+                                                           onclick="checkClassStatus(event, '{{ event.schedule.start|date:'c' }}', '{{ event.schedule.end|date:'c' }}', '{% url 'track_attendance' event.schedule.id %}?type=special', {{ event.schedule.meeting_link|yesno:'true,false' }})"
+                                                           class="w-full flex items-center justify-center gap-2 py-1.5 rounded bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 shadow-lg shadow-yellow-900/50 border border-yellow-400/50 text-white transition">
+                                                            <span class="text-[10px]">✨</span>
+                                                            <span class="text-[10px] font-black tracking-widest uppercase">Join</span>
+                                                        </a>
+                                                     {% else %}
+                                                        <a href="#" 
+                                                           onclick="checkClassStatus(event, '{{ event.schedule.start|date:'c' }}', '{{ event.schedule.end|date:'c' }}', '{% url 'track_attendance' event.schedule.id %}', {{ event.schedule.meeting_link|yesno:'true,false' }})"
+                                                           class="w-full flex items-center justify-center gap-2 py-1.5 rounded bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/50 border border-blue-500/50 text-white transition">
+                                                            <span class="text-[10px]">🚀</span>
+                                                            <span class="text-[10px] font-black tracking-widest uppercase">Join</span>
+                                                        </a>
+                                                     {% endif %}
                                                 {% endif %}
 
                                                 {% if event.schedule.resources.exists %}
@@ -125,7 +146,11 @@
                                                     </div>
                                                 {% endif %}
                                             </div>
-                                            <div class="absolute -top-10 -right-10 w-20 h-20 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
+                                            {% if event.schedule.is_special %}
+                                                 <div class="absolute -top-10 -right-10 w-20 h-20 bg-yellow-400/20 rounded-full blur-xl pointer-events-none"></div>
+                                            {% else %}
+                                                 <div class="absolute -top-10 -right-10 w-20 h-20 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
+                                            {% endif %}
                                         </div>
                                     {% endfor %}
                                 {% endif %}

@@ -258,9 +258,9 @@
   {% if request.resolver_match.url_name != 'take_quiz' %}
   <div id="page-loader" class="fixed top-0 left-0 w-screen h-screen z-[9999] bg-gray-900 flex flex-col items-center justify-center overflow-hidden transition-opacity duration-500">
     <div class="text-center animate-pulse w-full max-w-md px-4">
-      <div class="text-5xl mb-3 drop-shadow-[0_0_15px_rgba(255,255,0,0.5)]">⚡</div>
+      <div class="text-4xl mb-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">🎵</div>
       <h1 class="text-2xl font-black tracking-tighter bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-transparent bg-clip-text drop-shadow-lg">
-        Recgetup <span class="text-white font-light">Music</span>
+        Recgetup <span class="text-white font-bold">Music</span>
       </h1>
       <div class="mt-3 w-12 h-1 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-full mx-auto animate-bounce"></div>
     </div>
@@ -299,13 +299,11 @@
       </a>
 
       <!-- ✅ Mobile Menu Button -->
-      {% if user.is_authenticated %}
       <button onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none p-2">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
         </svg>
       </button>
-      {% endif %}
 
       <!-- ✅ Desktop Navigation -->
       <nav class="hidden md:flex items-center gap-6">
@@ -356,43 +354,71 @@
         {% endif %}
       </nav>
 
-      <!-- ✅ Mobile Menu (Hidden by default) -->
-      <div id="mobile-menu" class="hidden w-full md:hidden mt-4 border-t border-white/10 pt-4 animate-fade-in-down">
-        {% if user.is_authenticated %}
-            <div class="flex items-center gap-3 mb-4 px-2">
-                {% if user.profile.profile_pic %}
-                  <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover border border-white/20">
-                {% else %}
-                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                    {{ user.username|make_list|first|upper }}
-                  </div>
-                {% endif %}
-                <div>
-                    <p class="text-white font-bold">{{ user.first_name|default:user.username }}</p>
-                    <p class="text-xs text-gray-400">{{ user.email }}</p>
-                </div>
-            </div>
-            <div class="space-y-2">
+      <!-- ✅ Mobile Menu Overlay & Sidebar -->
+      <div id="mobile-menu-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"></div>
 
-                <a href="{% url 'profile' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition">
-                    👤 My Profile
-                </a>
-                <a href="{% url 'password_change' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition">
-                    🔒 Change Password
-                </a>
-                <button onclick="openLogoutModal()" class="w-full text-left block px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition">
-                    🚪 Logout
-                </button>
-                <a href="{% url 'training_program' %}" class="block px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold hover:opacity-90 transition flex items-center gap-2">
+      <div id="mobile-menu-sidebar" class="fixed top-0 right-0 h-full w-[280px] bg-[#0F172A]/95 backdrop-blur-3xl border-l border-white/10 z-50 transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+        
+        <!-- Header with Close Button -->
+        <div class="flex items-center justify-between p-5 border-b border-white/10">
+            <span class="text-xl font-black bg-gradient-to-r from-cyan-300 to-blue-400 text-transparent bg-clip-text">Menu</span>
+            <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Menu Links -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+             {% if user.is_authenticated %}
+                <!-- User Info -->
+                <div class="bg-white/5 rounded-xl p-4 mb-4 border border-white/5">
+                    <div class="flex items-center gap-3 mb-3">
+                        {% if user.profile.profile_pic %}
+                          <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover border border-white/20">
+                        {% else %}
+                          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            {{ user.username|make_list|first|upper }}
+                          </div>
+                        {% endif %}
+                        <div class="overflow-hidden">
+                            <p class="text-white font-bold truncate">{{ user.first_name|default:user.username }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'training_program' %}" class="block px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold hover:opacity-90 transition flex items-center gap-3 shadow-lg shadow-purple-900/20">
                     <span>🚀</span> Workshop Program
                 </a>
-            </div>
-        {% else %}
-            <div class="space-y-2">
-                <a href="{% url 'login' %}" class="block px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition text-center">Login</a>
-                <a href="{% url 'register' %}" class="block px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold transition text-center shadow-lg">Register</a>
-            </div>
-        {% endif %}
+                
+                <div class="h-px bg-white/10 my-2"></div>
+
+                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition group">
+                    <span class="text-purple-400 group-hover:text-purple-300 transition">👤</span> My Profile
+                </a>
+                <a href="{% url 'password_change' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition group">
+                    <span class="text-yellow-400 group-hover:text-yellow-300 transition">🔒</span> Change Password
+                </a>
+                <button onclick="openLogoutModal()" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition group">
+                    <span class="text-red-500 group-hover:text-red-400 transition">�</span> Logout
+                </button>
+            {% else %}
+                <div class="space-y-3 mt-4">
+                    <a href="{% url 'login' %}" class="block w-full py-3 rounded-xl bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white transition text-center font-bold border border-white/5">
+                        Login
+                    </a>
+                    <a href="{% url 'register' %}" class="block w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold transition text-center shadow-lg shadow-blue-500/20">
+                        Create Account
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Footer in Sidebar -->
+        <div class="p-4 border-t border-white/10">
+             <p class="text-xs text-center text-gray-500">© 2026 Recgetup Music</p>
+        </div>
+
       </div>
 
     </div>
@@ -401,8 +427,31 @@
 
   <script>
     function toggleMobileMenu() {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('hidden');
+        const overlay = document.getElementById('mobile-menu-overlay');
+        const sidebar = document.getElementById('mobile-menu-sidebar');
+        
+        // Check if currently hidden (based on translate class)
+        const isClosed = sidebar.classList.contains('translate-x-full');
+
+        if (isClosed) {
+            // Open
+            overlay.classList.remove('hidden');
+            // Small delay to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sidebar.classList.remove('translate-x-full');
+            }, 10);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        } else {
+            // Close
+            overlay.classList.add('opacity-0');
+            sidebar.classList.add('translate-x-full');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300); // Wait for duration
+             document.body.style.overflow = '';
+        }
     }
   </script>
 

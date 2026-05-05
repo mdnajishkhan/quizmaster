@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('nested_admin/', include('nested_admin.urls')),
     path('training/', include('training.urls')),
+    path('landingpage/', include('landingpage.urls')),
     path('', include('core.urls')),
 ]
 

@@ -9,7 +9,7 @@ from .models import (
     HeroSection, AboutSection, ClassType, Testimonial, GalleryImage, FAQ, Holiday
 )
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Q
+from django.db.models import Q, Max
 import json
 from django.http import JsonResponse, HttpResponseRedirect
 # We need to add imports if missing, or use existing.
@@ -143,24 +143,37 @@ def training_program(request):
     month_end = date(current_year, current_month, last_day)
 
     # A. Get Recurring Events
+    # A. Get Recurring Events
     all_events = []
     
+    # 1. Tutor Role: Teaching Schedules (No Date Lock)
     if is_tutor:
-        # For Tutors: Show all classes they teach
         my_patterns = BatchSchedule.objects.filter(tutor=request.user)
         generated = generate_recurring_events(my_patterns, month_start, month_end)
         all_events.extend(generated)
-    else:
-        # For Students: Show only enrolled classes
-        for enrollment in active_enrollments:
-            enr_start = enrollment.enrolled_at.date()
-            enr_end = enrollment.expires_at.date()
-            range_start = max(month_start, enr_start)
-            range_end = min(month_end, enr_end)
-            if range_start <= range_end:
-                patterns = BatchSchedule.objects.filter(batch=enrollment.batch)
-                generated = generate_recurring_events(patterns, range_start, range_end)
-                all_events.extend(generated)
+
+    # 2. Student Role: Enrolled Schedules (Locked to Enrollment Date)
+    # Even Tutors/Admins can be students
+    for enrollment in active_enrollments:
+        enr_start = enrollment.enrolled_at.date()
+        enr_end = enrollment.expires_at.date()
+        range_start = max(month_start, enr_start)
+        range_end = min(month_end, enr_end)
+        
+        # Avoid duplicate patterns if user is ALSO the tutor for this batch (Unlikely but possible)
+        # We assume if they teach it, they want full visibility. 
+        # So check if we already added patterns for this batch? 
+        # Generating again with restriction is fine, logic below handles duplicates or we just show both.
+        # Ideally: If I teach it, I see full. If I don't teach but study, I see restricted.
+        
+        is_teaching_this_batch = False
+        if is_tutor and BatchSchedule.objects.filter(batch=enrollment.batch, tutor=request.user).exists():
+             is_teaching_this_batch = True
+        
+        if not is_teaching_this_batch and range_start <= range_end:
+            patterns = BatchSchedule.objects.filter(batch=enrollment.batch)
+            generated = generate_recurring_events(patterns, range_start, range_end)
+            all_events.extend(generated)
 
     # B. Handling EXCEPTIONS (ClassSession)
     # Fetch sessions for these batches in this month
@@ -174,6 +187,43 @@ def training_program(request):
         batch__id__in=all_batch_ids,
         date__range=[month_start, month_end]
     )
+    
+    # Filter Sessions: Ensure they fall within valid enrollment period (for Student Role)
+    # Map Enrollments
+    batch_start_map = {}
+    batch_end_map = {}
+    for enr in active_enrollments:
+        d_start = enr.enrolled_at.date()
+        d_end = enr.expires_at.date()
+        if enr.batch.id not in batch_start_map:
+            batch_start_map[enr.batch.id] = d_start
+            batch_end_map[enr.batch.id] = d_end
+        else:
+            batch_start_map[enr.batch.id] = min(batch_start_map[enr.batch.id], d_start)
+            batch_end_map[enr.batch.id] = max(batch_end_map[enr.batch.id], d_end)
+
+    valid_sessions = []
+    for s in sessions:
+        # Check if this is an Enrolled Batch?
+        if s.batch.id in batch_start_map:
+             # I am a student in this batch.
+             # Check if I am ALSO a tutor for it?
+             is_teaching = False
+             if is_tutor and (s.batch.id in teaching_batch_ids or s.batch.id in session_batch_ids):
+                  # I teach this batch, so I see EVERYTHING.
+                  is_teaching = True
+             
+             if is_teaching:
+                 valid_sessions.append(s)
+             else:
+                 # Strictly Student: Apply Date Filter
+                 if s.date >= batch_start_map[s.batch.id] and s.date <= batch_end_map[s.batch.id]:
+                     valid_sessions.append(s)
+        else:
+             # Not an enrolled batch (so must be a Teaching batch), allow it.
+             valid_sessions.append(s)
+             
+    sessions = valid_sessions
     
     # Process Exceptions:
     # 1. Map session to (batch_id, date, start_time) to enable overriding
@@ -246,20 +296,87 @@ def training_program(request):
         })
     
     # C. Special Classes
-    special_access = active_enrollments.filter(has_special_access=True).exists()
-    if special_access:
-        special_classes = SpecialClass.objects.filter(
-            start_datetime__date__range=[month_start, month_end]
-        )
-        for sc in special_classes:
-            final_events.append({
-                'title': f"⭐ {sc.title}",
-                'start': sc.start_datetime,
-                'end': sc.end_datetime,
-                'status': 'special',
-                'tutor': sc.tutor,
-                'meeting_link': sc.meeting_link
-            })
+    # Check for general 'Special Access' privilege via Enrollment OR Coupon (Fallback)
+    has_special_access = active_enrollments.filter(has_special_access=True).exists()
+    
+    if not has_special_access:
+        # Fallback: Check valid coupons directly (in case Sync failed)
+        has_special_access = Coupon.objects.filter(
+            assigned_to=request.user,
+            includes_special_access=True,
+            is_used=True 
+        ).exists()
+
+    # Base Query: Fetch ALL potentially relevant special classes
+    # 1. One Time: In date range
+    one_time_q = Q(scheduling_type='one_time', start_datetime__date__range=[month_start, month_end])
+    # 2. Recurring: All queries (filtered later)
+    recurring_q = Q(scheduling_type='recurring')
+    
+    special_classes = SpecialClass.objects.filter(one_time_q | recurring_q)
+
+    # Calculate earliest enrollment start for filtering special classes (Students only)
+    earliest_enr_date = month_start
+    if active_enrollments.exists() and not is_tutor:
+        from django.db.models import Min
+        earliest_enr_dt = active_enrollments.aggregate(Min('enrolled_at'))['enrolled_at__min']
+        if earliest_enr_dt:
+            earliest_enr_date = earliest_enr_dt.date()
+
+    # Filter: If NO special access, restrict to explicitly allowed students
+    if not has_special_access:
+        # Allow if student has access OR if current user is the tutor
+        special_classes = special_classes.filter(
+            Q(allowed_students=request.user) | Q(tutor=request.user)
+        ).distinct()
+
+    for sc in special_classes:
+        if sc.scheduling_type == 'one_time':
+            if sc.start_datetime and sc.start_datetime.date() >= earliest_enr_date:
+                final_events.append({
+                    'id': sc.id,
+                    'title': sc.title, # Clean title
+                    'topic': sc.title,
+                    'start': sc.start_datetime,
+                    'end': sc.end_datetime,
+                    'status': 'scheduled',
+                    'tutor': sc.tutor,
+                    'meeting_link': sc.meeting_link,
+                    'is_special': True
+                })
+        elif sc.scheduling_type == 'recurring':
+            # Generate Pattern Events for this Month
+            validity_limit = month_end 
+            
+            if sc.tutor != request.user and active_enrollments.exists():
+                max_enr = active_enrollments.aggregate(Max('expires_at'))['expires_at__max']
+                if max_enr:
+                    limit_date = max_enr.date()
+                    if limit_date < month_end:
+                        validity_limit = limit_date
+
+            # Generate
+            curr = max(month_start, earliest_enr_date)
+            while curr <= validity_limit:
+                 if curr.weekday() == sc.day_of_week:
+                     start_dt = timezone.make_aware(datetime.combine(curr, sc.start_time))
+                     if sc.end_time:
+                         end_dt = timezone.make_aware(datetime.combine(curr, sc.end_time))
+                     else:
+                         end_dt = start_dt + timedelta(hours=1)
+
+                     final_events.append({
+                        'id': sc.id,
+                        'title': sc.title, # Clean title
+                        'topic': sc.title,
+                        'start': start_dt,
+                        'end': end_dt, 
+                        'status': 'scheduled',
+                        'tutor': sc.tutor,
+                        'meeting_link': sc.meeting_link,
+                        'is_special': True
+                     })
+                 curr += timedelta(days=1)
 
     # Fetch user attendances for the current month
     user_attendances = Attendance.objects.filter(
@@ -350,6 +467,20 @@ def get_subscription_info(user, enrollments):
 
 @login_required
 def track_attendance(request, schedule_id):
+    # Check type via query param to avoid ID collision
+    # ?type=special -> SpecialClass
+    is_special = request.GET.get('type') == 'special'
+    
+    if is_special:
+        special_class = get_object_or_404(SpecialClass, id=schedule_id)
+        # TODO: Add logic to track attendance for special class if needed (need a ManyToMany field or Attendance model update)
+        # For now just redirect
+        if special_class.meeting_link:
+             return HttpResponseRedirect(special_class.meeting_link)
+        else:
+             messages.warning(request, "Meeting link not available.")
+             return redirect('training_program')
+
     # Try to find a Session first
     session = ClassSession.objects.filter(id=schedule_id).first()
     if session:
@@ -445,6 +576,39 @@ def tutor_dashboard(request):
             'status': s.status
         })
         
+    # C. Special Classes (Added for Tutor Agenda)
+    my_special_classes = SpecialClass.objects.filter(tutor=request.user)
+    for sc in my_special_classes:
+        is_today = False
+        start_dt = None
+        end_dt = None
+        
+        if sc.scheduling_type == 'one_time':
+            if sc.start_datetime and sc.start_datetime.date() == today:
+                is_today = True
+                start_dt = sc.start_datetime
+                end_dt = sc.end_datetime
+        elif sc.scheduling_type == 'recurring':
+            if sc.day_of_week == today.weekday():
+                is_today = True
+                start_dt = timezone.make_aware(datetime.combine(today, sc.start_time))
+                if sc.end_time:
+                    end_dt = timezone.make_aware(datetime.combine(today, sc.end_time))
+                else:
+                    end_dt = start_dt + timedelta(hours=1)
+        
+        if is_today and start_dt:
+            teaching_list.append({
+                'start': start_dt,
+                'end': end_dt,
+                'title': sc.title,
+                'batch_id': None, # Special classes check
+                'batch_name': "Special Class",
+                'meeting_link': sc.meeting_link,
+                'status': 'scheduled',
+                'is_special': True
+            })
+        
     # Sort chronological
     teaching_list.sort(key=lambda x: x['start'])
     upcoming_teaching_list = teaching_list # No limit, show all today
@@ -531,17 +695,97 @@ def student_dashboard(request):
         expires_at__gt=now
     ).select_related('batch', 'batch__workshop')
 
+    # 1.5 Check for Expiring Enrollments (Notification Logic)
+    expiring_enrollments = []
+    for enrollment in active_enrollments:
+        days_remaining = (enrollment.expires_at.date() - now.date()).days
+        if 0 <= days_remaining <= 7:
+            expiring_enrollments.append({
+                'batch_name': enrollment.batch.name,
+                'days_left': days_remaining,
+                'program_title': enrollment.batch.workshop.title
+            })
+
     # 2. Upcoming Classes (Global Preview)
     # Fetch upcoming for ALL active batches
     upcoming_classes = []
+    
+    # A. Regular Batches
     if active_enrollments.exists():
         end_range = now + timedelta(days=14)
         patterns = BatchSchedule.objects.filter(batch__enrollments__in=active_enrollments).distinct()
         generated = generate_recurring_events(patterns, now.date(), end_range.date())
         
-        # Sort and take top 2
-        generated.sort(key=lambda x: x['start'])
-        upcoming_classes = generated[:2]
+        # Filter out classes that have already ended
+        generated = [evt for evt in generated if evt['end'] > now]
+        upcoming_classes.extend(generated)
+        
+    # B. Special Classes (Fix: Fetch and Append)
+    # Check Access
+    has_special_access = active_enrollments.filter(has_special_access=True).exists()
+    if not has_special_access:
+        has_special_access = Coupon.objects.filter(
+            assigned_to=request.user, includes_special_access=True, is_used=True 
+        ).exists()
+        
+    end_date_sc = (now + timedelta(days=14)).date()
+    
+    # 1. One Time
+    one_time_q = Q(scheduling_type='one_time', start_datetime__date__range=[now.date(), end_date_sc], start_datetime__gt=now) # Future only
+    recurring_q = Q(scheduling_type='recurring')
+    
+    special_qs = SpecialClass.objects.filter(one_time_q | recurring_q)
+    if not has_special_access:
+        special_qs = special_qs.filter(allowed_students=request.user)
+        
+    for sc in special_qs:
+        if sc.scheduling_type == 'one_time':
+            # Already filtered by date/time
+             upcoming_classes.append({
+                'id': sc.id,
+                'title': sc.title, # Clean title
+                'topic': sc.title,
+                'start': sc.start_datetime,
+                'end': sc.end_datetime,
+                'status': 'scheduled',
+                'meeting_link': sc.meeting_link,
+                'is_special': True
+             })
+        elif sc.scheduling_type == 'recurring':
+             # Generate for next 14 days
+             curr = now.date()
+             # Logic for validity same as calendar
+             # Simplified: just show up to 14 days or expiry
+             limit_date = end_date_sc
+             if active_enrollments.exists():
+                  max_enr = active_enrollments.aggregate(Max('expires_at'))['expires_at__max']
+                  if max_enr and max_enr.date() < limit_date:
+                      limit_date = max_enr.date()
+             
+             while curr <= limit_date:
+                 if curr.weekday() == sc.day_of_week:
+                     start_dt = timezone.make_aware(datetime.combine(curr, sc.start_time))
+                     if sc.end_time:
+                         end_dt = timezone.make_aware(datetime.combine(curr, sc.end_time))
+                     else:
+                         end_dt = start_dt + timedelta(hours=1)
+                     
+                     if end_dt > now:
+                         upcoming_classes.append({
+                            'id': sc.id,
+                            'title': sc.title, # Clean title
+                            'topic': sc.title,
+                            'start': start_dt,
+                            'end': end_dt, 
+                            'status': 'scheduled',
+                            'meeting_link': sc.meeting_link,
+                            'is_special': True
+                         })
+                 curr += timedelta(days=1)
+
+    # Sort and take top 2
+    upcoming_classes.sort(key=lambda x: x['start'])
+    upcoming_classes = upcoming_classes[:2]
 
     # 3. Fetch Mentor (Primary Tutor)
     # Finding the first assigned tutor from the student's active batches
@@ -557,12 +801,282 @@ def student_dashboard(request):
             mentor = pattern_with_tutor.tutor
     
     # 4. Next Holiday
+    # 4. Next Holiday
     next_holiday = Holiday.objects.filter(date__gte=now.date()).order_by('date').first()
 
+    # 5. Total Classes This Month (Stats)
+    # Calculate total classes for the current month to show in header
+    month_start = date(now.year, now.month, 1)
+    _, last_day = py_calendar.monthrange(now.year, now.month)
+    month_end = date(now.year, now.month, last_day)
+    
+    total_classes = 0
+    
+    # A. Recurring Patterns
+    # reusing active_enrollments
+    for enrollment in active_enrollments:
+        enr_start = enrollment.enrolled_at.date()
+        enr_end = enrollment.expires_at.date()
+        range_start = max(month_start, enr_start)
+        range_end = min(month_end, enr_end)
+        
+        if range_start <= range_end:
+            patterns = BatchSchedule.objects.filter(batch=enrollment.batch)
+            generated = generate_recurring_events(patterns, range_start, range_end)
+            total_classes += len(generated)
+
+    # B. Sessions (Exceptions/Extras)
+    # Note: If a session overrides a pattern, we ideally shouldn't double count.
+    # But simple addition often suffices if override just replaces.
+    # However, if 'rescheduled', it technically moves the class.
+    # For a simple "Total Classes" stat, counting sessions + patterns is slightly inaccurate if overrides exist.
+    # Better: List all potential dates and uniquify? 
+    # Or: Check overrides.
+    
+    # Let's do a more robust count:
+    # 1. Gather all pattern events
+    # 2. Gather all session events
+    # 3. Handle overrides
+    
+    monthly_events = []
+    
+    # (Repeat generation for proper counting)
+    for enrollment in active_enrollments:
+        enr_start = enrollment.enrolled_at.date()
+        enr_end = enrollment.expires_at.date()
+        range_start = max(month_start, enr_start)
+        range_end = min(month_end, enr_end)
+        if range_start <= range_end:
+            patterns = BatchSchedule.objects.filter(batch=enrollment.batch)
+            generated = generate_recurring_events(patterns, range_start, range_end)
+            monthly_events.extend(generated)
+            
+    all_batch_ids = list(active_enrollments.values_list('batch_id', flat=True))
+    sessions = ClassSession.objects.filter(
+        batch__id__in=all_batch_ids,
+        date__range=[month_start, month_end]
+    )
+    
+    # Filter sessions by enrollment
+    batch_map = {e.batch.id: (e.enrolled_at.date(), e.expires_at.date()) for e in active_enrollments}
+    valid_sessions = []
+    for s in sessions:
+        if s.batch.id in batch_map:
+             estart, eend = batch_map[s.batch.id]
+             if s.date >= estart and s.date <= eend:
+                 valid_sessions.append(s)
+                 
+    # Map for overrides
+    session_map = {}
+    for s in valid_sessions:
+        key = (s.batch.id, s.date)
+        if key not in session_map: session_map[key] = []
+        session_map[key].append(s)
+        
+    final_count = 0
+    # Count Patterns (if not overridden)
+    for evt in monthly_events:
+        is_overridden = False
+        if (evt['batch_id'], evt['date']) in session_map:
+             for s in session_map[(evt['batch_id'], evt['date'])]:
+                 if s.status == 'cancelled' or s.status == 'rescheduled':
+                     is_overridden = True
+        if not is_overridden:
+            final_count += 1
+            
+    # Count Sessions (Concrete)
+    final_count += len(valid_sessions)
+    
+    # C. Special Classes
+    # Helper to check special class count
+    # Calculate earliest enrollment start for filtering (Students only)
+    earliest_enr_date = month_start
+    if active_enrollments.exists():
+        from django.db.models import Min
+        earliest_enr_dt = active_enrollments.aggregate(Min('enrolled_at'))['enrolled_at__min']
+        if earliest_enr_dt:
+            earliest_enr_date = earliest_enr_dt.date()
+
+    if not has_special_access:
+         special_qs_month = SpecialClass.objects.filter(
+             (Q(scheduling_type='one_time', start_datetime__date__range=[month_start, month_end]) |
+              Q(scheduling_type='recurring')),
+             allowed_students=request.user
+         )
+    else:
+         special_qs_month = SpecialClass.objects.filter(
+             Q(scheduling_type='one_time', start_datetime__date__range=[month_start, month_end]) |
+             Q(scheduling_type='recurring')
+         )
+
+    for sc in special_qs_month:
+        if sc.scheduling_type == 'one_time':
+             if sc.start_datetime and sc.start_datetime.date() >= earliest_enr_date:
+                 final_count += 1
+        elif sc.scheduling_type == 'recurring':
+             curr = max(month_start, earliest_enr_date)
+             limit_date = month_end
+             if active_enrollments.exists():
+                 max_enr = active_enrollments.aggregate(Max('expires_at'))['expires_at__max']
+                 if max_enr and max_enr.date() < limit_date:
+                     limit_date = max_enr.date()
+             
+             while curr <= limit_date:
+                 if curr.weekday() == sc.day_of_week:
+                     final_count += 1
+                 curr += timedelta(days=1)
+
+    # 6. 📊 Dedication Graph Data
+    # Heatmap for last 365 days
+    end_date_graph = now.date()
+    start_date_graph = end_date_graph - timedelta(days=364) # 52 weeks approx
+    
+    # Fetch all attendance dates
+    attendance_dates = Attendance.objects.filter(
+        user=request.user,
+        class_session__date__range=[start_date_graph, end_date_graph]
+    ).values_list('class_session__date', flat=True)
+    
+    # Process into map: { date_obj: count }
+    # Since multiple classes can happen in one day, we count density
+    date_counts = {}
+    for d in attendance_dates:
+        date_counts[d] = date_counts.get(d, 0) + 1
+        
+    # Calculate Streaks (Weekly)
+    # Logic: Count consecutive WEEKS with at least one attendance.
+    # Because classes are 2-3 times a week, a daily streak is impossible.
+    
+    current_streak = 0
+    longest_streak = 0
+    
+    # Get all unique weeks attended (Year, WeekNum)
+    # attendance_dates is list of dates.
+    attended_weeks = set()
+    for d in attendance_dates:
+        attended_weeks.add(d.isocalendar()[:2]) # (Year, WeekNum)
+        
+    sorted_weeks = sorted(list(attended_weeks), reverse=True)
+    
+    if sorted_weeks:
+        # 1. Provide Current Streak
+        # Check if the most recent attended week is "current" enough (This week or Last week)
+        this_year, this_week, _ = now.isocalendar()
+        last_attended = sorted_weeks[0]
+        
+        # Helper to get previous week
+        def get_prev_week(y, w):
+            if w > 1: return (y, w-1)
+            return (y-1, 52) # approx, or use date math logic for exactness if needed. 
+                             # For simple streak, date math is safer.
+        
+        # Better: Convert weeks back to Monday dates to check continuity
+        # Or just use date comparisons?
+        # Let's use logic: If last_attended is within last 14 days? 
+        # No, strict week number.
+        
+        is_active = False
+        if last_attended == (this_year, this_week):
+            is_active = True
+        else:
+             # Check if it was last week
+             # Using date math to be safe against year boundaries
+             # Last attended week's "Monday"
+             # Simply: (ThisWeek) - 1 == (LastAttended)?
+             # Complex due to Year change.
+             
+             # Robust approach:
+             # Iterate backwards from This Week.
+             pass
+
+        # Re-calc Streaks by iterating sorted weeks
+        # Convert set to sorted list descending
+        
+        # Calculate Longest Streak
+        # Iterate and count consecutive drops by 1 week
+        # We need a reliable "weeks_diff" function
+        pass
+
+    # Simplified Robust Logic for Streaks:
+    # from datetime import timedelta <- REDUNDANT
+    
+    # Map all dates to their "Monday" (Week Start)
+    attended_mondays = set()
+    for d in attendance_dates:
+        monday = d - timedelta(days=d.weekday())
+        attended_mondays.add(monday)
+        
+    sorted_mondays = sorted(list(attended_mondays), reverse=True)
+    
+    # 1. Current Streak
+    # Valid only if latest attendance is This Week (Monday) or Last Week (Monday)
+    current_monday = now.date() - timedelta(days=now.date().weekday())
+    last_monday = current_monday - timedelta(days=7)
+    
+    streak_mondays = sorted_mondays # copy
+    current_streak = 0
+    
+    if not streak_mondays:
+        current_streak = 0
+    else:
+        latest = streak_mondays[0]
+        if latest == current_monday or latest == last_monday:
+            # Streak is active
+            current_streak = 1
+            expected = latest - timedelta(days=7)
+            for i in range(1, len(streak_mondays)):
+                if streak_mondays[i] == expected:
+                    current_streak += 1
+                    expected -= timedelta(days=7)
+                else:
+                    break
+        else:
+            current_streak = 0
+            
+    # 2. Longest Streak
+    longest_streak = 0
+    temp_streak = 0
+    if streak_mondays:
+        temp_streak = 1
+        for i in range(0, len(streak_mondays) - 1):
+             curr_m = streak_mondays[i]
+             next_m = streak_mondays[i+1] # older
+             diff = (curr_m - next_m).days
+             if diff == 7:
+                 temp_streak += 1
+             else:
+                 longest_streak = max(longest_streak, temp_streak)
+                 temp_streak = 1
+        longest_streak = max(longest_streak, temp_streak)
+
+    
+    # Build Graph Grid (Rows=7 Days, Cols=53 Weeks)
+    dedication_grid = []
+    curr = start_date_graph
+    while curr <= end_date_graph:
+        count = date_counts.get(curr, 0)
+        level = 0
+        if count == 1: level = 1
+        elif count == 2: level = 2
+        elif count >= 3: level = 3
+        
+        dedication_grid.append({
+            'date': curr,
+            'count': count,
+            'level': level
+        })
+        curr += timedelta(days=1)
+
     context = {
+        'expiring_enrollments': expiring_enrollments,
         'enrollments': active_enrollments,
         'upcoming_classes': upcoming_classes,
         'mentor': mentor,
         'next_holiday': next_holiday,
+        'total_classes_this_month': final_count,
+        'current_month_name': now.strftime('%B'),
+        'dedication_grid': dedication_grid,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak
     }
     return render(request, 'training/student_dashboard.html', context)

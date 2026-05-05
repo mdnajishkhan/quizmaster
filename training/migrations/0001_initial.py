@@ -165,7 +165,7 @@ class Migration(migrations.Migration):
                 ('day_of_week', models.IntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')])),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
-                ('topic', models.CharField(default='Class Session', max_length=255)),
+                ('topic', models.CharField(default='Session', max_length=255)),
                 ('meeting_link', models.URLField(blank=True, max_length=500, null=True)),
                 ('batch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='schedules', to='training.batch')),
                 ('tutor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='teaching_schedules', to=settings.AUTH_USER_MODEL)),

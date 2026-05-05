@@ -42,7 +42,7 @@ def send_hackathon_result_email(request, attempt):
         total_questions = attempt.quiz.questions.count()
         percentage = round((attempt.score / total_questions) * 100, 1) if total_questions > 0 else 0
         
-        mail_subject = f"Your Hackathon Results: {attempt.quiz.title}"
+        mail_subject = f"Your Music Challenge Results: {attempt.quiz.title}"
         html_message = render_to_string('core/hackathon_result_email.html', {
             'user': request.user,
             'quiz': attempt.quiz,
@@ -55,14 +55,18 @@ def send_hackathon_result_email(request, attempt):
         })
         plain_message = f"You scored {percentage}% in {attempt.quiz.title}. Check your results on the dashboard."
         
-        EmailThread(
-            subject=mail_subject,
-            message=plain_message,
-            from_email='recgetup.music@gmail.com',
-            recipient_list=[request.user.email],
-            fail_silently=True,
-            html_message=html_message
-        ).start()
+        # Send Synchronously
+        try:
+             send_mail(
+                subject=mail_subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[request.user.email],
+                html_message=html_message,
+                fail_silently=True
+            )
+        except Exception as e:
+            print(f"Error sending hackathon email: {e}")
     except Exception as e:
         print(f"Error sending hackathon result email: {e}")
 
@@ -97,20 +101,27 @@ def home(request):
             # Notification to Admin
             # 2. Schedule Emails (Async - Very Fast Response)
             # Notification to Admin
-            EmailThread(
-                subject=f"New Contact Query: {subject}",
-                message=f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
-                recipient_list=['mdnajishkhan21@gmail.com'],
-                from_email='recgetup.music@gmail.com'
-            ).start()
+            # Send to Admin (Sync)
+            try:
+                send_mail(
+                    subject=f"New Contact Query: {subject}",
+                    message=f"Name: {name}\nEmail: {email}\nPhone: {phone}\n\nMessage:\n{message}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=['mdnajishkhan21@gmail.com'],
+                    fail_silently=True
+                )
+            except: pass
 
-            # Auto-reply to User
-            EmailThread(
-                subject="We received your query - Recgetup Music",
-                message=f"Hi {name},\n\nThank you for reaching out to Recgetup Music! We have received your query regarding '{subject}'.\n\nOur team will review your message and get back to you shortly.\n\nBest Regards,\nRecgetup Music Team",
-                recipient_list=[email],
-                from_email='recgetup.music@gmail.com'
-            ).start()
+            # Auto-reply to User (Sync)
+            try:
+                send_mail(
+                    subject="We received your query - Recgetup Music",
+                    message=f"Hi {name},\n\nThank you for reaching out to Recgetup Music! We have received your query regarding '{subject}'.\n\nOur team will review your message and get back to you shortly.\n\nBest Regards,\nRecgetup Music Team",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=True
+                )
+            except: pass
 
             messages.success(request, "Your message has been sent successfully! We will contact you soon.")
             return redirect('home')
@@ -127,6 +138,11 @@ def home(request):
         'faqs': FAQ.objects.filter(is_active=True).order_by('order'),
     }
     return render(request, 'training/training_overview.html', context)
+
+
+# 🚀 Landing Page for Promotion
+def landing_page(request):
+    return render(request, 'core/landing.html')
 
 # 🏠 Home page (Old Quiz Logic - Deprecated)
 def home_deprecated_quiz_logic(request):
@@ -406,9 +422,10 @@ def register(request):
                 )
 
             # Send Verification Email
+            # Send Verification Email (Synchronous for Speed)
             current_site = get_current_site(request)
             mail_subject = 'Activate your account.'
-            message = render_to_string('core/acc_active_email.html', {
+            html_content = render_to_string('core/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -416,7 +433,18 @@ def register(request):
                 'protocol': 'https' if request.is_secure() else 'http',
             })
             to_email = form.cleaned_data.get('email')
-            EmailThread(mail_subject, message, [to_email], from_email='recgetup.music@gmail.com').start()
+            
+            try:
+                send_mail(
+                    subject=mail_subject,
+                    message="Please check your email to activate your account.", # Plain text fallback
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[to_email],
+                    html_message=html_content, # ✅ Fix: Send as HTML
+                    fail_silently=True
+                )
+            except Exception as e:
+                print(f"Error sending email: {e}")
             
             messages.success(request, "Please check your email to verify your account.")
             return redirect('login')
@@ -454,14 +482,15 @@ def activate(request, uidb64, token):
             })
             plain_message = "Welcome to Recgetup Music! We are thrilled to welcome you to our platform."
             to_email = user.email
-            EmailThread(
+            # Send Welcome Email (Synchronous)
+            send_mail(
                 subject=mail_subject,
                 message=plain_message,
-                from_email='recgetup.music@gmail.com',
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[to_email],
-                fail_silently=True,
-                html_message=html_message
-            ).start()
+                html_message=html_message,
+                fail_silently=True
+            )
         except Exception as e:
             print(f"Error sending welcome email: {e}")
 
@@ -888,7 +917,7 @@ def profile_view(request):
                 send_mail(
                     subject=mail_subject,
                     message=plain_message,
-                    from_email='recgetup.music@gmail.com',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[request.user.email],
                     fail_silently=True,
                     html_message=html_message
@@ -1205,7 +1234,7 @@ def generate_quiz_api(request):
             # 🤖 Send AI Quiz Ready Email
             try:
                 current_site = get_current_site(request)
-                mail_subject = f"Your AI Quiz '{final_title}' is Ready! 🤖"
+                mail_subject = f"Your Music Session '{final_title}' is Ready! 🎵"
                 quiz_url = f"{'https' if request.is_secure() else 'http'}://{current_site.domain}{reverse('quiz_detail', args=[quiz.id])}"
                 
                 html_message = render_to_string('core/ai_quiz_ready_email.html', {
@@ -1221,7 +1250,7 @@ def generate_quiz_api(request):
                 send_mail(
                     subject=mail_subject,
                     message=plain_message,
-                    from_email='recgetup.music@gmail.com',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[request.user.email],
                     fail_silently=True,
                     html_message=html_message

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RecGetup Music | Online Vocal Music Academy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f49d25",
+                        "background-dark": "#0a0a0c",
+                        "accent-gold": "#ffd700",
+                        "glass-white": "rgba(255, 255, 255, 0.05)",
+                        "glass-border": "rgba(244, 157, 37, 0.2)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { font-family: 'Manrope', sans-serif; @apply bg-background-dark text-slate-100; }
+        }
+        .glass-card { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-color: rgba(244, 157, 37, 0.5);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 157, 37, 0.1) inset;
+            transform: translateY(-5px) scale(1.01);
+        }
+        .glass-nav {
+            background: rgba(10, 10, 12, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .gradient-text { 
+            background: linear-gradient(135deg, #f49d25 0%, #ffd700 50%, #f49d25 100%); 
+            background-size: 200% auto;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        .bg-blob {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+            opacity: 0.2;
+            animation: blob-float 10s infinite alternate;
+        }
+        @keyframes blob-float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20px, -20px) scale(1.05); }
+        }
+        .blob-1 { top: -10%; left: -5%; background: #f49d25; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -5%; background: #4338ca; animation-delay: -5s; }
+        .blob-3 { top: 40%; right: 10%; background: #f49d25; animation-delay: -2s; }
+        
+        /* Marquee Animation */
+        .marquee-container {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        .marquee-container::before, .marquee-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .marquee-container::before {
+            left: 0;
+            background: linear-gradient(to right, #0a0a0c, transparent);
+        }
+        .marquee-container::after {
+            right: 0;
+            background: linear-gradient(to left, #0a0a0c, transparent);
+        }
+        .marquee-content {
+            display: flex;
+            width: max-content;
+            gap: 2rem;
+            animation: marquee 40s linear infinite;
+            padding-left: 2rem;
+        }
+        .marquee-content:hover {
+            animation-play-state: paused;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        /* Ensure normal text wrapping inside cards */
+        .glass-card {
+            white-space: normal;
+        }
+        
+        /* Ensure marquee items don't shrink and maintain size */
+        .marquee-content .glass-card {
+            flex: 0 0 auto; /* Equivalent to shrink-0 but explicit in CSS */
+            width: 350px;
+        }
+
+        /* Entry Animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        #pricing-toggle:checked ~ div [data-pricing-type="group"] { display: none; }
+        #pricing-toggle:not(:checked) ~ div [data-pricing-type="solo"] { display: none; }
+        #pricing-toggle:checked ~ .toggle-container .toggle-slider { transform: translateX(100%); }
+        #pricing-toggle:checked ~ .toggle-container .label-solo { color: white; }
+        #pricing-toggle:not(:checked) ~ .toggle-container .label-group { color: white; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="selection:bg-primary/30">
+<div class="bg-blob blob-1"></div>
+<div class="bg-blob blob-2"></div>
+<div class="bg-blob blob-3"></div>
+<a class="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform duration-300 flex items-center justify-center" href="#">
+<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.224-3.661c1.566.93 3.132 1.422 4.67 1.423 5.385.002 9.76-4.375 9.763-9.763.001-2.612-1.015-5.064-2.862-6.913-1.848-1.848-4.301-2.863-6.912-2.863-5.388 0-9.766 4.379-9.767 9.766-.001 1.736.459 3.426 1.333 4.9l-.882 3.228 3.307-.868zm10.518-7.398c-.289-.145-1.711-.845-1.975-.941-.264-.096-.456-.145-.648.145-.192.29-.744.941-.912 1.134-.168.193-.336.216-.625.072-.288-.145-1.218-.45-2.321-1.433-.858-.766-1.437-1.711-1.605-2.001-.168-.29-.018-.446.126-.59.13-.13.289-.337.433-.506.145-.169.193-.289.289-.482.096-.193.048-.361-.024-.506-.072-.145-.648-1.564-.888-2.143-.233-.564-.47-.487-.648-.496-.168-.008-.361-.01-.553-.01-.192 0-.505.072-.769.361-.264.289-1.01 0.988-1.01 2.41 0 1.422 1.034 2.795 1.178 2.988.145.193 2.035 3.107 4.93 4.359.688.298 1.226.476 1.644.609.692.211 1.321.181 1.818.107.553-.082 1.711-.699 1.952-1.373.24-.674.24-1.253.168-1.373-.072-.12-.264-.193-.553-.338z"></path></svg>
+</a>
+<header class="fixed top-0 w-full z-50 glass-nav">
+<nav class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+<div class="flex items-center space-x-2">
+<span class="material-icons text-primary text-3xl">music_note</span>
+<span class="text-xl font-extrabold tracking-tighter text-white uppercase">RecGetup<span class="text-primary"> Music</span></span>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-sm font-medium text-slate-300 hover:text-primary transition-colors" href="#courses">Courses</a>
+<a class="text-sm font-medium text-slate-300 hover:text-primary transition-colors" href="#mentor">Mentors</a>
+<a class="text-sm font-medium text-slate-300 hover:text-primary transition-colors" href="#pricing">Pricing</a>
+<a class="text-sm font-medium text-slate-300 hover:text-primary transition-colors" href="#faq">FAQ</a>
+<button class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-primary/20">Enroll Now</button>
+</div>
+<button class="md:hidden text-primary">
+<span class="material-icons">menu</span>
+</button>
+</nav>
+</header>
+<section class="relative min-h-screen flex items-center pt-20 overflow-hidden bg-cover bg-center bg-no-repeat" style="background-image: url('https://images.unsplash.com/photo-1563820251346-6029f6048d42?q=80&w=2672&auto=format&fit=crop');">
+<div class="absolute inset-0 z-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
+</div>
+<div class="relative z-20 w-full max-w-7xl mx-auto px-4 pt-12 pb-48 flex flex-col items-start justify-center text-left">
+<div class="max-w-3xl w-full text-left">
+<span class="inline-block px-4 py-1 glass-card border-primary/30 text-primary rounded-full text-xs font-bold uppercase tracking-widest mb-6">World Class Vocal Training</span>
+<h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-white">
+                    Master the Art of Singing with <span class="gradient-text">RecGetup Music</span>
+</h1>
+<p class="text-lg md:text-xl text-slate-300 mb-10 leading-relaxed max-w-xl">
+                    Elevate your voice with personalized live training in Indian classical and modern styles. Join India's finest mentors.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-gradient-to-r from-primary to-accent-gold hover:from-primary/90 hover:to-accent-gold/90 text-background-dark px-10 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/30 transition-all flex items-center justify-center transform hover:scale-105">
+                        Enroll Now <span class="material-icons ml-2">arrow_forward</span>
+</button>
+<button class="glass-card text-white border-white/20 px-10 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center group hover:bg-white/10">
+<span class="material-symbols-outlined mr-2 text-primary transition-transform group-hover:scale-110">play_circle</span> Watch Intro
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<div class="relative z-30 w-full bg-background-dark/30 border-t border-glass-border">
+<div class="glass-card w-full border-x-0 border-y-0 text-center rounded-none py-10 px-4">
+<div class="max-w-7xl mx-auto flex flex-wrap justify-around items-center gap-8">
+<div class="text-center">
+<div class="text-4xl font-extrabold text-primary">50k+</div>
+<div class="text-sm font-medium text-slate-300 uppercase tracking-wider">Active Learners</div>
+</div>
+<div class="w-px h-12 bg-white/10 hidden md:block"></div>
+<div class="text-center">
+<div class="text-4xl font-extrabold text-primary">4.8/5</div>
+<div class="text-sm font-medium text-slate-300 uppercase tracking-wider">Student Rating</div>
+</div>
+<div class="w-px h-12 bg-white/10 hidden md:block"></div>
+<div class="text-center">
+<div class="text-4xl font-extrabold text-primary">120+</div>
+<div class="text-sm font-medium text-slate-300 uppercase tracking-wider">Expert Mentors</div>
+</div>
+<div class="w-px h-12 bg-white/10 hidden md:block"></div>
+<div class="text-center">
+<div class="text-4xl font-extrabold text-primary">25+</div>
+<div class="text-sm font-medium text-slate-300 uppercase tracking-wider">Global Awards</div>
+</div>
+</div>
+</div>
+</div>
+<section class="py-24 max-w-7xl mx-auto px-4 relative overflow-hidden">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-white">Why Choose <span class="text-primary">RecGetup Music</span>?</h2>
+<p class="text-slate-400 max-w-2xl mx-auto">We blend traditional Indian vocal techniques with modern technology to provide a comprehensive learning experience.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="glass-card p-8 rounded-2xl transition-all group">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">video_chat</span>
+</div>
+<h3 class="text-xl font-bold mb-3 text-white">Live Classes</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Interactive 1-on-1 and group sessions with real-time feedback from RecGetup experts.</p>
+</div>
+<div class="glass-card p-8 rounded-2xl transition-all group">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">mic_external_on</span>
+</div>
+<h3 class="text-xl font-bold mb-3 text-white">Personal Feedback</h3>
+<p class="text-slate-400 text-sm leading-relaxed">Detailed analysis of your pitch and resonance by RecGetup Music's certified coaches.</p>
+</div>
+<div class="glass-card p-8 rounded-2xl transition-all group">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+</div>
+<h3 class="text-xl font-bold mb-3 text-white">Structured Learning</h3>
+<p class="text-slate-400 text-sm leading-relaxed">A curriculum that evolves with you, covering everything from basic Swaras to advanced Raagas.</p>
+</div>
+<div class="glass-card p-8 rounded-2xl transition-all group">
+<div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">theater_comedy</span>
+</div>
+<h3 class="text-xl font-bold mb-3 text-white">Performance Building</h3>
+<p class="text-slate-400 text-sm leading-relaxed">RecGetup Music hosts monthly showcases for students to perform and gain stage confidence.</p>
+</div>
+</div>
+</section>
+<section class="py-24 relative" id="courses">
+<div class="max-w-7xl mx-auto px-4">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16">
+<div class="mb-6 md:mb-0">
+<h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-white">Our <span class="text-primary">Vocal Programs</span></h2>
+<p class="text-slate-400">Discover your path at RecGetup Music with specialized curriculum for all ages.</p>
+</div>
+<div class="flex gap-4">
+<button class="p-2 glass-card rounded-lg hover:bg-primary transition-colors text-white"><span class="material-icons">chevron_left</span></button>
+<button class="p-2 glass-card rounded-lg hover:bg-primary transition-colors text-white"><span class="material-icons">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="group overflow-hidden rounded-2xl glass-card flex flex-col md:flex-row border-none shadow-2xl">
+<div class="md:w-1/2 overflow-hidden relative h-64 md:h-auto">
+<img alt="Vocal Classes for Adults" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARJJmy1lCOSbwU1zLlgY0ne0MK6FIoR9zKSjUMMb3X1g61fM62nN_ZbiYPFXBa65NTo3Cg6qfOFbhVdCVHPYB1JGdpUrun_wFnM90YjQz3KfFF8DHwIrcCT4MD8REesIom1wHYC4oFfNHOVszVba9-2gvD-cDBnCLu7KCQ4gglCh-h8o28f87bmkLcePnpRbuJ9q-o60gFlIn2BoDA01IW64bkypca-OTq5isp-TY60pmQ2c2XsAAzLzQJgRFGWyAP8ykHFz4_ZCsA"/>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full shadow-lg">New Batch</span>
+</div>
+</div>
+<div class="md:w-1/2 p-8 flex flex-col justify-center">
+<h3 class="text-2xl font-extrabold mb-4 text-white">Vocal Classes for Adults</h3>
+<div class="space-y-3 mb-8">
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">bar_chart</span> All Skill Levels
+                            </div>
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">schedule</span> 4 Months Duration
+                            </div>
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">group</span> Max 10 Students/Batch
+                            </div>
+</div>
+<button class="w-full border-2 border-primary/50 text-primary hover:bg-primary hover:text-white py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-primary/20">View Details</button>
+</div>
+</div>
+<div class="group overflow-hidden rounded-2xl glass-card flex flex-col md:flex-row border-none shadow-2xl">
+<div class="md:w-1/2 overflow-hidden relative h-64 md:h-auto">
+<img alt="Vocal Classes for Kids" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClHKyxFVZusMNYpBYxH4abP7NEYPYwqf6rRgEG5bai3BUSMjxTkR_ov005FXLAOniKNZDj22_887njRymINiYLPG0lSL_6uvu36ruHNaMFf5NwVefg3iu5c3OFBfs8812rE1ziXmZorS4kaTeaHMkusnE2DjlkeC31XLDoGkE5ACkZv39IGqy1dbvB6pyUq7lOo-PbwGRm8WqZYrGlq6QvGuIS_54MoQ1-TSbx8-yn6W1VT-Nc6MNWyPiHNroGXvwIQmBo_8m0mlga"/>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-3 py-1 bg-accent-gold text-black text-xs font-bold rounded-full shadow-lg">Bestseller</span>
+</div>
+</div>
+<div class="md:w-1/2 p-8 flex flex-col justify-center">
+<h3 class="text-2xl font-extrabold mb-4 text-white">Vocal Classes for Kids</h3>
+<div class="space-y-3 mb-8">
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">face</span> Ages 6 to 14
+                            </div>
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">stars</span> Foundation Focus
+                            </div>
+<div class="flex items-center text-sm text-slate-300">
+<span class="material-icons text-primary text-sm mr-2">music_video</span> Interactive Gamification
+                            </div>
+</div>
+<button class="w-full border-2 border-primary/50 text-primary hover:bg-primary hover:text-white py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-primary/20">View Details</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 max-w-7xl mx-auto px-4" id="mentor">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="relative">
+<div class="absolute -inset-4 glass-card rounded-3xl -rotate-3 z-0"></div>
+<div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+<img alt="Lead Mentor Pandit Aarav Sharma" class="w-full h-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAATv5fLVbh9_Q2-6IXKYh3yfJ5N6SARH-8NFmu8pcqGg3PmgsyfkeiLHpcWdP84zIyguIAa4NHN6Wp2QJCN0qPdUrXH9Ix9EX-qGRxFkTJDJcAB8-JkEXmzyK6512j5CESS5BcIQ-a6FDpUtBV7afF_zqgl1sWNLvLrSkzeLA3n4OJy-myNdrJ_XADsb6RyKn6glYt4sNycNHk1XD4Mm8TzdoOsys_miqB7TxY9SAqPDrtEDe6MgIRz2n4__W34IQoAsqcqZhtt4Zw"/>
+</div>
+<div class="absolute -bottom-6 -right-6 glass-card p-6 rounded-2xl shadow-xl z-20 max-w-xs">
+<p class="text-slate-200 text-sm italic">"Singing is not just about the voice; it's about the soul that breathes through the melody at RecGetup Music."</p>
+</div>
+</div>
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-sm">Meet Our Lead Mentor</span>
+<h2 class="text-4xl md:text-5xl font-extrabold mt-4 mb-6 leading-tight text-white">Master Pt. Aarav Sharma</h2>
+<p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                    A veteran of Hindustani Classical music and contemporary fusion, Pandit Aarav leads the pedagogy at RecGetup Music. His mentorship has shaped hundreds of professional vocalists through a focus on emotional resonance and technical precision.
+                </p>
+<div class="grid grid-cols-2 gap-6 mb-10">
+<div class="glass-card p-4 rounded-xl">
+<div class="text-primary text-2xl font-bold">20+ Years</div>
+<div class="text-slate-400 text-xs uppercase font-bold tracking-tighter">Teaching Legacy</div>
+</div>
+<div class="glass-card p-4 rounded-xl">
+<div class="text-primary text-2xl font-bold">AIR Grade A</div>
+<div class="text-slate-400 text-xs uppercase font-bold tracking-tighter">Accreditation</div>
+</div>
+</div>
+<button class="text-primary font-bold flex items-center group">
+                    Discover our methodology <span class="material-icons ml-2 transition-transform group-hover:translate-x-2">arrow_right_alt</span>
+</button>
+</div>
+</div>
+</section>
+<section class="py-24 relative">
+<div class="max-w-7xl mx-auto px-4">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-white">The RecGetup Way</h2>
+<div class="w-24 h-1 bg-primary mx-auto"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+<div class="hidden md:block absolute top-12 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-primary/20"></div>
+<div class="relative z-10 text-center px-4">
+<div class="w-20 h-20 bg-primary text-black rounded-full flex items-center justify-center mx-auto mb-8 text-3xl font-extrabold border-8 border-background-dark shadow-xl">1</div>
+<h3 class="text-2xl font-bold mb-4 text-primary">Learn</h3>
+<p class="text-slate-400">Master the core concepts of Raga, Taal, and modern voice techniques through live expert demos.</p>
+</div>
+<div class="relative z-10 text-center px-4">
+<div class="w-20 h-20 bg-primary text-black rounded-full flex items-center justify-center mx-auto mb-8 text-3xl font-extrabold border-8 border-background-dark shadow-xl">2</div>
+<h3 class="text-2xl font-bold mb-4 text-primary">Practice</h3>
+<p class="text-slate-400">Dedicated riyaaz sessions with guided RecGetup material and regular personal coach feedback.</p>
+</div>
+<div class="relative z-10 text-center px-4">
+<div class="w-20 h-20 bg-primary text-black rounded-full flex items-center justify-center mx-auto mb-8 text-3xl font-extrabold border-8 border-background-dark shadow-xl">3</div>
+<h3 class="text-2xl font-bold mb-4 text-primary">Perform</h3>
+<p class="text-slate-400">Showcase your progress in our virtual concerts and receive professional recording tips.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 max-w-7xl mx-auto px-4" id="pricing">
+<div class="text-center mb-12">
+<h2 class="text-3xl md:text-5xl font-extrabold mb-4 text-white">RecGetup <span class="text-primary">Membership Plans</span></h2>
+<p class="text-slate-400 mb-10">Affordable, expert-led vocal training for every stage of your journey.</p>
+</div>
+<input class="hidden" id="pricing-toggle" type="checkbox"/>
+<div class="flex justify-center mb-16 relative z-10 toggle-container">
+<label class="relative inline-flex items-center cursor-pointer glass-card p-1 rounded-full w-64 h-14" for="pricing-toggle">
+<div class="toggle-slider absolute left-1 top-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-primary rounded-full transition-transform duration-300 shadow-lg shadow-primary/30"></div>
+<span class="flex-1 text-center text-sm font-bold z-10 transition-colors duration-300 label-group text-slate-400">Group Class</span>
+<span class="flex-1 text-center text-sm font-bold z-10 transition-colors duration-300 label-solo text-slate-400">Solo Class</span>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="glass-card p-10 rounded-2xl transition-all flex flex-col group border-primary/20">
+<h3 class="text-xl font-bold mb-2 text-white">Beginner</h3>
+<div data-pricing-type="group">
+<div class="text-4xl font-extrabold mb-6 text-white">₹2,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 4 Live Sessions / Month</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Access to Practice Library</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Monthly Progress Report</li>
+</ul>
+</div>
+<div data-pricing-type="solo">
+<div class="text-4xl font-extrabold mb-6 text-white">₹5,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 1-on-1 Sessions</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Personalized Curriculum</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Flexible Timing</li>
+</ul>
+</div>
+<button class="w-full py-4 glass-card border-white/20 rounded-xl font-bold hover:bg-white/10 transition-all mt-auto text-white">Select Plan</button>
+</div>
+<div class="glass-card border-2 border-primary p-10 rounded-2xl relative shadow-2xl shadow-primary/20 flex flex-col transform md:scale-105 z-10">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-black px-6 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">Most Popular</div>
+<h3 class="text-xl font-bold mb-2 text-white">Intermediate</h3>
+<div data-pricing-type="group">
+<div class="text-4xl font-extrabold mb-6 text-white">₹4,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 8 Live Sessions / Month</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Advanced Practice Material</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Bi-weekly Personal Feedback</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 2 Performance Showcases</li>
+</ul>
+</div>
+<div data-pricing-type="solo">
+<div class="text-4xl font-extrabold mb-6 text-white">₹9,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Advanced 1-on-1 Training</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Weekly Riyaaz Mentorship</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Career Guidance</li>
+</ul>
+</div>
+<button class="w-full py-4 bg-primary text-black rounded-xl font-bold hover:bg-primary/90 transition-all mt-auto shadow-lg shadow-primary/30">Select Plan</button>
+</div>
+<div class="glass-card p-10 rounded-2xl transition-all flex flex-col group border-primary/20">
+<h3 class="text-xl font-bold mb-2 text-white">Professional</h3>
+<div data-pricing-type="group">
+<div class="text-4xl font-extrabold mb-6 text-white">₹8,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 12 Live Sessions / Month</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Priority Support</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Unlimited Feedback</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> 1 Studio Recording / Qtr</li>
+</ul>
+</div>
+<div data-pricing-type="solo">
+<div class="text-4xl font-extrabold mb-6 text-white">₹16,999<span class="text-sm text-slate-400 font-normal">/mo</span></div>
+<ul class="space-y-4 mb-10 flex-grow">
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Premium Masterclass access</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Portfolio Building</li>
+<li class="flex items-center text-sm text-slate-300"><span class="material-icons text-primary text-base mr-3">check_circle</span> Recording Sessions Included</li>
+</ul>
+</div>
+<button class="w-full py-4 glass-card border-white/20 rounded-xl font-bold hover:bg-white/10 transition-all mt-auto text-white">Select Plan</button>
+</div>
+</div>
+</section>
+<section class="py-24 overflow-hidden relative" id="stories">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-4 relative z-10">
+<h2 class="text-3xl font-extrabold text-center mb-16 text-white fade-in-up">Stories from <span class="gradient-text">RecGetup Students</span></h2>
+<div class="marquee-container fade-in-up delay-100">
+    <div class="marquee-content">
+        <!-- Original 3 Cards -->
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-primary">
+            <div class="flex items-center mb-6">
+                <img alt="Rahul Verma" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxhHzNXjfgcwNXDP4USsENOq655zyCQ9s6dz2JSXG5Hpb9bHbKdJ59zeZRmUlcYzNmkglNLKG6-QpY0CUUphRxlpbycg92ymMk0DxGM2HhX9skQL_XGZcyIxY4-TXGz_wk-y84O2vZ-TljhX6JPWd3TM4pboWaizkiVWL-KEtSDLSuJeKMvRYjnc9GB4IoRAaeQSffDmdSul-cpc8b_u06s9wwDq-CNCxA-IK2DMkbqeRmdvZDQX9rtI4BRH69goGGmVTM3fEcxbs4"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Rahul Verma</div>
+                    <div class="text-xs text-primary font-bold uppercase tracking-wider">Intermediate Learner</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"The live sessions at RecGetup Music fixed pitch issues I didn't know I had. Truly professional coaching!"</p>
+        </div>
+
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-accent-gold">
+            <div class="flex items-center mb-6">
+                <img alt="Ananya Das" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-accent-gold/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFQqbK0kkRBPPdE2gQbGE72FfVH1Cb41gw_dzzKYz5I7fUbo-HWX9MvW6hVoV2EYO2ggqb-whbCcyHVGviSfGVdG7uirea2z6E_kiXWzNgvyXGkvFpgMCq4FTA3jY38r93Ec0w0JckUVz-HayRywp0yhtIrdLnL-GaJRjX63fui0WTUUkpd3IP4KiwyVjPSLIwDogNPq8H8BcPPp2gtpqjuY5Rsz8gtX_7cPMuHqgRvuHX__Z5poofK9lhSD_sgtdx4XHJJ7VTLOZb"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Ananya Das</div>
+                    <div class="text-xs text-accent-gold font-bold uppercase tracking-wider">Professional Student</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"Balancing classical base with modern singing styles is RecGetup's specialty. It changed my YouTube presence completely."</p>
+        </div>
+
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-primary">
+            <div class="flex items-center mb-6">
+                <img alt="Siddharth Nair" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsy_eS5ehtpe7GZplJ6bHjCjEVro_aI7Allam8nG7VjFt2qW98VYsA6NMSsTP0n_4YrORnAcq5XBVBJ-qPoFT3GueRJiq8A-O5GiC84mtPrePUtOjRoL6riR7YvbPM6i0xm1cY5if2lkNn0duEXJrgfnMSPtvID41lChPPwbPksOJZMz3M3wAgleM6V0fpecTq_ldnlgsSJVN_8Im9SqoTopdqXxjr0pJB9Iw0_cwqwAxq8_lUiLlBx2KDHbKJE7g9QXp9BMjmy-JR"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Siddharth Nair</div>
+                    <div class="text-xs text-primary font-bold uppercase tracking-wider">Kids Batch Parent</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"My son loves the gamified lessons. RecGetup Music makes classical learning fun and engaging for young minds."</p>
+        </div>
+
+        <!-- Duplicates for Marquee Effect -->
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-primary">
+            <div class="flex items-center mb-6">
+                <img alt="Rahul Verma" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxhHzNXjfgcwNXDP4USsENOq655zyCQ9s6dz2JSXG5Hpb9bHbKdJ59zeZRmUlcYzNmkglNLKG6-QpY0CUUphRxlpbycg92ymMk0DxGM2HhX9skQL_XGZcyIxY4-TXGz_wk-y84O2vZ-TljhX6JPWd3TM4pboWaizkiVWL-KEtSDLSuJeKMvRYjnc9GB4IoRAaeQSffDmdSul-cpc8b_u06s9wwDq-CNCxA-IK2DMkbqeRmdvZDQX9rtI4BRH69goGGmVTM3fEcxbs4"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Rahul Verma</div>
+                    <div class="text-xs text-primary font-bold uppercase tracking-wider">Intermediate Learner</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"The live sessions at RecGetup Music fixed pitch issues I didn't know I had. Truly professional coaching!"</p>
+        </div>
+
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-accent-gold">
+            <div class="flex items-center mb-6">
+                <img alt="Ananya Das" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-accent-gold/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFQqbK0kkRBPPdE2gQbGE72FfVH1Cb41gw_dzzKYz5I7fUbo-HWX9MvW6hVoV2EYO2ggqb-whbCcyHVGviSfGVdG7uirea2z6E_kiXWzNgvyXGkvFpgMCq4FTA3jY38r93Ec0w0JckUVz-HayRywp0yhtIrdLnL-GaJRjX63fui0WTUUkpd3IP4KiwyVjPSLIwDogNPq8H8BcPPp2gtpqjuY5Rsz8gtX_7cPMuHqgRvuHX__Z5poofK9lhSD_sgtdx4XHJJ7VTLOZb"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Ananya Das</div>
+                    <div class="text-xs text-accent-gold font-bold uppercase tracking-wider">Professional Student</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"Balancing classical base with modern singing styles is RecGetup's specialty. It changed my YouTube presence completely."</p>
+        </div>
+
+        <div class="w-[350px] shrink-0 glass-card p-6 rounded-2xl border-l-4 border-primary">
+            <div class="flex items-center mb-6">
+                <img alt="Siddharth Nair" class="w-14 h-14 rounded-full object-cover mr-4 ring-2 ring-primary/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsy_eS5ehtpe7GZplJ6bHjCjEVro_aI7Allam8nG7VjFt2qW98VYsA6NMSsTP0n_4YrORnAcq5XBVBJ-qPoFT3GueRJiq8A-O5GiC84mtPrePUtOjRoL6riR7YvbPM6i0xm1cY5if2lkNn0duEXJrgfnMSPtvID41lChPPwbPksOJZMz3M3wAgleM6V0fpecTq_ldnlgsSJVN_8Im9SqoTopdqXxjr0pJB9Iw0_cwqwAxq8_lUiLlBx2KDHbKJE7g9QXp9BMjmy-JR"/>
+                <div>
+                    <div class="font-bold text-lg text-white">Siddharth Nair</div>
+                    <div class="text-xs text-primary font-bold uppercase tracking-wider">Kids Batch Parent</div>
+                </div>
+            </div>
+            <div class="text-accent-gold mb-4 flex scale-90 origin-left">
+                <span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span><span class="material-icons">star</span>
+            </div>
+            <p class="text-slate-300 italic text-base leading-relaxed">"My son loves the gamified lessons. RecGetup Music makes classical learning fun and engaging for young minds."</p>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+<section class="py-24 max-w-4xl mx-auto px-4 relative" id="faq">
+<h2 class="text-3xl font-extrabold text-center mb-16 text-white">Frequently Asked <span class="text-primary">Questions</span></h2>
+<div class="space-y-4">
+<details class="group glass-card rounded-xl overflow-hidden" open="">
+<summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+<span class="font-bold text-white">Can a complete beginner join RecGetup Music?</span>
+<span class="material-icons text-primary transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-slate-300 text-sm leading-relaxed border-t border-white/5">
+                    Absolutely! RecGetup Music offers specialized foundation courses for beginners that focus on basic pitch, rhythm, and breath control.
+                </div>
+</details>
+<details class="group glass-card rounded-xl overflow-hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+<span class="font-bold text-white">What is the format of the classes at RecGetup?</span>
+<span class="material-icons text-primary transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-slate-300 text-sm leading-relaxed border-t border-white/5">
+                    Classes are held over high-definition interactive platforms. They include live demonstrations, interactive practice sessions, and personalized corrections from our mentors.
+                </div>
+</details>
+<details class="group glass-card rounded-xl overflow-hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+<span class="font-bold text-white">Does RecGetup Music provide certification?</span>
+<span class="material-icons text-primary transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-slate-300 text-sm leading-relaxed border-t border-white/5">
+                    Yes, upon successful completion of each level and assessment, students receive a digital certificate of achievement from RecGetup Music.
+                </div>
+</details>
+</div>
+</section>
+<section class="py-24 max-w-7xl mx-auto px-4 relative">
+<div class="bg-gradient-to-br from-primary to-[#cc7a00] rounded-[2.5rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-black/20 rounded-full blur-3xl"></div>
+<h2 class="text-4xl md:text-6xl font-extrabold text-white mb-8">Start Your Singing <br/>Journey with RecGetup</h2>
+<p class="text-white/90 text-lg md:text-xl max-w-2xl mx-auto mb-12">
+                Join thousands of vocalists who have mastered their craft with RecGetup Music. Book your trial session today.
+            </p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="bg-background-dark text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-black transition-all shadow-xl">Enroll Now</button>
+<button class="glass-nav text-white px-10 py-4 rounded-xl font-bold text-lg flex items-center justify-center hover:bg-white/10 transition-all shadow-lg border border-white/20">
+<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.224-3.661c1.566.93 3.132 1.422 4.67 1.423 5.385.002 9.76-4.375 9.763-9.763.001-2.612-1.015-5.064-2.862-6.913-1.848-1.848-4.301-2.863-6.912-2.863-5.388 0-9.766 4.379-9.767 9.766-.001 1.736.459 3.426 1.333 4.9l-.882 3.228 3.307-.868zm10.518-7.398c-.289-.145-1.711-.845-1.975-.941-.264-.096-.456-.145-.648.145-.192.29-.744.941-.912 1.134-.168.193-.336.216-.625.072-.288-.145-1.218-.45-2.321-1.433-.858-.766-1.437-1.711-1.605-2.001-.168-.29-.018-.446.126-.59.13-.13.289-.337.433-.506.145-.169.193-.289.289-.482.096-.193.048-.361-.024-.506-.072-.145-.648-1.564-.888-2.143-.233-.564-.47-.487-.648-.496-.168-.008-.361-.01-.553-.01-.192 0-.505.072-.769.361-.264.289-1.01 0.988-1.01 2.41 0 1.422 1.034 2.795 1.178 2.988.145.193 2.035 3.107 4.93 4.359.688.298 1.226.476 1.644.609.692.211 1.321.181 1.818.107.553-.082 1.711-.699 1.952-1.373.24-.674.24-1.253.168-1.373-.072-.12-.264-.193-.553-.338z"></path></svg>
+                    WhatsApp Us
+                </button>
+</div>
+</div>
+</section>
+<footer class="bg-background-dark border-t border-white/5 py-20 px-4 relative">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center space-x-2 mb-6">
+<span class="material-icons text-primary text-2xl">music_note</span>
+<span class="text-xl font-extrabold tracking-tighter text-white uppercase">RecGetup<span class="text-primary"> Music</span></span>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed mb-6">RecGetup Music is dedicated to preserving the heritage of Indian classical singing while embracing modern performance techniques.</p>
+<div class="flex space-x-4">
+<a class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-primary transition-colors text-white" href="#"><span class="material-icons text-sm">facebook</span></a>
+<a class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-primary transition-colors text-white" href="#"><span class="material-icons text-sm">camera_alt</span></a>
+<a class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-primary transition-colors text-white" href="#"><span class="material-icons text-sm">play_arrow</span></a>
+</div>
+</div>
+<div>
+<h4 class="font-bold mb-6 text-white">Quick Links</h4>
+<ul class="space-y-4 text-sm text-slate-400">
+<li><a class="hover:text-primary transition-colors" href="#">About Academy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">RecGetup Mentors</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Class Schedule</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Performance Gallery</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6 text-white">Support</h4>
+<ul class="space-y-4 text-sm text-slate-400">
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Refund Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6 text-white">Newsletter</h4>
+<p class="text-sm text-slate-400 mb-4">Get vocal tips and RecGetup updates.</p>
+<form class="flex">
+<input class="glass-card border-white/10 rounded-l-lg px-4 py-2 w-full focus:outline-none focus:border-primary text-sm text-white" placeholder="Email address" type="email"/>
+<button class="bg-primary px-4 py-2 rounded-r-lg font-bold"><span class="material-icons text-black">send</span></button>
+</form>
+</div>
+</div>
+<div class="max-w-7xl mx-auto pt-8 border-t border-white/5 text-center text-slate-500 text-sm">
+            © 2024 RecGetup Music. All rights reserved.
+        </div>
+</footer>
+
+</body></html>

@@ -6,3 +6,6 @@ openpyxl
 mysqlclient
 openai
 python-dotenv
+django-background-tasks
+reportlab
+requests

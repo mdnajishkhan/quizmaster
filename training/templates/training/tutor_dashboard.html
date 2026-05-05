@@ -107,9 +107,11 @@
                                         🚀 Start Class
                                     </a>
                                 {% endif %}
+                                {% if event.batch_id %}
                                 <button onclick="viewStudents({{ event.batch_id }})" class="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl font-black text-[10px] transition uppercase tracking-widest">
                                     View Students
                                 </button>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}

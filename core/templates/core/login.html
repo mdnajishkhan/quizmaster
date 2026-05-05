@@ -13,7 +13,7 @@
     <!-- 3D Card Container - Dynamic Height -->
     <div id="authCard" class="relative w-full max-w-md transition-all duration-700 transform-style-3d 
                 {% if page_type == 'register' or page_type == 'forgot' %}rotate-y-180{% endif %}"
-         style="height: {% if page_type == 'register' %}850px{% elif page_type == 'forgot' %}350px{% else %}480px{% endif %};">
+         style="height: {% if page_type == 'register' %}750px{% elif page_type == 'forgot' %}350px{% else %}480px{% endif %};">
         
         <!-- ==========================
              FRONT FACE: LOGIN
@@ -121,7 +121,7 @@
              ========================== -->
         <!-- Matches Login Face Style -->
         <div id="registerFace" class="absolute inset-0 w-full h-full backface-hidden bg-white/10 backdrop-blur-xl border border-white/20 
-                    rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.45)] rotate-y-180 flex flex-col justify-center overflow-y-auto custom-scrollbar {% if page_type == 'forgot' %}hidden{% endif %}"
+                    rounded-3xl p-6 md:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.45)] rotate-y-180 flex flex-col justify-start overflow-y-auto custom-scrollbar {% if page_type == 'forgot' %}hidden{% endif %}"
              style="z-index: 10;">
             
             <div class="text-center mb-1">
@@ -432,7 +432,7 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
             registerFace.classList.remove('hidden');
             if (forgotFace) forgotFace.classList.add('hidden');
             
-            card.style.height = '850px'; // Expand for Register
+            card.style.height = '750px'; // Expand for Register
             card.classList.add('rotate-y-180');
             setTimeout(() => {
                 registerFace.style.zIndex = 20;

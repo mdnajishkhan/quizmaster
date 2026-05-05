@@ -66,7 +66,7 @@ class BatchSchedule(models.Model):
     end_time = models.TimeField()
     
     tutor = models.ForeignKey(User, related_name='teaching_schedules', on_delete=models.SET_NULL, null=True, blank=True)
-    topic = models.CharField(max_length=255, default="Class Session")
+    topic = models.CharField(max_length=255, default="Session")
     meeting_link = models.URLField(max_length=500, blank=True, null=True)
     
     def __str__(self):
@@ -123,10 +123,35 @@ class SpecialClass(models.Model):
     """
     One-off or special events that students can be granted access to.
     """
+    TYPE_CHOICES = [
+        ('one_time', 'One Time'),
+        ('recurring', 'Recurring (Weekly)'),
+    ]
+    
+    DAY_CHOICES = [
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    start_datetime = models.DateTimeField()
-    end_datetime = models.DateTimeField()
+    
+    scheduling_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='one_time')
+    
+    # One Time Fields
+    start_datetime = models.DateTimeField(null=True, blank=True, help_text="Required for One Time events")
+    end_datetime = models.DateTimeField(null=True, blank=True, help_text="Required for One Time events")
+    
+    # Recurring Fields
+    day_of_week = models.IntegerField(choices=DAY_CHOICES, null=True, blank=True, help_text="Required for Recurring events")
+    start_time = models.TimeField(null=True, blank=True, help_text="Required for Recurring events")
+    end_time = models.TimeField(null=True, blank=True, help_text="Required for Recurring events")
+
     tutor = models.ForeignKey(User, related_name='special_classes', on_delete=models.SET_NULL, null=True, blank=True)
     meeting_link = models.URLField(max_length=500, blank=True, null=True)
     
@@ -135,7 +160,10 @@ class SpecialClass(models.Model):
     allowed_students = models.ManyToManyField(User, related_name='special_class_access', blank=True)
     
     def __str__(self):
-        return self.title
+        if self.scheduling_type == 'recurring':
+            day = self.get_day_of_week_display() if self.day_of_week is not None else '?'
+            return f"{self.title} ({day}s)"
+        return f"{self.title} ({self.start_datetime})"
 
     class Meta:
         verbose_name_plural = "Special Classes"
@@ -289,7 +317,7 @@ class HeroSection(models.Model):
     cta_link = models.CharField(max_length=255, default="#contact", help_text="Link for the CTA button")
     is_active = models.BooleanField(default=True)
     def __str__(self): return self.title
-    class Meta: verbose_name = "Landing - Hero Section"
+    class Meta: verbose_name = "Hero Section"
 
 class AboutSection(models.Model):
     instructor_name = models.CharField(max_length=100, default="Master Instructor")
@@ -299,7 +327,7 @@ class AboutSection(models.Model):
     students_trained = models.CharField(max_length=20, default="500+")
     is_active = models.BooleanField(default=True)
     def __str__(self): return self.instructor_name
-    class Meta: verbose_name = "Landing - About Section"
+    class Meta: verbose_name = "About Section"
 
 class ClassType(models.Model):
     title = models.CharField(max_length=100)
@@ -309,7 +337,7 @@ class ClassType(models.Model):
     icon = models.CharField(max_length=50, default="🎵")
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    class Meta: ordering = ['order']; verbose_name = "Landing - Class Type"
+    class Meta: ordering = ['order']; verbose_name = "Class Type"
     def __str__(self): return self.title
 
 class Testimonial(models.Model):
@@ -319,21 +347,21 @@ class Testimonial(models.Model):
     role = models.CharField(max_length=100, blank=True, default="Student")
     is_active = models.BooleanField(default=True)
     def __str__(self): return self.student_name
-    class Meta: verbose_name = "Landing - Testimonial"
+    class Meta: verbose_name = "Testimonial"
 
 class GalleryImage(models.Model):
     caption = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to='landing/gallery/')
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    class Meta: ordering = ['order']; verbose_name = "Landing - Gallery Image"
+    class Meta: ordering = ['order']; verbose_name = "Gallery Image"
 
 class FAQ(models.Model):
     question = models.CharField(max_length=255)
     answer = models.TextField()
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    class Meta: ordering = ['order']; verbose_name = "Landing - FAQ"
+    class Meta: ordering = ['order']; verbose_name = "FAQ"
 
 class ContactQuery(models.Model):
     name = models.CharField(max_length=100)

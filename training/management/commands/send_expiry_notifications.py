@@ -4,31 +4,44 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
 from training.models import Enrollment
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.urls import reverse
 
 class Command(BaseCommand):
     help = 'Send email reminders for package expiry (3 days and 1 day before)'
 
     def handle(self, *args, **kwargs):
-        now = timezone.now()
+        # Convert to local time to ensure 'today' matches the user's perception in India
+        now = timezone.localtime(timezone.now())
         today = now.date()
-        self.stdout.write(f"Checking for package expiries at {now}")
+        self.stdout.write(f"Checking for package expiries at {now} (Local Time)")
 
         # Determine Dashboard Link (Absolute URL)
         if settings.DEBUG:
             base_url = "http://127.0.0.1:8000"
         else:
-            base_url = "https://platform.recgetupmusic.com"
+            base_url = "https://recgetupmusic.in"
         
         dashboard_link = f"{base_url}{reverse('training_program')}"
 
+        # Helper to get day range
+        def get_day_range(date_obj):
+            start = timezone.make_aware(datetime.combine(date_obj, datetime.min.time()))
+            end = timezone.make_aware(datetime.combine(date_obj, datetime.max.time()))
+            return start, end
+
         # --- 1. CHECK FOR 3-DAY EXPIRY ---
         target_3d = today + timedelta(days=3)
+        start_3d, end_3d = get_day_range(target_3d)
+        
+        self.stdout.write(f"Looking for expiries between: {start_3d} and {end_3d}")
+        
         enrollments_3d = Enrollment.objects.filter(
-            expires_at__date=target_3d,
+            expires_at__range=(start_3d, end_3d),
             expiry_3d_sent=False
         ).select_related('user', 'batch')
+        
+        self.stdout.write(f"Found {enrollments_3d.count()} enrollments expiring in 3 days.")
 
         for enr in enrollments_3d:
             if enr.user.email:
@@ -39,8 +52,10 @@ class Command(BaseCommand):
 
         # --- 2. CHECK FOR 1-DAY EXPIRY ---
         target_1d = today + timedelta(days=1)
+        start_1d, end_1d = get_day_range(target_1d)
+        
         enrollments_1d = Enrollment.objects.filter(
-            expires_at__date=target_1d,
+            expires_at__range=(start_1d, end_1d),
             expiry_1d_sent=False
         ).select_related('user', 'batch')
 
@@ -72,7 +87,7 @@ class Command(BaseCommand):
             send_mail(
                 subject,
                 plain_message,
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [enrollment.user.email],
                 html_message=html_message,
                 fail_silently=False
