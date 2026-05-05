@@ -1,4 +1,4 @@
-# 🚀 Project Overview: TgaysEducation Training Portal
+# 🚀 Project Overview: Recgetup Music Training Portal
 
 ## **1. Executive Summary**
 This project is a high-end, **automated Learning Management System (LMS)** specifically designed to manage **live cohort-based training programs**. Unlike generic video course platforms (like Udemy), this system is built for **live interaction**, streamlining the chaos of managing Zoom links, student attendance, payments, and resource sharing into one sleek, professional dashboard.

@@ -1,4 +1,4 @@
-# QuizMaster
+# Recgetup Music
 
 A full-stack Django quiz platform that allows users to interact with quizzes, submit answers, and explore various quiz topics.  
 This project demonstrates real-world Django app development, with modular structure, environment-based configuration, and clean design patterns.
@@ -118,3 +118,4 @@ Md Najish Khan
 Python & Django Developer
 https://github.com/mdnajishkhan
 "" 
+# recgetup-music

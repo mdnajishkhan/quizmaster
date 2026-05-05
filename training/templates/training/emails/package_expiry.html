@@ -1,0 +1,87 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Expiry Reminder - Recgetup Music</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f172a;">
+        <tr>
+            <td align="center" style="padding: 40px 10px;">
+                <!-- Main Card -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #1e293b; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header Logo Area -->
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px;">
+                            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px; color: #ffffff;">
+                                <span style="color: #22d3ee;">Recgetup</span><span style="color: #f8fafc;">Music</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Expiry Icon -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px;">
+                            <div style="font-size: 48px;">⌛</div>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td align="center" style="padding: 20px 40px 40px 40px;">
+                            <h1 style="margin: 0 0 20px 0; color: #f1f5f9; font-size: 24px; font-weight: 700;">
+                                Your access is expiring soon!
+                            </h1>
+                            
+                            <p style="margin: 0 0 16px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                Hi <strong style="color: white;">{{ user.first_name|default:user.username }}</strong>,
+                            </p>
+                            
+                            <p style="margin: 0 0 24px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                This is a friendly reminder that your access to <strong>{{ batch_name }}</strong> will expire in <span style="color: #fbbf24; font-weight: bold;">{{ days_left }} day{{ days_left|pluralize }}</span>.
+                            </p>
+
+                            <p style="margin: 0 0 32px 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                To continue your learning journey without interruption, please renew your package or apply a new access code from your dashboard.
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 9999px;">
+                                        <a href="{{ dashboard_link }}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: Arial, sans-serif; font-size: 16px; color: #ffffff; font-weight: bold; text-decoration: none; border-radius: 9999px; background: linear-gradient(90deg, #3b82f6, #2563eb); border: 1px solid #2563eb; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);">
+                                            View Dashboard 🚀
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div style="margin: 40px 0 0 0; background-color: rgba(51, 65, 85, 0.5); border-radius: 12px; padding: 15px; border: 1px solid #334155;">
+                                <p style="margin: 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">
+                                    <strong>Note:</strong> If you have already upgraded or renewed your package, please ignore this message. We look forward to seeing you in class!
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Footer -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                    <tr>
+                        <td align="center" style="padding: 30px 0;">
+                            <p style="margin: 0; color: #64748b; font-size: 12px;">
+                                © {% now "Y" %} Recgetup Music. All rights reserved.<br>
+                                Automated Subscription Notification.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+{% endautoescape %}

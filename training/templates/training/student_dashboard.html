@@ -1,0 +1,269 @@
+{% extends "core/base.html" %}
+{% load training_extras %}
+
+{% block content %}
+<div class="px-4 py-8 max-w-7xl mx-auto">
+    
+    <!-- 🌟 Welcome Header -->
+    <div class="mb-10 text-center md:text-left flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
+        <div>
+            <h1 class="text-4xl font-black text-white tracking-tight mb-2">
+                Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{{ request.user.first_name|default:request.user.username }}</span> 👋
+            </h1>
+            <p class="text-gray-400 text-lg">Welcome to your dashboard.</p>
+        </div>
+    </div>
+
+    <div class="space-y-10"> <!-- Main Stack -->
+
+        <!-- 1. 🗓️ Upcoming Classes (Top Priority) -->
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <span class="text-3xl">🗓️</span> Upcoming Classes
+                </h2>
+                <a href="{% url 'training_program' %}" class="text-sm text-blue-400 hover:text-white transition font-bold">View Full Calendar →</a>
+            </div>
+
+            {% if upcoming_classes %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for event in upcoming_classes %}
+                    <div class="flex items-center gap-4 bg-white/5 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition group h-full">
+                        <div class="flex-shrink-0 w-20 text-center bg-white/5 rounded-xl p-2 group-hover:bg-blue-500/20 transition">
+                            <span class="block text-xs text-blue-400 font-bold uppercase tracking-wider">{{ event.start|date:"M" }}</span>
+                            <span class="block text-3xl font-black text-white">{{ event.start|date:"d" }}</span>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-xl font-bold text-white mb-1">{{ event.title }}</h4>
+                            <p class="text-sm text-gray-400 flex items-center gap-2">
+                                <span>⏰</span> {{ event.start|date:"l, h:i A" }}
+                            </p>
+                        </div>
+                        <div>
+                            {% if event.status == 'joined' %}
+                                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-lg border border-emerald-500/30">Completed</span>
+                            {% else %}
+                                <a href="#" 
+                                   onclick="checkClassStatus(event, '{{ event.start|date:'c' }}', '{{ event.end|date:'c' }}', '{{ event.meeting_link }}', {{ event.meeting_link|yesno:'true,false' }})"
+                                   class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-blue-900/30 text-center flex items-center gap-2">
+                                    Join <span class="hidden sm:inline">Now</span> →
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-6">No immediate upcoming classes found.</p>
+            {% endif %}
+        </div>
+
+        <!-- 2. 🎓 My Workshops -->
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none group-hover:bg-blue-500/20 transition duration-700"></div>
+            
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <span class="text-3xl">🎓</span> My Workshops
+            </h2>
+
+            {% if enrollments %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for enroll in enrollments %}
+                    <div class="bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-blue-500/30 transition group/card hover:-translate-y-1 relative overflow-hidden">
+                            <!-- Glow Effect -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover/card:opacity-100 transition duration-500"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full border border-blue-500/30 backdrop-blur-sm">
+                                    {{ enroll.batch.workshop.title }}
+                                </div>
+                                <span class="text-xs text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-1 group-hover/card:text-blue-400 transition">{{ enroll.batch.name }}</h3>
+                            <p class="text-sm text-gray-400 mb-4">Valid until {{ enroll.expires_at|date:"d M, Y" }}</p>
+                            
+                            <a href="{% url 'training_program' %}" class="block w-full text-center py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold text-sm transition shadow-lg shadow-blue-500/20">
+                                View Schedule →
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- 🎤 Your Mentor (Moved Here) -->
+                    {% if mentor %}
+                    <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl relative overflow-hidden h-full flex flex-col justify-center transform hover:-translate-y-1 transition duration-300">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-rose-500"></div>
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span>🎤</span> Your Mentor
+                        </h3>
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-white/5 p-1 flex-shrink-0">
+                                <div class="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                                    {% if mentor.profile.profile_pic %}
+                                        <img src="{{ mentor.profile.profile_pic.url }}" alt="{{ mentor.first_name }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <span class="text-2xl">👩‍🎤</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold">{{ mentor.get_full_name|default:mentor.username }}</h4>
+                                <p class="text-xs text-rose-300 font-bold uppercase tracking-wider">Voice Coach</p>
+{% with valid_number=mentor.profile.phone_number|whatsapp_format %}
+    {% if valid_number %}
+        <a href="https://wa.me/{{ valid_number }}?text=Hi {{ mentor.first_name }}" target="_blank" class="text-xs text-gray-400 hover:text-white mt-1 block">Contact Mentor →</a>
+    {% else %}
+        <span class="text-xs text-gray-600 mt-1 block cursor-not-allowed" title="Phone number invalid or missing">Contact details unavailable</span>
+    {% endif %}
+{% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-10 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                    <div class="text-4xl mb-3">📂</div>
+                    <h3 class="text-xl font-bold text-white mb-2">No Active Enrollments</h3>
+                    <p class="text-gray-400 mb-6 max-w-sm mx-auto">You haven't enrolled in any workshops yet. Enter a coupon code to get started!</p>
+                    <a href="{% url 'training_program' %}" class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg shadow-blue-900/20">
+                        Apply Coupon Code
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 3. 🛠️ Resources Row (Subscriptions | Contact) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- 💳 Subscriptions -->
+            <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl relative overflow-hidden h-full flex flex-col justify-center min-h-[160px]">
+                 <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                    <span>💳</span> Subscriptions
+                </h3>
+                <p class="text-sm text-gray-400 mb-4">Manage your payments and view transaction history.</p>
+                <a href="{% url 'payment_history' %}" class="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-xl transition group mt-auto w-full">
+                    <span class="text-gray-300 text-sm font-medium group-hover:text-white">View History</span>
+                    <span class="text-gray-500 group-hover:text-white">→</span>
+                </a>
+            </div>
+
+            <!-- 🎧 Contact Support -->
+            <div class="bg-gradient-to-br from-violet-900/40 to-fuchsia-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden text-center h-full flex flex-col justify-center min-h-[160px]">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                
+                <h3 class="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                    <span>🎧</span> Need Help?
+                </h3>
+                <p class="text-gray-300 text-sm mb-4">Our support team is here to help.</p>
+                
+                <a href="https://wa.me/919123456789" target="_blank" class="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl font-bold transition shadow-lg shadow-green-500/20 mt-auto">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.091-.458.058-.606.134-.133.298-.347.446-.52.151-.174.2-.298.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>
+                    Contact Us
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+<!-- ⏳ Countdown Modal -->
+<div id="countdown-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#0F172A] border border-blue-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="countdown-content">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-blue-500/10 blur-3xl -z-10"></div>
+        <div class="text-6xl mb-4">⏳</div>
+        <h3 class="text-2xl font-black text-white mb-2">Class Starting Soon</h3>
+        <p class="text-gray-400 mb-6 font-medium">Please wait, the session hasn't started yet.</p>
+        <div class="grid grid-cols-4 gap-2 mb-8 text-center">
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-days" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Days</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-hours" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Hrs</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-mins" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Mins</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-secs" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Secs</span></div>
+        </div>
+        <button onclick="closeModal('countdown-modal')" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">Close</button>
+    </div>
+</div>
+
+<!-- 🏁 Class Ended Modal -->
+<div id="ended-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#0F172A] border border-rose-500/30 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="ended-content">
+        <div class="text-6xl mb-4 text-rose-500 grayscale opacity-50">🏁</div>
+        <h3 class="text-2xl font-black text-rose-200 mb-2">Class Ended / Expired</h3>
+        <p class="text-gray-400 mb-6">This session has finished or the 1-hour joining window has closed.</p>
+        <button onclick="closeModal('ended-modal')" class="px-6 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-xl font-bold transition">Close</button>
+    </div>
+</div>
+
+<script>
+    let countdownInterval;
+
+    function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl, hasLink) {
+        event.preventDefault();
+        const now = new Date();
+        const start = new Date(startTimeIso);
+        const strictEndTime = new Date(start.getTime() + 60 * 60 * 1000); // 1 Hour window
+
+        if (now < start) {
+            showCountdown(start);
+        } else if (now > strictEndTime) {
+            showModal('ended-modal', 'ended-content');
+        } else {
+            if (hasLink) {
+                window.open(joinUrl, '_blank');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert("Meeting link not configured.");
+            }
+        }
+    }
+
+    function showModal(modalId, contentId) {
+        const modal = document.getElementById(modalId);
+        const content = document.getElementById(contentId);
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const content = modal.firstElementChild;
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            if (countdownInterval) clearInterval(countdownInterval);
+        }, 300);
+    }
+
+    function showCountdown(targetDate) {
+        showModal('countdown-modal', 'countdown-content');
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                closeModal('countdown-modal');
+                alert("Class Started! Please click Join again.");
+                return;
+            }
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("cd-days").innerText = String(days).padStart(2, '0');
+            document.getElementById("cd-hours").innerText = String(hours).padStart(2, '0');
+            document.getElementById("cd-mins").innerText = String(minutes).padStart(2, '0');
+            document.getElementById("cd-secs").innerText = String(seconds).padStart(2, '0');
+        }
+        updateTimer();
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(updateTimer, 1000);
+    }
+</script>
+{% endblock %}

@@ -1,372 +1,387 @@
-{% extends "quizzes/base.html" %}
+{% extends "core/base.html" %}
 {% load static %}
 
 {% block content %}
-<div class="relative overflow-hidden w-screen -ml-4 md:-ml-8 -mt-12 bg-[#0f172a]">
+<!-- 
+    🌊 BLUISH THEME INTEGRATION 
+    We rely on the Base HTML's 'Northern Lights' body background.
+    We use transparent/glass containers to let that blue/purple gradient shine through.
+-->
+<div class="text-white font-sans w-full">
 
-    <!-- 🌟 HERO SECTION -->
-    <div class="relative min-h-[90vh] flex items-center justify-center p-6 md:p-12 overflow-hidden">
-        <!-- Hero Background Image (Generated) -->
-        <div class="absolute inset-0 z-0 opacity-40">
-             <img src="{% static 'quizzes/images/hero_tech_future.png' %}" class="w-full h-full object-cover" alt="Future Tech Background">
-             <div class="absolute inset-0 bg-gradient-to-b from-[#0f172a]/80 via-[#0f172a]/60 to-[#0f172a]"></div>
+    <!-- 1. 🎵 HERO SECTION (Full Width) -->
+    <div class="relative min-h-screen flex items-center justify-center text-center px-4 overflow-hidden border-b border-white/5 bg-white/5 backdrop-blur-sm shadow-2xl">
+        
+        <!-- Dynamic Background Image (Subtle Overlay) -->
+        <div class="absolute inset-0 z-0 select-none pointer-events-none">
+            {% if hero.background_image %}
+                <img src="{{ hero.background_image.url }}" class="w-full h-full object-cover opacity-20 mix-blend-overlay" alt="Music Background">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2670&auto=format&fit=crop" class="w-full h-full object-cover opacity-20 mix-blend-overlay" alt="Default Music Background">
+            {% endif %}
+            <!-- Gradient to smooth bottom edge -->
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/20 to-[#020617]"></div>
         </div>
 
-        <div class="relative z-10 max-w-5xl mx-auto text-center">
-            <div class="inline-block px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm font-bold tracking-wider uppercase mb-8 animate-fade-in-down">
-                🚀 Master The Future
-            </div>
+        <div class="relative z-10 max-w-7xl mx-auto animate-fade-in-up py-20">
+            <!-- Badge -->
+            <span class="inline-block py-2 px-6 border border-cyan-400/30 rounded-full bg-cyan-950/40 text-cyan-300 text-sm font-bold tracking-[0.3em] uppercase mb-8 backdrop-blur-md shadow-[0_0_25px_rgba(34,211,238,0.2)]">
+                Online Music Academy
+            </span>
             
-            <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight mb-6 drop-shadow-[0_4px_10px_rgba(0,0,0,1)]">
-                Build The <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Impossible</span>.
+            <!-- Title -->
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 leading-tight tracking-tighter drop-shadow-2xl text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-blue-300">
+                {{ hero.title|default:"Master The Music" }}
             </h1>
             
-            <p class="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                We don't just teach coding. We forge <strong>Full Stack Engineers</strong> and <strong>AI Architects</strong>. From Python & Django to 
-                <span class="text-yellow-400 font-bold">AI Agents, RAG, and Automation</span>.
+            <!-- Subtitle -->
+            <p class="text-xl md:text-3xl text-blue-100/80 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
+                {{ hero.subtitle|default:"Join the premier online music learning platform. Master your instrument with personalized guidance from world-class tutors." }}
             </p>
-
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="#stacks" class="px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition transform">
-                    Explore Stacks 👇
-                </a>
-                <a href="#contact" class="px-8 py-4 rounded-full bg-white/10 border border-white/20 text-white font-bold text-lg hover:bg-white/20 hover:scale-105 transition transform backdrop-blur-md">
-                    Get in Touch
-                </a>
-            </div>
+            
+            <!-- CTA Button (Bluish Theme) -->
+            <a href="{{ hero.cta_link|default:'#classes' }}" class="group relative inline-flex items-center gap-3 px-12 py-6 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xl rounded-full transition-all transform hover:scale-105 shadow-[0_0_40px_rgba(8,145,178,0.4)] overflow-hidden">
+                <span class="relative z-10">{{ hero.cta_text|default:"Start Learning Today" }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 relative z-10 group-hover:translate-x-1 transition" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                
+                <!-- Shine Effect -->
+                <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+            </a>
         </div>
     </div>
 
-    <!-- 💻 TECH STACK SECTION -->
-    <div id="stacks" class="py-20 px-6 relative z-10 bg-[#0f172a]">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">Complete Tech Arsenal</h2>
-                <div class="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- 2. 🎻 ABOUT THE MAESTRO -->
+    <section class="py-32 px-6 md:px-12 relative" id="about">
+        <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+            
+            <!-- Image Side -->
+            <div class="relative group">
+                <!-- Bluish Glow -->
+                <div class="absolute -inset-4 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-[2rem] opacity-20 blur-2xl group-hover:opacity-40 transition duration-700"></div>
                 
-                <!-- Card 1: Backend Engineering -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Backend Engineering</h3>
-                            <span class="text-2xl">🐍</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build scalable, production-ready backend systems.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Python</span>
-                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Django</span>
-                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">FastAPI</span>
-                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">PostgreSQL</span>
-                                <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-300 text-xs border border-blue-500/20">Redis</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Backend Developer · API Engineer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 2: Full Stack Web -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Full Stack Web</h3>
-                            <span class="text-2xl">🌐</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Develop modern web apps from frontend to backend.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">Django</span>
-                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">Next.js</span>
-                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">React</span>
-                                <span class="px-2 py-1 rounded bg-green-500/10 text-green-300 text-xs border border-green-500/20">JS (ES6+)</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Full Stack Developer · Web Engineer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3: High-Performance APIs -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Microservices & APIs</h3>
-                            <span class="text-2xl">⚡</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Design fast, scalable, distributed systems.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">FastAPI</span>
-                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">Node.js</span>
-                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">RabbitMQ</span>
-                                <span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-300 text-xs border border-yellow-500/20">Docker</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Backend Engineer · Microservices Arch</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4: AI & Automation -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">AI Agents & RAG</h3>
-                            <span class="text-2xl">🤖</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build real-world AI systems used by businesses.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">LLMs</span>
-                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">n8n</span>
-                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">RAG</span>
-                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">Zapier</span>
-                                <span class="px-2 py-1 rounded bg-purple-500/10 text-purple-300 text-xs border border-purple-500/20">Vector DB</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">AI Engineer · Automation Specialist</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 5: Data Handling -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Data Analytics</h3>
-                            <span class="text-2xl">📊</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Work confidently with real-world data pipelines.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">Pandas</span>
-                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">NumPy</span>
-                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">SQL</span>
-                                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 text-xs border border-cyan-500/20">Visualization</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Data Engineer · Backend Dev</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 6: Cloud & DevOps -->
-                <div class="group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Cloud & DevOps</h3>
-                            <span class="text-2xl">☁️</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Ship and maintain production applications.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">AWS</span>
-                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">Docker</span>
-                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">Linux</span>
-                                <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-300 text-xs border border-orange-500/20">CI/CD</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">DevOps Associate · Cloud Engineer</p>
-                        </div>
-                    </div>
+                <div class="relative overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl bg-white/5 backdrop-blur-sm">
+                    {% if about.image %}
+                        <img src="{{ about.image.url }}" class="w-full h-auto transform group-hover:scale-105 transition duration-700 md:max-h-[700px] object-cover" alt="Instructor">
+                    {% else %}
+                         <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2670&auto=format&fit=crop" class="w-full h-auto object-cover" alt="Default Instructor">
+                    {% endif %}
                 </div>
                 
-                <!-- Card 7: Web Scraping (Initially Hidden) -->
-                <div class="more-stack hidden group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-pink-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Scraping & Automation</h3>
-                            <span class="text-2xl">🕷️</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Build scalable data collection pipelines.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tech Stack</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Selenium</span>
-                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Scrapy</span>
-                                <span class="px-2 py-1 rounded bg-pink-500/10 text-pink-300 text-xs border border-pink-500/20">Playwright</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Automation Engineer · Data Scraper</p>
-                        </div>
+                <!-- Floating Stats -->
+                <div class="absolute -bottom-6 -right-6 md:bottom-12 md:-right-12 bg-[#020617]/90 backdrop-blur-2xl p-8 rounded-3xl border border-white/10 shadow-2xl flex gap-8 z-20">
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{{ about.experience_years|default:"10+" }}</div>
+                        <div class="text-xs text-blue-200 uppercase tracking-widest font-bold mt-1">Years Exp</div>
+                    </div>
+                    <div class="w-px bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{{ about.students_trained|default:"500+" }}</div>
+                        <div class="text-xs text-blue-200 uppercase tracking-widest font-bold mt-1">Students</div>
                     </div>
                 </div>
-
-                <!-- Card 8: Engineering Practices (Initially Hidden) -->
-                <div class="more-stack hidden group relative bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition duration-300 flex flex-col h-full">
-                    <div class="absolute inset-0 bg-gradient-to-br from-teal-600/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 rounded-2xl"></div>
-                    <div class="relative z-10 flex-grow">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-white">Engineering Best Practices</h3>
-                            <span class="text-2xl">🏛️</span>
-                        </div>
-                        <p class="text-gray-400 text-sm mb-4 min-h-[40px]">Work like a real software engineer.</p>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Focus Areas</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">Clean Code</span>
-                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">System Design</span>
-                                <span class="px-2 py-1 rounded bg-teal-500/10 text-teal-300 text-xs border border-teal-500/20">Agile</span>
-                            </div>
-                        </div>
-
-                         <div>
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Roles</h4>
-                            <p class="text-xs text-gray-400">Software Engineer · Tech Lead</p>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-             <!-- View More Button -->
-             <div class="text-center mt-12">
-                <button id="toggle-stack-btn" onclick="toggleStack()" class="px-8 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold transition flex items-center gap-2 mx-auto">
-                    <span>View Full Tech Stack</span>
-                    <span id="stack-arrow">↓</span>
-                </button>
-            </div>
-            
-            <script>
-                function toggleStack() {
-                    const hiddenCards = document.querySelectorAll('.more-stack');
-                    const btn = document.getElementById('toggle-stack-btn');
-                    const arrow = document.getElementById('stack-arrow');
-                    
-                    hiddenCards.forEach(card => {
-                        card.classList.toggle('hidden');
-                    });
-                    
-                    if (btn.querySelector('span').innerText === "View Full Tech Stack") {
-                        btn.querySelector('span').innerText = "View Less";
-                        arrow.innerText = "↑";
-                        arrow.style.transform = "rotate(0deg)";
-                    } else {
-                        btn.querySelector('span').innerText = "View Full Tech Stack";
-                        arrow.innerText = "↓";
-                    }
-                }
-            </script>
-        </div>
-    </div>
-
-    <!-- 🤖 AI & AUTOMATION SECTION (Featured) -->
-    <div class="py-24 px-6 relative z-10">
-        <!-- AI Card generated image background -->
-        <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 mix-blend-multiply"></div>
-        
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
-            <div class="order-2 lg:order-1 relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-                <img src="{% static 'quizzes/images/ai_automation.png' %}" class="w-full transform group-hover:scale-105 transition duration-700" alt="AI Automation">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-60"></div>
-            </div>
-
-            <div class="order-1 lg:order-2 relative z-10">
-                <div class="inline-block px-3 py-1 rounded bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold uppercase tracking-widest mb-4 border border-fuchsia-500/30">
-                    Next Gen Skills
-                </div>
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-                    AI Agents & <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-400">Automation</span>
+            <!-- Content Side -->
+            <div class="lg:pl-12">
+                <span class="inline-block py-1 px-3 border border-cyan-500/30 rounded-full bg-cyan-950/30 text-cyan-300 text-xs font-bold tracking-[0.2em] uppercase mb-6">
+                    Meet Your Mentor
+                </span>
+                <h2 class="text-5xl md:text-7xl font-black mb-8 text-white leading-tight">
+                    {{ about.instructor_name|default:"The Instructor" }}
                 </h2>
-                <p class="text-xl text-gray-300 mb-8 leading-relaxed">
-                    Coding is just the start. We teach you how to build <strong>AI Agents</strong>, implement <strong>RAG (Retrieval Augmented Generation)</strong>, and orchestrate complex workflows using <strong>n8n</strong> and <strong>Zapier</strong>.
-                </p>
-                
-                <ul class="space-y-4 mb-10">
-                    <li class="flex items-center gap-3 text-gray-300">
-                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
-                        Build Custom LLM Applications
-                    </li>
-                    <li class="flex items-center gap-3 text-gray-300">
-                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
-                        Automate Business Workflows with n8n
-                    </li>
-                    <li class="flex items-center gap-3 text-gray-300">
-                        <span class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-sm">✓</span>
-                        Deploy Production-Ready AI Agents
-                    </li>
-                </ul>
+                <div class="space-y-8 text-blue-100/70 text-xl leading-relaxed font-light">
+                    {{ about.bio|default:"No bio available yet."|linebreaks }}
+                </div>
+                <div class="mt-12 pt-8 border-t border-white/10 flex items-center gap-4">
+                     <span class="text-lg text-cyan-200/80 italic font-serif">"Teaching is not just about notes, it's about the soul."</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <a href="#contact" class="inline-block px-8 py-4 rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold shadow-[0_0_20px_rgba(192,38,211,0.4)] transition transform hover:-translate-y-1">
-                    Start Automating Today
-                </a>
+    <!-- 3. 🎹 OUR CLASSES -->
+    <section class="py-20 relative bg-black/20" id="classes">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-blue-200 mb-6">Mastery Programs</h2>
+                <p class="text-blue-200/60 text-lg max-w-2xl mx-auto">Choose the perfect learning path for your musical journey.</p>
             </div>
 
-        </div>
-    </div>
-
-    <!-- 📞 CONTACT/FOOTER SECTION -->
-    <div id="contact" class="py-24 px-6 relative z-10 bg-gradient-to-b from-[#0f172a] to-black text-center">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-black text-white mb-6">Ready to Level Up?</h2>
-            <p class="text-xl text-gray-400 mb-10">
-                Join our next live batch. Limited seats available for personalized mentorship.
-            </p>
-            
-            <div class="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-sm">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-                    <div>
-                        <h4 class="text-white font-bold text-lg mb-2">📞 Call / WhatsApp</h4>
-                        <p class="text-cyan-400 text-2xl font-mono">+91 98765 43210</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+                {% for class in classes %}
+                <div class="group relative bg-[#0f172a]/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 hover:bg-[#1e293b]/60 transition duration-500 flex flex-col h-full hover:-translate-y-2 shadow-xl hover:shadow-cyan-900/10 overflow-hidden">
+                    <!-- Hover Gradient Background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    
+                    <!-- Icon Box -->
+                    <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-white/10 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition duration-500 group-hover:bg-gradient-to-br group-hover:from-cyan-500/20 group-hover:to-blue-600/20">
+                        {{ class.icon }}
                     </div>
-                    <div>
-                        <h4 class="text-white font-bold text-lg mb-2">📧 Email Us</h4>
-                        <p class="text-cyan-400 text-2xl font-mono">info@tgaystechnology.com</p>
+
+                    <h3 class="relative text-2xl font-bold text-white mb-3 group-hover:text-cyan-200 transition">{{ class.title }}</h3>
+                    <p class="relative text-blue-100/60 mb-8 flex-grow leading-relaxed text-sm">{{ class.description }}</p>
+                    
+                    <div class="relative mt-auto border-t border-white/5 pt-6">
+                        <div class="flex justify-between items-end mb-6">
+                            <div class="text-white font-mono text-2xl font-bold">{{ class.price }}</div>
+                            <div class="text-[10px] text-cyan-400 uppercase tracking-widest font-bold bg-cyan-950/30 px-2 py-1 rounded">Per Month</div>
+                        </div>
+                        <a href="#contact" class="block w-full py-3 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-cyan-600 hover:to-blue-600 hover:text-white border border-white/10 hover:border-transparent text-center font-bold text-gray-300 transition uppercase tracking-widest text-xs shadow-lg">
+                            Enquire Now
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-3 text-center text-gray-500 py-10">No classes listed yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 📷 MOMENTS (Gallery) -->
+    <section class="py-32 px-4 overflow-hidden">
+        <div class="max-w-[1920px] mx-auto">
+            <h2 class="text-4xl md:text-6xl font-black mb-16 text-center text-white/90">Moments of Music</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for img in gallery %}
+                <div class="relative group aspect-[4/3] overflow-hidden rounded-3xl border border-white/5 bg-white/5">
+                    <img src="{{ img.image.url }}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-1000 opacity-80 group-hover:opacity-100" alt="{{ img.caption }}">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500 flex items-end p-8">
+                        <span class="text-white text-xl font-bold tracking-wide transform translate-y-4 group-hover:translate-y-0 transition duration-500 delay-100">{{ img.caption }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-4 text-center text-gray-500 py-10">Gallery coming soon.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 💬 STUDENT VOICES (Infinite Marquee) -->
+    <section class="py-32 px-4 relative overflow-hidden bg-black/20">
+        <div class="max-w-[1920px] mx-auto">
+             <h2 class="text-center text-4xl md:text-6xl font-black mb-20 text-white/90">What Students Say</h2>
+             
+             <!-- Marquee Container -->
+             <div class="relative w-full overflow-hidden group">
+                 <!-- Gradients to fade edges -->
+                 <div class="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-[#020617] to-transparent z-20 pointer-events-none"></div>
+                 <div class="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-[#020617] to-transparent z-20 pointer-events-none"></div>
+
+                 <!-- Scrolling Track -->
+                 <!-- animate-marquee defined in tailwind config or arbitrary values if needed. Using inline style/arbitrary for quick implementation if config not accessble, 
+                      but standard tailwind 'animate-spin' is not right. We need a custom keyframe. 
+                      Since we can't edit tailwind.config easily, we'll inject styles. -->
+                 
+                 <style>
+                    @keyframes scroll {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-50%); } /* Move half way because we duplicate content */
+                    }
+                    .animate-scroll {
+                        animation: scroll 40s linear infinite;
+                    }
+                    .group:hover .animate-scroll {
+                        animation-play-state: paused;
+                    }
+                 </style>
+
+                 <div class="flex gap-8 animate-scroll w-max hover:cursor-grab active:cursor-grabbing">
+                    <!-- Duplicate standard loop twice to ensure seamless scroll -->
+                    {% for i in "xx" %} 
+                        {% for t in testimonials %}
+                        <div class="w-[350px] md:w-[450px] flex-shrink-0 bg-gradient-to-b from-white/5 to-transparent backdrop-blur-md p-8 rounded-[2rem] relative border border-white/10 hover:border-cyan-500/30 transition duration-300 hover:bg-white/10">
+                            <div class="text-cyan-500/20 text-6xl font-serif absolute -top-2 left-6">"</div>
+                            <p class="text-blue-100/90 italic mb-8 relative z-10 pt-6 leading-relaxed font-light text-base md:text-lg h-32 overflow-hidden">
+                                {{ t.quote|truncatechars:180 }}
+                            </p>
+                            <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                                <div class="w-12 h-12 rounded-full overflow-hidden bg-white/10 border border-white/10 flex-shrink-0">
+                                     {% if t.student_image %}
+                                        <img src="{{ t.student_image.url }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center text-xs text-gray-500">?</div>
+                                    {% endif %}
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="font-bold text-white text-base truncate">{{ t.student_name }}</div>
+                                    <div class="text-xs text-cyan-400 uppercase tracking-wider font-bold truncate">{{ t.role }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                 </div>
+             </div>
+        </div>
+    </section>
+
+    <!-- 6. ❓ FAQ -->
+    <section class="py-20 px-6 max-w-4xl mx-auto">
+        <h2 class="text-3xl md:text-5xl font-black mb-12 text-center text-white/90">Common Questions</h2>
+        <div class="space-y-4">
+            {% for faq in faqs %}
+            <div class="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 group hover:border-white/20 transition">
+                <button class="w-full text-left p-6 font-bold text-lg flex justify-between items-center hover:bg-white/5 transition text-blue-100 group-hover:text-white" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('span').classList.toggle('rotate-45')">
+                    {{ faq.question }}
+                    <span class="text-cyan-500 text-2xl transition transform items-center flex justify-center w-8 h-8 rounded-full border border-cyan-500/20 group-hover:bg-cyan-500/10">+</span>
+                </button>
+                <div class="hidden p-6 pt-0 text-blue-200/70 text-base leading-relaxed border-t border-white/5">
+                    {{ faq.answer }}
+                </div>
+            </div>
+            {% empty %}
+             <div class="text-center text-gray-500">FAQs loading...</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- 7. 📞 FOOTER / CONTACT -->
+    <footer id="contact" class="py-20 relative mt-12">
+        <!-- Footer Background Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-blue-950/20 to-transparent pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            
+            <div class="text-center mb-16 animate-fade-in-up">
+                 <span class="inline-block py-1 px-4 border border-cyan-500/30 rounded-full bg-cyan-950/30 text-cyan-300 text-[10px] font-bold tracking-[0.3em] uppercase mb-4 backdrop-blur-md shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+                    Get In Touch
+                </span>
+                <h2 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight leading-tight">
+                    Start Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Musical Journey</span>
+                </h2>
+                <p class="text-lg text-blue-200/60 max-w-xl mx-auto font-light leading-relaxed">
+                    Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
+                
+                <!-- Contact Details (2 Columns) -->
+                <div class="lg:col-span-2 space-y-8 self-center">
+                     <!-- Phone Card -->
+                    <a href="tel:+919876543210" class="group block p-1 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 hover:from-cyan-500/50 hover:to-blue-600/50 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 hover:-translate-y-1">
+                        <div class="bg-[#0a0a12] p-8 rounded-[1.3rem] h-full flex items-center gap-6 relative overflow-hidden">
+                             <!-- Glow -->
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/20 blur-[50px] group-hover:bg-cyan-400/30 transition-all duration-500"></div>
+                            
+                            <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl group-hover:scale-110 transition duration-500 border border-white/5 group-hover:border-cyan-500/30">
+                                📞
+                            </div>
+                            <div>
+                                <div class="text-xs text-blue-300/50 uppercase tracking-widest font-bold mb-1 group-hover:text-cyan-300 transition-colors">Call Us Now</div>
+                                <div class="text-xl font-bold text-white group-hover:text-cyan-50 transition-colors tracking-wide">+91 98765 43210</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Email Card -->
+                     <a href="mailto:recgetup.music@gmail.com" class="group block p-1 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 hover:from-purple-500/50 hover:to-indigo-600/50 transition-all duration-500 shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-1">
+                        <div class="bg-[#0a0a12] p-8 rounded-[1.3rem] h-full flex items-center gap-6 relative overflow-hidden">
+                             <!-- Glow -->
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/20 blur-[50px] group-hover:bg-purple-400/30 transition-all duration-500"></div>
+
+                            <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl group-hover:scale-110 transition duration-500 border border-white/5 group-hover:border-purple-500/30">
+                                📧
+                            </div>
+                            <div>
+                                <div class="text-xs text-blue-300/50 uppercase tracking-widest font-bold mb-1 group-hover:text-purple-300 transition-colors">Send Email</div>
+                                <div class="text-lg font-bold text-white group-hover:text-purple-50 transition-colors tracking-wide">recgetup.music@gmail.com</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Social Proof / Trust -->
+                    <div class="pt-8 border-t border-white/5">
+                        <div class="flex items-center gap-4 text-sm text-gray-400">
+                             <span class="flex -space-x-3">
+                                <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-black">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-black">
+                                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop" class="w-10 h-10 rounded-full border-2 border-black">
+                             </span>
+                             <div>
+                                 <span class="text-white font-bold">500+ Students</span> joined last month
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form (3 Columns) -->
+                <div class="lg:col-span-3">
+                    <div class="relative group">
+                        <!-- Animated Border Gradient -->
+                        <div class="absolute -inset-[1px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-[2rem] opacity-30 group-hover:opacity-60 blur-md transition duration-1000"></div>
+                        
+                        <div class="relative bg-black/60 backdrop-blur-2xl p-8 md:p-12 rounded-[2rem] border border-white/10 shadow-2xl">
+                             <h3 class="text-2xl font-bold mb-8 text-white flex items-center gap-3">
+                                <span class="w-2 h-8 bg-cyan-500 rounded-full"></span>
+                                Send us a Message
+                             </h3>
+
+                            <form method="POST" action="{% url 'home' %}" class="space-y-6">
+                                {% csrf_token %}
+                                
+                                <div class="group relative z-0 w-full mb-6 group">
+                                    <input type="text" name="name" id="floating_name" class="block py-4 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer transition-colors" placeholder=" " required />
+                                    <label for="floating_name" class="peer-focus:font-medium absolute text-lg text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Your Name</label>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="group relative z-0 w-full mb-6 group">
+                                        <input type="email" name="email" id="floating_email" class="block py-4 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer transition-colors" placeholder=" " required />
+                                        <label for="floating_email" class="peer-focus:font-medium absolute text-lg text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email Address</label>
+                                    </div>
+                                    <div class="group relative z-0 w-full mb-6 group">
+                                        <input type="tel" name="phone" id="floating_phone" class="block py-4 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-purple-500 peer transition-colors" placeholder=" " />
+                                        <label for="floating_phone" class="peer-focus:font-medium absolute text-lg text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-purple-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Phone (Optional)</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="group relative z-0 w-full mb-6 group">
+                                    <input type="text" name="subject" id="floating_subject" class="block py-4 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-blue-500 peer transition-colors" placeholder=" " />
+                                    <label for="floating_subject" class="peer-focus:font-medium absolute text-lg text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Subject</label>
+                                </div>
+
+                                <div class="group relative z-0 w-full mb-8 group">
+                                    <textarea name="message" id="floating_message" rows="4" class="block py-4 px-0 w-full text-lg text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-500 peer transition-colors resize-none" placeholder=" " required></textarea>
+                                    <label for="floating_message" class="peer-focus:font-medium absolute text-lg text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-cyan-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">How can we help you?</label>
+                                </div>
+
+                                <button type="submit" class="w-full py-5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white font-bold text-lg shadow-[0_10px_40px_rgba(8,145,178,0.3)] hover:shadow-[0_20px_60px_rgba(8,145,178,0.5)] transform hover:scale-[1.01] hover:-translate-y-1 transition duration-300 relative overflow-hidden group/btn">
+                                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition duration-500 ease-in-out"></div>
+                                    <span class="relative z-10 flex items-center justify-center gap-2">
+                                        Send Message 🚀
+                                    </span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <p class="mt-12 text-gray-600 text-sm">© 2026 Tgays Education. All Rights Reserved.</p>
+            <div class="text-center mt-24 pt-8 border-t border-white/5">
+                <p class="text-gray-500 text-sm">© {% now "Y" %} Recgetup Music. Built with 🎵 by Recgetup Team.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
 </div>
+
+<!-- Styles for animations -->
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 1s ease-out forwards;
+    }
+    @keyframes shimmer {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(100%); }
+    }
+    .animate-shimmer {
+        animation: shimmer 1.5s infinite;
+    }
+</style>
 {% endblock %}

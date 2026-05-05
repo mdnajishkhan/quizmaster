@@ -1,138 +1,264 @@
-{% extends "quizzes/base.html" %}
+{% extends "core/base.html" %}
 {% load training_extras %}
 {% load static %}
 
 {% block content %}
-<div class="px-4 py-8 max-w-7xl mx-auto">
+<div class="px-4 py-8 max-w-7xl mx-auto space-y-10">
     
-    <!-- 🌟 Header Section -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-6 relative z-10">
+    <!-- 🌟 Tutor Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="text-center md:text-left">
-            <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-2">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Tutor Dashboard</span>
+            <h1 class="text-4xl font-black text-white tracking-tight mb-2">
+                Tutor <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Dashboard</span>
             </h1>
-            <p class="text-gray-400 text-lg">Manage classes you are assigned to teach.</p>
+            <p class="text-gray-400 text-lg">Greetings, {{ request.user.get_full_name|default:request.user.username }}. Here is your teaching overview.</p>
         </div>
         
-        <!-- Navigation Controls (Same as User) -->
-        <div class="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-sm shadow-xl">
-            <a href="{{ prev_link }}" onclick="navigateCalendar(event, '{{ prev_link }}')" id="nav-prev" class="p-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition group">
-                <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+        <div class="flex gap-4">
+             <a href="{% url 'training_program' %}" class="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold border border-white/10 transition flex items-center gap-2">
+                <span>📅</span> View Calendar
             </a>
-            <h2 id="calendar-title" class="text-xl font-bold text-white min-w-[200px] text-center tracking-wide uppercase">
-                {{ month_name }} <span class="text-blue-400">{{ current_year }}</span>
-            </h2>
-            <a href="{{ next_link }}" onclick="navigateCalendar(event, '{{ next_link }}')" id="nav-next" class="p-3 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition group">
-                <svg class="w-6 h-6 transform group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
+            <div class="px-5 py-2.5 bg-indigo-600/20 text-indigo-300 rounded-xl font-bold border border-indigo-500/30 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                Instructor Mode
+            </div>
         </div>
     </div>
 
-
-
-    <!-- 🗓️ Calendar Grid Container -->
-    <div id="calendar-container" class="transition-opacity duration-300">
-        {% include 'training/partials/calendar_grid.html' %}
+    <!-- 📊 Horizontal Stats Bar -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl hover:border-indigo-500/30 transition group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-2xl">👥</div>
+                <div>
+                    <span class="block text-2xl font-black text-indigo-300">{{ total_sessions }}</span>
+                    <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Students</span>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl hover:border-emerald-500/30 transition group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-2xl">📈</div>
+                <div>
+                    <span class="block text-2xl font-black text-white">{{ avg_attendance }}%</span>
+                    <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Attendance</span>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl hover:border-purple-500/30 transition group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-2xl">🎓</div>
+                <div>
+                    <span class="block text-2xl font-black text-white">{{ my_batches|length }}</span>
+                    <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Active Batches</span>
+                </div>
+            </div>
+        </div>
+        <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-xl hover:border-blue-500/30 transition group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-2xl">⏱️</div>
+                <div>
+                    <span class="block text-2xl font-black text-white">{{ total_sessions }}</span>
+                    <span class="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Sessions</span>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <!-- Legend -->
-    <div class="mt-8 flex justify-center gap-6">
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></span>
-            <span class="text-sm font-bold text-blue-200">Upcoming</span>
-        </div>
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></span>
-            <span class="text-sm font-bold text-emerald-200">Completed</span>
-        </div>
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></span>
-            <span class="text-sm font-bold text-rose-200">Missed</span>
-        </div>
-    </div>
 
+    <!-- 🧱 Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Center-Left: Today's Classes (6 cols) -->
+        <div class="lg:col-span-8 space-y-8">
+            <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden h-full">
+                <!-- Decorative Layer -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -z-10"></div>
+                
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                        <span class="text-3xl">👨‍🏫</span> Today's Teaching Agenda
+                    </h2>
+                    <span class="text-xs text-gray-500 font-mono bg-white/5 px-3 py-1 rounded-full">{{ today|date:"D, d M Y" }}</span>
+                </div>
+
+                {% if upcoming_teaching_list %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for event in upcoming_teaching_list %}
+                        <div class="bg-white/5 p-6 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition group relative overflow-hidden">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 uppercase tracking-widest">
+                                    {{ event.batch_name }}
+                                </span>
+                                <span class="text-xs text-gray-500 font-mono">
+                                    🕒 {{ event.start|date:"h:i A" }}
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-6 leading-tight">{{ event.title }}</h3>
+                            
+                            <div class="flex flex-col gap-3">
+                                {% if event.status == 'completed' %}
+                                    <div class="w-full py-3 bg-emerald-500/10 text-emerald-400 rounded-xl font-black text-xs border border-emerald-500/20 text-center uppercase tracking-widest">
+                                        Session Completed
+                                    </div>
+                                {% else %}
+                                    <a href="#" 
+                                       onclick="checkClassStatus(event, '{{ event.start|date:'c' }}', '{{ event.end|date:'c' }}', '{{ event.meeting_link }}', {{ event.meeting_link|yesno:'true,false' }})"
+                                       class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs transition shadow-lg shadow-indigo-900/30 text-center uppercase tracking-widest flex items-center justify-center gap-2">
+                                        🚀 Start Class
+                                    </a>
+                                {% endif %}
+                                <button onclick="viewStudents({{ event.batch_id }})" class="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl font-black text-[10px] transition uppercase tracking-widest">
+                                    View Students
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-20 bg-white/3 rounded-3xl border border-dashed border-white/10">
+                        <div class="text-5xl mb-4">✨</div>
+                        <h3 class="text-xl font-black text-white mb-2">No Classes Scheduled Today</h3>
+                        <p class="text-gray-500">Enjoy your free time or prepare for next week!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Batches & Recent Activity (4 cols) -->
+        <div class="lg:col-span-4 space-y-8">
+            
+            <!-- My Batches -->
+            <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+                <h3 class="text-lg font-black text-white mb-4 flex items-center gap-2">
+                   <span class="text-xl">🎓</span> My Active Batches
+                </h3>
+                <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {% for batch in my_batches %}
+                    <div class="p-4 bg-white/3 hover:bg-white/5 rounded-2xl transition border border-white/5 group relative overflow-hidden">
+                        <div class="flex items-center gap-3">
+                             <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-lg">🎹</div>
+                             <div>
+                                <h4 class="text-white font-bold text-sm group-hover:text-indigo-300 transition">{{ batch.name }}</h4>
+                                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ batch.workshop.title }}</span>
+                             </div>
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p class="text-gray-500 text-sm text-center py-4 italic border border-dashed border-white/5 rounded-2xl">No batches assigned yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recently Joined -->
+            <div class="bg-[#0F172A]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+                <h3 class="text-lg font-black text-white mb-4 flex items-center gap-2">
+                   <span class="text-xl">✨</span> Recent Enrollments
+                </h3>
+                <div class="space-y-4">
+                    {% for enr in recent_students %}
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-black text-white">
+                            {{ enr.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="text-white text-xs font-bold leading-none mb-1">{{ enr.user.get_full_name|default:enr.user.username }}</h4>
+                            <p class="text-[10px] text-gray-500">Joined {{ enr.batch.name }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[8px] text-gray-600 font-mono">{{ enr.enrolled_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p class="text-gray-500 text-sm text-center py-2 italic border border-dashed border-white/5 rounded-2xl">No recent students.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- ⏳ Countdown Modal (Resued Logic) -->
+<!-- ⏳ Countdown Modal (Keep same logic) -->
 <div id="countdown-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
     <div class="bg-[#0F172A] border border-blue-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="countdown-content">
-        <!-- Background Glows -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-blue-500/10 blur-3xl -z-10"></div>
-        
         <div class="text-6xl mb-4">⏳</div>
         <h3 class="text-2xl font-black text-white mb-2">Class Starting Soon</h3>
         <p class="text-gray-400 mb-6 font-medium">Please wait, the session hasn't started yet.</p>
-        
-        <!-- Timer -->
         <div class="grid grid-cols-4 gap-2 mb-8 text-center">
-            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                <span id="cd-days" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Days</span>
-            </div>
-            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                <span id="cd-hours" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Hrs</span>
-            </div>
-            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                <span id="cd-mins" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Mins</span>
-            </div>
-            <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-                <span id="cd-secs" class="block text-2xl font-bold text-blue-400 font-mono">00</span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Secs</span>
-            </div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-days" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Days</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-hours" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Hrs</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-mins" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Mins</span></div>
+            <div class="bg-white/5 p-3 rounded-xl border border-white/10"><span id="cd-secs" class="block text-2xl font-bold text-blue-400 font-mono">00</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">Secs</span></div>
         </div>
-
-        <button onclick="closeModal('countdown-modal')" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">
-            Close
-        </button>
+        <button onclick="closeModal('countdown-modal')" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition">Close</button>
     </div>
 </div>
 
 <!-- 🏁 Class Ended Modal -->
 <div id="ended-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-[#0F172A] border border-rose-500/30 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="ended-content">
+    <div class="bg-[#0F172A] border border-rose-500/30 p-8 rounded-3xl shadow-2xl max-sm w-full text-center relative overflow-hidden transform transition-all scale-95 opacity-0" id="ended-content">
         <div class="text-6xl mb-4 text-rose-500 grayscale opacity-50">🏁</div>
-        <h3 class="text-2xl font-black text-rose-200 mb-2">Class Ended</h3>
-        <p class="text-gray-400 mb-6">This session has already finished.</p>
-        
-        <button onclick="closeModal('ended-modal')" class="px-6 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-xl font-bold transition">
-            Close
-        </button>
+        <h3 class="text-2xl font-black text-rose-200 mb-2">Class Ended / Expired</h3>
+        <p class="text-gray-400 mb-6">This session has finished or the 1-hour joining window has closed.</p>
+        <button onclick="closeModal('ended-modal')" class="px-6 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 rounded-xl font-bold transition">Close</button>
     </div>
 </div>
 
-<!-- SCRIPTS (Copied from Calendar.html for identical behavior) -->
+<!-- 👥 Students List Modal -->
+<div id="students-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#0F172A] border border-indigo-500/30 p-8 rounded-3xl shadow-2xl max-w-2xl w-full relative overflow-hidden transform transition-all scale-95 opacity-0" id="students-content">
+        <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-indigo-600/10 to-transparent pointer-events-none"></div>
+        
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-black text-white flex items-center gap-2">
+                <span class="text-3xl">👥</span> <span id="modal-batch-name">Students</span>
+            </h3>
+            <button onclick="closeModal('students-modal')" class="text-gray-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div id="students-list-container" class="space-y-3">
+                <div class="flex items-center justify-center py-10">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
+            <span class="text-sm text-gray-500">Total: <span id="modal-student-count" class="text-indigo-400 font-bold">0</span> Students</span>
+            <button onclick="closeModal('students-modal')" class="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let countdownInterval;
 
     function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl, hasLink) {
         event.preventDefault();
-        
         const now = new Date();
         const start = new Date(startTimeIso);
-        const end = new Date(endTimeIso);
+        const strictEndTime = new Date(start.getTime() + 60 * 60 * 1000); // 1 Hour window
 
         if (now < start) {
-            // Class hasn't started -> Show Countdown
             showCountdown(start);
-        } else if (now > end) {
-            // Class ended -> Show Ended Modal
+        } else if (now > strictEndTime) {
             showModal('ended-modal', 'ended-content');
         } else {
-            // Class is live
-            if (hasLink) {
-                // Join in New Tab (Meeting)
+            if (hasLink && joinUrl && joinUrl !== 'None' && joinUrl !== '') {
                 window.open(joinUrl, '_blank');
-                // Reload page to update status
                 setTimeout(() => location.reload(), 1000);
             } else {
-                // No link -> Navigate in Same Tab to trigger server Warning
-                window.location.href = joinUrl;
+                alert("Meeting link not configured.");
             }
         }
     }
@@ -140,7 +266,6 @@
     function showModal(modalId, contentId) {
         const modal = document.getElementById(modalId);
         const content = document.getElementById(contentId);
-        
         modal.classList.remove('hidden');
         setTimeout(() => {
             content.classList.remove('scale-95', 'opacity-0');
@@ -150,11 +275,9 @@
 
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
-        const content = modal.firstElementChild; 
-        
+        const content = modal.firstElementChild;
         content.classList.remove('scale-100', 'opacity-100');
         content.classList.add('scale-95', 'opacity-0');
-        
         setTimeout(() => {
             modal.classList.add('hidden');
             if (countdownInterval) clearInterval(countdownInterval);
@@ -163,74 +286,95 @@
 
     function showCountdown(targetDate) {
         showModal('countdown-modal', 'countdown-content');
-        
         function updateTimer() {
             const now = new Date().getTime();
             const distance = targetDate.getTime() - now;
-
             if (distance < 0) {
                 clearInterval(countdownInterval);
                 closeModal('countdown-modal');
-                alert("Class Started! Please click Join again.");
+                alert("Class Started! Please click Start Class again.");
                 return;
             }
-
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
             document.getElementById("cd-days").innerText = String(days).padStart(2, '0');
             document.getElementById("cd-hours").innerText = String(hours).padStart(2, '0');
             document.getElementById("cd-mins").innerText = String(minutes).padStart(2, '0');
             document.getElementById("cd-secs").innerText = String(seconds).padStart(2, '0');
         }
-
         updateTimer();
+        if (countdownInterval) clearInterval(countdownInterval);
         countdownInterval = setInterval(updateTimer, 1000);
     }
 
-    function navigateCalendar(e, url) {
-        e.preventDefault();
+    async function viewStudents(batchId) {
+        showModal('students-modal', 'students-content');
+        const container = document.getElementById('students-list-container');
+        const batchNameSpan = document.getElementById('modal-batch-name');
+        const countSpan = document.getElementById('modal-student-count');
         
-        const container = document.getElementById('calendar-container');
-        const titleEl = document.getElementById('calendar-title');
-        const prevBtn = document.getElementById('nav-prev');
-        const nextBtn = document.getElementById('nav-next');
-        
-        container.style.opacity = '0.5';
-        
-        fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(response => response.text())
-        .then(html => {
-            container.innerHTML = html;
-            container.style.opacity = '1';
+        container.innerHTML = `
+            <div class="flex items-center justify-center py-10">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+            </div>`;
 
-            const partialHeader = document.getElementById('calendar-header-partial');
-            if (partialHeader) {
-                titleEl.innerHTML = partialHeader.dataset.monthName + ` <span class="text-blue-400">` + partialHeader.dataset.monthName.split(' ')[1] + `</span>`;
-                titleEl.innerText = partialHeader.dataset.monthName; 
+        try {
+            const response = await fetch(`/training/api/batch-students/${batchId}/`);
+            if (!response.ok) throw new Error('Failed to fetch students');
+            
+            const data = await response.json();
+            batchNameSpan.innerText = `${data.batch_name} Students`;
+            countSpan.innerText = data.count;
 
-                prevBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.prevLink}')`);
-                prevBtn.setAttribute('href', partialHeader.dataset.prevLink);
-                
-                nextBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.nextLink}')`);
-                nextBtn.setAttribute('href', partialHeader.dataset.nextLink);
-
-                history.pushState(null, '', url);
+            if (data.students.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        No students enrolled in this batch yet.
+                    </div>`;
+                return;
             }
-        })
-        .catch(err => {
-            console.error('Failed to load calendar', err);
-            container.style.opacity = '1';
-            window.location.href = url;
-        });
-    }
 
-    window.addEventListener('popstate', function() {
-        location.reload();
-    });
+            container.innerHTML = data.students.map(s => `
+                <div class="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-4 group">
+                    <div class="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm">
+                        ${s.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-white font-bold text-sm">${s.name}</h4>
+                        <p class="text-xs text-gray-500">${s.email}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="block text-[10px] text-gray-600 uppercase tracking-tighter">Access Until</span>
+                        <span class="text-xs text-white/50 font-mono">${s.expires}</span>
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            container.innerHTML = `
+                <div class="text-center py-10 text-rose-400">
+                    Error loading students. Please try again.
+                </div>`;
+        }
+    }
 </script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+</style>
 {% endblock %}

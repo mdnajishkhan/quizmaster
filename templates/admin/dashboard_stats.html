@@ -1,0 +1,50 @@
+{% load humanize %}
+<div class="stats-grid">
+    <!-- Students -->
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #e0e7ff; color: #4338ca;">
+            👥
+        </div>
+        <div class="stat-details">
+            <h3 class="stat-title">TOTAL STUDENTS</h3>
+            <p class="stat-value">{{ total_students|intcomma }}</p>
+            <p class="stat-subtitle">Active Learners</p>
+        </div>
+    </div>
+
+    <!-- Income -->
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #dcfce7; color: #15803d;">
+            💰
+        </div>
+        <div class="stat-details">
+            <h3 class="stat-title">TOTAL INCOME</h3>
+            <p class="stat-value">₹{{ total_income|intcomma }}</p>
+            <p class="stat-subtitle">Lifetime Revenue</p>
+        </div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fecaca; color: #dc2626;">
+            📉
+        </div>
+        <div class="stat-details">
+            <h3 class="stat-title">TOTAL EXPENSES</h3>
+            <p class="stat-value">₹{{ total_expense|intcomma }}</p>
+            <p class="stat-subtitle">Operational Costs</p>
+        </div>
+    </div>
+    
+    <!-- Net Profit -->
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fef08a; color: #854d0e;">
+            💹
+        </div>
+        <div class="stat-details">
+            <h3 class="stat-title">NET PROFIT</h3>
+            <p class="stat-value">₹{{ net_profit|intcomma }}</p>
+            <p class="stat-subtitle">Real Earnings</p>
+        </div>
+    </div>
+</div>

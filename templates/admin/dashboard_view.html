@@ -1,0 +1,449 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static humanize %}
+
+{% block title %}Dashboard | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        @media (min-width: 1024px) {
+            .charts-grid.two-cols {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .chart-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .chart-title {
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .chart-select {
+            padding: 10px 16px; /* Increased padding */
+            line-height: 1.5;   /* Ensure text fits */
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.95rem; /* Slightly larger */
+            cursor: pointer;
+            outline: none;
+        }
+        
+        /* Schedule Table */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .schedule-table th, .schedule-table td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .schedule-table th {
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        .schedule-table tr:last-child td {
+            border-bottom: none;
+        }
+        .schedule-time {
+            font-family: monospace;
+            font-weight: 600;
+            color: #3b82f6;
+            background: #eff6ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Stats Grid Upgrade */
+        .stats-grid {
+             display: grid;
+             grid-template-columns: 1fr; /* Mobile */
+             gap: 25px;
+             margin-bottom: 30px;
+        }
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr; /* 2 Cards per Row (2x2) */
+            }
+        }
+        @media (min-width: 1280px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 Cards in one row on very large screens? No, user wanted 2x2 rows maybe? 
+                User said "2 cards in one row pleaase".
+                Does that mean 2 columns total (2 rows of 2)? Yes.
+                So keep 1fr 1fr. */
+                grid-template-columns: 1fr 1fr; 
+            }
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #cbd5e1;
+        }
+        
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .stat-details {
+            flex-grow: 1;
+        }
+        .stat-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .stat-subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+            font-weight: 500;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    
+    <h1 style="margin-bottom: 30px; font-weight: 800; color: #1e293b;">Project Dashboard</h1>
+
+    <!-- Stats Partial (Now Includes Net Profit) -->
+    {% include "admin/dashboard_stats.html" %}
+
+    <div class="charts-grid">
+        
+        <!-- 💰 Income Chart (Full Width) -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">📈</span> Income Trends</div>
+                <div class="chart-controls">
+                    <select id="period-income" class="chart-select" onchange="updateChart('income')">
+                        <option value="today">Today (Hourly)</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly" selected>Monthly (Current Month)</option>
+                        <option value="yearly">This Year</option>
+                        <option value="all_time">All Time</option>
+                        <option value="specific_year">Specific Year</option>
+                    </select>
+                    <select id="year-income" class="chart-select" style="display:none;" onchange="updateChart('income')"></select>
+                </div>
+            </div>
+            <div style="height: 350px;">
+                <canvas id="incomeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 💹 Net Profit Chart (Full Width) -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">💹</span> Net Profit Trends</div>
+                <div class="chart-controls">
+                    <select id="period-net_profit" class="chart-select" onchange="updateChart('net_profit')">
+                        <option value="today">Today (Hourly)</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly" selected>Monthly (Current Month)</option>
+                        <option value="yearly">This Year</option>
+                        <option value="all_time">All Time</option>
+                        <option value="specific_year">Specific Year</option>
+                    </select>
+                    <select id="year-net_profit" class="chart-select" style="display:none;" onchange="updateChart('net_profit')"></select>
+                </div>
+            </div>
+            <div style="height: 350px;">
+                <canvas id="netProfitChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 👥 Student Growth (Full Width) -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">👥</span> Student Growth</div>
+                <div class="chart-controls">
+                    <select id="period-students" class="chart-select" onchange="updateChart('students')">
+                        <option value="today">Today (Hourly)</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly" selected>Monthly (Current Month)</option>
+                        <option value="yearly">This Year</option>
+                        <option value="all_time">All Time</option>
+                    </select>
+                </div>
+            </div>
+            <div style="height: 350px;">
+                <canvas id="studentsChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Row 2: Popularity & Demographics -->
+    <div class="charts-grid two-cols">
+        
+        <!-- 🎸 Course Popularity -->
+        <div class="chart-card">
+             <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">🔥</span> Course Popularity</div>
+            </div>
+            <div style="height: 300px; display:flex; justify-content:center;">
+                <canvas id="courseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 📍 Student Demographics -->
+        <div class="chart-card">
+             <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">📍</span> Top Student Cities</div>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="cityChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Row 3: Schedule -->
+    <div class="charts-grid">
+        <div class="chart-card">
+             <div class="chart-header">
+                <div class="chart-title"><span style="font-size: 1.5rem;">📅</span> Today's Class Schedule</div>
+            </div>
+            <div class="table-responsive">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Batch / Class</th>
+                            <th>Topic</th>
+                            <th>Tutor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in todays_classes %}
+                        <tr>
+                            <td><span class="schedule-time">{{ class.time }}</span></td>
+                            <td><strong>{{ class.batch }}</strong></td>
+                            <td>{{ class.topic }}</td>
+                            <td>{{ class.tutor }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding: 30px; color: #94a3b8;">
+                                No classes scheduled for today.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let charts = {};
+
+    // --- 1. Init Dropdowns ---
+    function initYearDropdowns() {
+        const currentYear = new Date().getFullYear();
+        const startYear = 2024;
+        const years = [];
+        for (let y = currentYear; y >= startYear; y--) years.push(y);
+
+        ['income', 'net_profit'].forEach(metric => {
+            const select = document.getElementById(`year-${metric}`);
+            if(select) {
+                years.forEach(y => {
+                     let opt = document.createElement('option');
+                     opt.value = y; opt.innerText = y;
+                     select.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    // --- 2. Fetch Data ---
+    async function fetchChartData(metric, period, year) {
+        let url = `/api/admin/chart-data/?metric=${metric}&period=${period||''}`;
+        if (period === 'specific_year' && year) url += `&year=${year}`;
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return { labels: [], data: [] };
+        }
+    }
+
+    // --- 3. Update Function ---
+    async function updateChart(metric) {
+        const periodSelect = document.getElementById(`period-${metric}`);
+        const yearSelect = document.getElementById(`year-${metric}`);
+        
+        // Handle dropdown visibility
+        let period = periodSelect ? periodSelect.value : null;
+        let year = yearSelect ? yearSelect.value : null;
+
+        if (period === 'specific_year' && yearSelect) {
+            yearSelect.style.display = 'inline-block';
+        } else if (yearSelect) {
+            yearSelect.style.display = 'none';
+        }
+
+        // Fetch
+        const data = await fetchChartData(metric, period, year);
+        const chart = charts[metric];
+        
+        // Update Chart
+        if(chart) {
+            chart.data.labels = data.labels;
+            chart.data.datasets[0].data = data.data;
+            chart.update();
+        }
+    }
+
+    // --- 4. Init Charts ---
+    document.addEventListener('DOMContentLoaded', async function() {
+        initYearDropdowns();
+        
+        // A. Income (Line)
+        const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+        charts['income'] = new Chart(ctxIncome, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Income (₹)', data: [], borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+
+        // A2. Net Profit (Line - Area)
+        const ctxNet = document.getElementById('netProfitChart').getContext('2d');
+        charts['net_profit'] = new Chart(ctxNet, {
+            type: 'line',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    label: 'Net Profit (₹)', 
+                    data: [], 
+                    borderColor: '#eab308', // Yellow/Gold
+                    backgroundColor: 'rgba(234, 179, 8, 0.1)', 
+                    fill: true, 
+                    tension: 0.4 
+                }] 
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+
+        // B. Students (Bar)
+        const ctxStudents = document.getElementById('studentsChart').getContext('2d');
+        charts['students'] = new Chart(ctxStudents, {
+            type: 'bar', // Using Bar for growth
+            data: { labels: [], datasets: [{ label: 'New Students', data: [], backgroundColor: '#3b82f6', borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+
+        // C. Course Popularity (Pie)
+        const ctxCourse = document.getElementById('courseChart').getContext('2d');
+        const courseData = await fetchChartData('course_popularity');
+        new Chart(ctxCourse, {
+            type: 'doughnut',
+            data: { 
+                labels: courseData.labels, 
+                datasets: [{ 
+                    data: courseData.data,
+                    backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#f472b6']
+                }] 
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+
+        // D. Demographics (Horizontal Bar)
+        const ctxCity = document.getElementById('cityChart').getContext('2d');
+        const cityData = await fetchChartData('demographics');
+        new Chart(ctxCity, {
+            type: 'bar',
+            data: { 
+                labels: cityData.labels, 
+                datasets: [{ 
+                    label: 'Students', 
+                    data: cityData.data,
+                    backgroundColor: '#818cf8',
+                    borderRadius: 4
+                }] 
+            },
+            options: { 
+                indexAxis: 'y', // Horizontal
+                responsive: true, 
+                maintainAspectRatio: false,
+                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+
+        // Load Default Data for Filters
+        await updateChart('income');
+        await updateChart('net_profit');
+        await updateChart('students');
+    });
+</script>
+{% endblock %}

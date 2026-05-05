@@ -1,4 +1,4 @@
-{% extends "quizzes/base.html" %}
+{% extends "core/base.html" %}
 {% load training_extras %}
 
 {% block content %}
@@ -150,18 +150,22 @@
     </div>
     
     <!-- Legend -->
-    <div class="mt-8 flex justify-center gap-6">
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
+    <div class="mt-8 flex flex-wrap justify-center gap-4 md:gap-6 px-4">
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 whitespace-nowrap">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]"></span>
             <span class="text-sm font-bold text-blue-200">Upcoming</span>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 whitespace-nowrap">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]"></span>
             <span class="text-sm font-bold text-emerald-200">Attended</span>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20">
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/20 whitespace-nowrap">
             <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></span>
             <span class="text-sm font-bold text-rose-200">Missed</span>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-[#F4B860]/10 border border-[#F4B860]/20 whitespace-nowrap">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#F4B860] shadow-[0_0_10px_#F4B860]"></span>
+            <span class="text-sm font-bold text-[#F4B860]">Holiday</span>
         </div>
     </div>
 
@@ -222,32 +226,22 @@
 
     function checkClassStatus(event, startTimeIso, endTimeIso, joinUrl, hasLink) {
         event.preventDefault();
-        
         const now = new Date();
         const start = new Date(startTimeIso);
-        const end = new Date(endTimeIso);
-
-        // Debugging
-        console.log("Now:", now);
-        console.log("Start:", start);
-        console.log("End:", end);
+        
+        // Strict 1-hour joining window
+        const strictEndTime = new Date(start.getTime() + 60 * 60 * 1000); 
 
         if (now < start) {
-            // Class hasn't started -> Show Countdown
             showCountdown(start);
-        } else if (now > end) {
-            // Class ended -> Show Ended Modal
+        } else if (now > strictEndTime) {
             showModal('ended-modal', 'ended-content');
         } else {
-            // Class is live
-            if (hasLink) {
-                // Join in New Tab (Meeting)
+            if (hasLink && joinUrl && joinUrl !== 'None' && joinUrl !== '') {
                 window.open(joinUrl, '_blank');
-                // Reload page to update status to "Joined" (Green)
                 setTimeout(() => location.reload(), 1000);
             } else {
-                // No link -> Navigate in Same Tab to trigger server Warning
-                window.location.href = joinUrl;
+                alert("Meeting link not configured.");
             }
         }
     }
@@ -331,13 +325,16 @@
             // Extract new navigation data from the partial (stored in hidden div)
             const partialHeader = document.getElementById('calendar-header-partial');
             if (partialHeader) {
-                // Update Title
-                titleEl.innerHTML = partialHeader.dataset.monthName + ` <span class="text-blue-400">` + partialHeader.dataset.monthName.split(' ')[1] + `</span>`;
-                titleEl.innerText = partialHeader.dataset.monthName; 
+                // Update Title (Split logic to keep year styled)
+                const nameParts = partialHeader.dataset.monthName.split(' ');
+                const year = nameParts.pop(); // Remove year from end
+                const month = nameParts.join(' ');
+                
+                titleEl.innerHTML = `${month} <span class="text-blue-400">${year}</span>`;
 
                 // Update Button Links
                 prevBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.prevLink}')`);
-                prevBtn.setAttribute('href', partialHeader.dataset.prevLink); // Update href for fallback
+                prevBtn.setAttribute('href', partialHeader.dataset.prevLink); 
                 
                 nextBtn.setAttribute('onclick', `navigateCalendar(event, '${partialHeader.dataset.nextLink}')`);
                 nextBtn.setAttribute('href', partialHeader.dataset.nextLink);

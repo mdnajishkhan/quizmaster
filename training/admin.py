@@ -1,52 +1,49 @@
-from django import forms
-from django.db import models # Added missing import
 from django.contrib import admin
-from django.db.models import Q
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.conf import settings
-from .models import Workshop, Batch, ClassSchedule, Coupon, Enrollment, Attendance, Resource
+from django import forms
 from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
+import datetime
 
-class ClassScheduleForm(forms.ModelForm):
-    # Explicitly define fields to ensure correct input format validation for datetime-local
-    start_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
-        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M']
-    )
-    end_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
-        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M'],
-        required=False
-    )
+from .models import (
+    Workshop, Batch, BatchSchedule, ClassSession, SpecialClass, Coupon, Enrollment, Attendance, Resource,
+    HeroSection, AboutSection, ClassType, Testimonial, GalleryImage, FAQ, ContactQuery,
+    WorkshopPackage, Holiday
+)
+from django.contrib.admin import SimpleListFilter
+from django.utils import timezone
 
-    class Meta:
-        model = ClassSchedule
-        fields = '__all__'
+@admin.register(WorkshopPackage)
+class WorkshopPackageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'duration_days')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Filter tutor dropdown: Group='Tutor' OR Superuser OR Staff
-        # This prevents random students from appearing in the list
-        self.fields['tutor'].queryset = User.objects.filter(
-            Q(groups__name='Tutor') | Q(is_superuser=True) | Q(is_staff=True)
-        ).distinct()
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'created_at')
+    list_filter = ('date',)
+    ordering = ('-date',)
 
-class ClassScheduleInline(admin.TabularInline):
-    model = ClassSchedule
-    form = ClassScheduleForm # Use the form
+@admin.register(ContactQuery)
+class ContactQueryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at', 'is_resolved')
+    list_filter = ('is_resolved', 'created_at')
+    actions = ['mark_as_resolved']
+    def mark_as_resolved(self, request, queryset):
+        queryset.update(is_resolved=True)
+
+class BatchScheduleInline(admin.TabularInline):
+    model = BatchSchedule
     extra = 1
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "tutor":
+            kwargs["queryset"] = User.objects.filter(Q(groups__name='Tutor') | Q(is_superuser=True)).distinct()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 class ResourceBatchInline(admin.TabularInline):
     model = Resource
     extra = 1
-    # Do NOT exclude 'batch' here, as it is the FK to the parent Batch model
-
-class ResourceScheduleInline(admin.TabularInline):
-    model = Resource
-    extra = 1
-    exclude = ('batch',)  # Exclude batch here, it will be auto-filled from the schedule
 
 @admin.register(Workshop)
 class WorkshopAdmin(admin.ModelAdmin):
@@ -54,112 +51,123 @@ class WorkshopAdmin(admin.ModelAdmin):
 
 @admin.register(Batch)
 class BatchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'workshop', 'start_date', 'end_date')
-    list_filter = ('workshop',)
-    inlines = [ClassScheduleInline, ResourceBatchInline]
+    list_display = ('name', 'workshop', 'is_personal', 'start_date', 'end_date')
+    list_filter = ('workshop', 'is_personal')
+    inlines = [BatchScheduleInline, ResourceBatchInline]
 
-@admin.register(ClassSchedule)
-class ClassScheduleAdmin(admin.ModelAdmin):
-    form = ClassScheduleForm # Use the form
-    list_display = ('topic', 'batch', 'tutor', 'start_time', 'end_time', 'reminder_6hr_sent', 'reminder_30min_sent')
-    list_filter = ('batch', 'tutor', 'start_time', 'reminder_6hr_sent', 'reminder_30min_sent')
-    inlines = [ResourceScheduleInline]
-    readonly_fields = ('reminder_6hr_sent', 'reminder_30min_sent')
+@admin.register(ClassSession)
+class ClassSessionAdmin(admin.ModelAdmin):
+    list_display = ('batch', 'date', 'status') # Simplified list
+    list_filter = ('batch', 'status')
+    
+    fields = (
+        'batch',
+        ('date', 'start_time'), # New Date time
+        ('status', 'tutor'),
+        # Optional advanced fields in collapsed section?
+        'topic', 
+        'meeting_link',
+        'original_date' # Critical for rescheduling logic
+    )
+    
+    readonly_fields = ('end_time',) # Hide from input, calc automatically
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Maybe customize label for date/start_time to be 'New Date/Time'
+        form.base_fields['date'].label = "Class Date (New if Rescheduling)"
+        form.base_fields['start_time'].label = "Start Time"
+        form.base_fields['original_date'].help_text = "Required ONLY if Rescheduling: The original date of the recurring class you are moving."
+        return form
 
+    def save_model(self, request, obj, form, change):
+        # Auto-calculate end_time (default +1 hr) if not present
+        if obj.start_time and not obj.end_time:
+             # A bit of hack to add 1 hour to time object
+             import datetime
+             dt = datetime.datetime.combine(datetime.date.today(), obj.start_time)
+             obj.end_time = (dt + datetime.timedelta(hours=1)).time()
+        
+        # If topic missing, default to "Rescheduled Class" or Batch Name
+        if not obj.topic:
+             obj.topic = f"{obj.batch.name} (Session)"
+             
+        super().save_model(request, obj, form, change)
+
+@admin.register(SpecialClass)
+class SpecialClassAdmin(admin.ModelAdmin):
+    list_display = ('title', 'start_datetime', 'tutor')
+    filter_horizontal = ('allowed_students',)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "tutor":
+            kwargs["queryset"] = User.objects.filter(Q(groups__name='Tutor') | Q(is_superuser=True)).distinct()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
-    list_display = ('code', 'batch', 'assigned_to', 'enrollment_valid_until', 'payment_date', 'is_used')
+    list_display = ('code', 'batch', 'assigned_to', 'workshop_package', 'is_used')
     list_filter = ('is_used', 'batch')
     search_fields = ('code', 'assigned_to__email', 'assigned_to__username')
     readonly_fields = ('code',)
     
-    # Organize fields: Group related dates together
     fields = (
-        ('batch', 'assigned_to'),
+        ('workshop_package', 'batch'),
+        'assigned_to',
         'valid_days',
         ('enrollment_valid_from', 'enrollment_valid_until'),
         ('payment_amount', 'payment_date'),
+        'includes_special_access',
         'is_used',
         'code'
     )
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        # Make enrollment_valid_until readonly in the UI (but still submittable)
-        if 'enrollment_valid_until' in form.base_fields:
-            form.base_fields['enrollment_valid_until'].widget.attrs['readonly'] = True
-            form.base_fields['enrollment_valid_until'].widget.attrs['style'] = 'background-color: #f0f0f0; cursor: not-allowed;'
-        return form
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "assigned_to":
+            # Show ONLY Students (Not Superuser, Not Tutor)
+            kwargs["queryset"] = User.objects.filter(is_superuser=False).exclude(groups__name='Tutor').distinct()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    class Media:
+        js = ('admin/js/vendor/jquery/jquery.js', 'admin/js/jquery.init.js', 'training/js/coupon_admin.js')
 
     def save_model(self, request, obj, form, change):
-        is_new = obj.pk is None
-        
-        # Auto-set payment information if new
-        if is_new:
-             if not obj.payment_date:
-                 obj.payment_date = timezone.now().date()
+        if not obj.pk:
+             if obj.workshop_package:
+                 if not obj.valid_days: obj.valid_days = obj.workshop_package.duration_days
+                 if not obj.payment_amount: obj.payment_amount = obj.workshop_package.price
              
-             if not obj.enrollment_valid_from:
-                 obj.enrollment_valid_from = obj.payment_date
-            
-             # Calculate End Date based on valid_days if not set manually
+             if not obj.payment_date: obj.payment_date = timezone.now().date()
+             if not obj.enrollment_valid_from: obj.enrollment_valid_from = obj.payment_date
              if not obj.enrollment_valid_until and obj.valid_days:
                  from datetime import timedelta
                  obj.enrollment_valid_until = obj.enrollment_valid_from + timedelta(days=obj.valid_days)
-                 
-                 # Rough logic for Next Payment Date (e.g. 1 month later)
-                 if not obj.next_payment_date:
-                     # e.g., if valid for > 30 days, maybe set next payment in 30 days
-                     # or just leave it empty if full payment is done.
-                     # For now, let's auto-set next payment to 30 days if valid_days > 45
-                     pass 
-
         super().save_model(request, obj, form, change)
-        
-        if is_new and obj.assigned_to:
-            try:
-                self.send_coupon_email(obj)
-                messages.success(request, f"Coupon generated and emailed to {obj.assigned_to.email}!")
-            except Exception as e:
-                messages.warning(request, f"Coupon generated but email failed: {e}")
 
-    class Media:
-        js = ('training/js/coupon_admin.js',)
-
-    def send_coupon_email(self, coupon):
-        subject = f"Your Access Code for {coupon.batch.workshop.title}"
+        # --- EMAIL NOTIFICATION LOGIC ---
+        # Requirement: Send Email IF Assigned to Student AND Not Used (Checked=False)
+        # Avoid spamming:
+        # 1. New Record (not change)
+        # 2. Existing Record (change) but ONLY if 'assigned_to' just changed
         
-        # Helper to get domain (assuming localhost for dev, should be dynamic in prod)
-        domain = "127.0.0.1:8000" 
+        should_send = False
+        if obj.assigned_to and not obj.is_used:
+             if not change:
+                 # New Creation + Valid User + Unused
+                 should_send = True
+             else:
+                 # Update: Check if 'assigned_to' was the field that changed
+                 if 'assigned_to' in form.changed_data:
+                     should_send = True
         
-        html_message = render_to_string('training/emails/coupon_email.html', {
-            'user': coupon.assigned_to,
-            'coupon': coupon,
-            'code': coupon.code,
-            'batch': coupon.batch,
-            'valid_days': coupon.valid_days,
-            'domain': domain,
-        })
-        
-        plain_message = f"""
-Hello {coupon.assigned_to.first_name},
-
-You have been granted access to {coupon.batch.workshop.title} ({coupon.batch.name}).
-Your access code is: {coupon.code}
-
-Redeem it here: http://{domain}/training-program/
-"""
-        
-        send_mail(
-            subject,
-            plain_message,
-            settings.EMAIL_HOST_USER,
-            [coupon.assigned_to.email],
-            fail_silently=False,
-            html_message=html_message
-        )
+        if should_send:
+             from .tasks import send_new_coupon_email
+             # Synchronous call as requested/safety
+             sent = send_new_coupon_email(obj.id)
+             if sent:
+                 self.message_user(request, f"Email sent to {obj.assigned_to.email} with Coupon Code.", level=messages.SUCCESS)
+             else:
+                 self.message_user(request, "Failed to send email. Check logs.", level=messages.WARNING)
 
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
@@ -169,6 +177,33 @@ class EnrollmentAdmin(admin.ModelAdmin):
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'class_schedule', 'joined_at')
-    list_filter = ('class_schedule__batch',)
+    list_display = ('user', 'class_session', 'joined_at')
 
+
+# --- CONTENTS ---
+@admin.register(HeroSection)
+class HeroSectionAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active')
+    list_editable = ('is_active',)
+
+@admin.register(AboutSection)
+class AboutSectionAdmin(admin.ModelAdmin):
+    list_display = ('instructor_name', 'is_active')
+    list_editable = ('is_active',)
+
+@admin.register(ClassType)
+class ClassTypeAdmin(admin.ModelAdmin):
+    list_display = ('title', 'price', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ('student_name', 'role', 'is_active')
+
+@admin.register(GalleryImage)
+class GalleryImageAdmin(admin.ModelAdmin):
+    list_display = ('caption', 'order', 'image', 'is_active')
+
+@admin.register(FAQ)
+class FAQAdmin(admin.ModelAdmin):
+    list_display = ('question', 'order', 'is_active')

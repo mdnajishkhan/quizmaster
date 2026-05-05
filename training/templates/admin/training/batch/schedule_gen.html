@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="generate_schedule_action">
+    <input type="hidden" name="post" value="yes">
+    {% for obj in queryset %}
+    <input type="hidden" name="_selected_action" value="{{ obj.pk }}">
+    {% endfor %}
+
+    <h1>Generate Schedule for {{ queryset.count }} Match(es)</h1>
+    
+    <fieldset class="module aligned">
+        <div class="form-row">
+            <label for="use_batch_dates">Use Batch Dates:</label>
+            <input type="checkbox" name="use_batch_dates" id="use_batch_dates" checked onchange="toggleDates(this)">
+            <p class="help">If checked, uses the Start/End date defined in each selected Batch.</p>
+        </div>
+        <div class="form-row" id="date_inputs" style="display:none;">
+            <div class="form-row">
+                <label for="start_date">Start Date:</label>
+                <input type="date" name="start_date" id="start_date">
+            </div>
+            <div class="form-row">
+                <label for="end_date">End Date:</label>
+                <input type="date" name="end_date" id="end_date">
+            </div>
+        </div>
+        <div class="form-row">
+            <label>Days:</label>
+            <div>
+                <input type="checkbox" name="days" value="0"> Mon
+                <input type="checkbox" name="days" value="1"> Tue
+                <input type="checkbox" name="days" value="2"> Wed
+                <input type="checkbox" name="days" value="3"> Thu
+                <input type="checkbox" name="days" value="4"> Fri
+                <input type="checkbox" name="days" value="5"> Sat
+                <input type="checkbox" name="days" value="6"> Sun
+            </div>
+        </div>
+        <div class="form-row">
+            <label for="time">Time:</label>
+            <input type="time" name="time" id="time" required>
+        </div>
+        <div class="form-row">
+            <label for="topic">Topic:</label>
+            <input type="text" name="topic" id="topic" value="Regular Class">
+        </div>
+        <div class="form-row">
+            <label for="is_special">Is Special Class?</label>
+            <input type="checkbox" name="is_special" id="is_special">
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" name="apply" value="Generate Schedule" class="default">
+    </div>
+</form>
+
+<script>
+function toggleDates(checkbox) {
+    var inputs = document.getElementById('date_inputs');
+    if (checkbox.checked) {
+        inputs.style.display = 'none';
+        document.getElementById('start_date').required = false;
+        document.getElementById('end_date').required = false;
+    } else {
+        inputs.style.display = 'block';
+        document.getElementById('start_date').required = true;
+        document.getElementById('end_date').required = true;
+    }
+}
+</script>
+{% endblock %}
